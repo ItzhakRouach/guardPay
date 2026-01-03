@@ -23,21 +23,21 @@ export default function OnBoardingScreen() {
       </View>
       <View style={styles.btnContainer}>
         <Button
-          type="contained"
+          mode="contained"
           labelStyle={styles.btnLabel}
           style={styles.btn}
           buttonColor="#E2EAF2"
           textColor="#213448"
-          onPress={() => router.replace("auth/signIn")}
+          onPress={() => router.push("/signIn")}
         >
           Sign In
         </Button>
         <Button
-          type="outlined"
+          mode="outlined"
           labelStyle={styles.btnLabel}
           style={styles.secondeBtn}
           textColor="#213448"
-          onPress={() => router.replace("auth/register")}
+          onPress={() => router.push("/register")}
         >
           Create Account
         </Button>
@@ -50,14 +50,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
-    alignItems: "center",
-    justifyContent: "space-between",
+    alignContent: "center",
+    justifyContent: "center",
     paddingVertical: 60,
   },
   contentWrapper: {
     alignItems: "center",
     paddingHorizontal: 40,
-    marginTop: 40,
+    marginTop: "30%",
   },
   title: {
     fontSize: 32,
