@@ -78,7 +78,16 @@ export default function SignInScreen() {
           activeOutlineColor="#75a2ddff"
           textColor="#000"
         />
-        <Button mode="contained" style={styles.btn}>
+
+        {error && (
+          <Text
+            style={{ color: theme.colors.error, fontSize: 16, fontWeight: 600 }}
+          >
+            {error}
+          </Text>
+        )}
+
+        <Button mode="contained" style={styles.btn} onPress={handleSignIn}>
           Sign in
         </Button>
       </View>
@@ -98,7 +107,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: 20,
-    marginLeft: 10,
+    alignSelf: "center",
   },
 
   title: {
