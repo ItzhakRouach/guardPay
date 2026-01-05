@@ -3,10 +3,18 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, View } from "react-native";
 import { ID } from "react-native-appwrite";
-import { Button, Surface, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  Button,
+  SegmentedButtons,
+  Surface,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../lib/appwrite";
 import { useAuth } from "../lib/auth-context";
 import { calculateShiftPay } from "../lib/shift-calculation";
+import { shiftTypeTimes } from "../lib/utils";
 
 export default function AddShift() {
   const theme = useTheme();
@@ -16,6 +24,9 @@ export default function AddShift() {
   const [startTime, setStartTime] = useState(new Date());
   //store user end time of the shift
   const [endTime, setEndTime] = useState(new Date());
+
+  // store the current shift type the user selected
+  const [value, setValue] = useState("");
 
   const params = useLocalSearchParams();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -132,6 +143,33 @@ export default function AddShift() {
     }
   };
 
+  //function to handle the selected shit type  , and update the hours like it should be.
+  const handleShiftTypeChange = (selected) => {
+    setValue(selected);
+
+    const config = shiftTypeTimes[selected];
+    if (!config) return;
+
+    // create new Start Hour based on the selected value
+    const newStart = new Date(date);
+    newStart.setHours(config.startH, config.startM, 0, 0);
+
+    // create new End Hour based on the selected value
+    const newEnd = new Date(date);
+    newEnd.setHours(config.endH, config.endM, 0, 0);
+
+    //Check for overnight shifts support
+    if (
+      config.endH < config.startH ||
+      (config.endH === config.startH && config.endM < config.startM)
+    ) {
+      newEnd.setDate(newEnd.getDate() + 1);
+    }
+
+    setStartTime(newStart);
+    setEndTime(newEnd);
+  };
+
   return (
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
@@ -199,6 +237,56 @@ export default function AddShift() {
           </View>
         </View>
       </Surface>
+      {/**Shift type selected */}
+      <View style={styles.shiftTypesWrapper}>
+        <SegmentedButtons
+          density="regular"
+          value={value}
+          onValueChange={handleShiftTypeChange}
+          theme={{
+            colors: {
+              // Background of the SELECTED button
+              secondaryContainer: "#E0E7FF",
+
+              // Text/Icon color of the SELECTED button
+              onSecondaryContainer: "#213448",
+
+              // Background of UNSELECTED buttons
+              surface: "white",
+
+              // Border color
+              outline: "#cbd5e1",
+            },
+          }}
+          buttons={[
+            {
+              uncheckedColor: "#213448",
+              value: "morning",
+              label: "Morning",
+              labelStyle: styles.labelStyle,
+              icon: "weather-sunset-up",
+              showSelectedCheck: false,
+            },
+            {
+              uncheckedColor: "#213448",
+              value: "evening",
+              label: "Evening",
+              labelStyle: styles.labelStyle,
+              icon: "weather-sunset-down",
+              showSelectedCheck: false,
+            },
+            {
+              uncheckedColor: "#213448",
+              value: "night",
+              label: "Night",
+              labelStyle: styles.labelStyle,
+              icon: "weather-night",
+              showSelectedCheck: false,
+            },
+          ]}
+        />
+      </View>
+
       {/** Summmary Box */}
       <Surface style={styles.summaryBox} elevation={0}>
         <View style={styles.summaryRow}>
@@ -336,5 +424,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#F1F5F9",
+  },
+  shiftTypesWrapper: {
+    backgroundColor: "white",
+    marginBottom: 20,
+    borderRadius: 20,
+  },
+  labelStyle: {
+    color: "#213448",
+    fontSize: 16,
   },
 });
