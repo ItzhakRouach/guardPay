@@ -12,6 +12,7 @@ import {
 } from "react-native-paper";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
+import { formatShiftDate, formatShiftTime } from "../../lib/utils";
 import ShiftCard from "../components/ShiftCard";
 
 export default function ShiftsScreen() {
@@ -70,22 +71,6 @@ export default function ShiftsScreen() {
   useEffect(() => {
     fetchShifts();
   }, [currentDate, user?.$id]);
-
-  // function to format the shift date
-  const formatShiftDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB"); // Outputs: DD/MM/YYYY
-  };
-
-  //function to format the  shift time
-  const formatShiftTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  };
 
   // function that run only when data change (shift added ) and calculate total hours and amount the user earn
   const monthTotals = useMemo(() => {

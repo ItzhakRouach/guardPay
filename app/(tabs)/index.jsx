@@ -11,6 +11,7 @@ import {
 } from "react-native-paper";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
+import { formatDates, initalName } from "../../lib/utils";
 
 export default function Index() {
   // use the allready defined functions and states
@@ -40,20 +41,6 @@ export default function Index() {
   useEffect(() => {
     fetchUserProfile(user);
   }, [user]);
-  // function to format the dates
-  const formatDates = (d) => {
-    if (!d) return "N/A";
-    const [year, month, day] = d.split("T")[0].split("-");
-    return `${day}/${month}/${year.slice(-2)}`;
-  };
-
-  const initalName = (name) => {
-    if (!name) return "??";
-    const parts = name.trim().split(" ");
-    const first = parts[0]?.charAt(0) || "";
-    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
-    return (first + last).toUpperCase();
-  };
 
   const AvatarName = () => (
     <Avatar.Text size={100} label={initalName(profile?.user_name)} />
