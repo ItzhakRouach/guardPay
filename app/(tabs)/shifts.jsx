@@ -1,23 +1,23 @@
-import { useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import {
   ActivityIndicator,
-  Card,
-  Divider,
   IconButton,
   Surface,
   Text,
 } from "react-native-paper";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
-import { ShiftCard } from "../components/ShiftCard";
+import ShiftCard from "../components/ShiftCard";
 
 export default function ShiftsScreen() {
   const [shifts, setShifts] = useState(["one"]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const router = useRouter();
 
   // Logic to change months
   const changeMonth = (offset) => {
@@ -65,19 +65,28 @@ export default function ShiftsScreen() {
     }
   };
 
-  /*useEffect(() => {
+  useEffect(() => {
     fetchShifts();
-  }, [currentDate, user?.$id]);*/
+  }, [currentDate, user?.$id]);
+
+  // function to format the shift date
+  const formatShiftDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB"); // Outputs: DD/MM/YYYY
+  };
+
+  //function to format the  shift time
+  const formatShiftTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
 
   return (
     <View style={styles.container}>
-      <IconButton
-        style={styles.btn}
-        icon="plus"
-        size={30}
-        iconColor="#213448"
-        onPress={() => console.log("got pressed")}
-      />
       <Surface style={styles.header}>
         <IconButton icon="chevron-left" onPress={() => changeMonth(-1)} />
         <View style={styles.dateInfo}>
@@ -105,28 +114,31 @@ export default function ShiftsScreen() {
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/** Card to present shift with date , hours , and total money made this day */}
-          <Card style={styles.cardShift}>
-            <Card.Content>
-              <View style={styles.cardDetails}>
-                <View style={styles.shiftAmount}>
-                  <Text variant="labelLarge">Amount</Text>
-                  <Text variant="headlineSmall">660₪</Text>
-                </View>
-                <Divider />
-                <View style={styles.shiftDate}>
-                  <Text variant="labelLarge">01/01/2026</Text>
-                  <Text variant="labelMedium">15:00 - 23:00</Text>
-                </View>
-              </View>
-            </Card.Content>
-          </Card>
-          <ShiftCard
-            dateTime={"02/01/2026"}
-            dateHours={"23:00 - 07:00"}
-            totalAmout={400}
-          />
+          {shifts.map((shift) => (
+            <ShiftCard
+              dateTime={formatShiftDate(shift.start_time)}
+              dateHours={`${formatShiftTime(
+                shift.start_time
+              )} - ${formatShiftTime(shift.end_time)}`}
+              totalAmout={shift.total_amount}
+              key={shift.$id}
+            />
+          ))}
         </ScrollView>
       )}
+      <IconButton
+        style={styles.btn}
+        icon="plus"
+        size={30}
+        iconColor="#213448"
+        onPress={() => {
+          try {
+            router.push("/add-shift");
+          } catch (err) {
+            console.log(err);
+          }
+        }}
+      />
     </View>
   );
 }

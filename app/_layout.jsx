@@ -27,6 +27,7 @@ function RouteGuard({ children }) {
 
     //set the auth loc
     const inAuthGroup = segments[0] === "(auth)";
+
     if (!user) {
       if (!inAuthGroup) {
         router.replace("/onBoarding");
@@ -54,6 +55,14 @@ export default function RootLayout() {
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="add-shift"
+                options={{
+                  headerShown: true,
+                  presentation: "modal",
+                  headerTitle: "Add New Shift",
+                }}
+              />
             </Stack>
           </RouteGuard>
         </SafeAreaProvider>

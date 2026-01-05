@@ -1,26 +1,25 @@
 import { StyleSheet, View } from "react-native";
 import { Card, Divider, Text } from "react-native-paper";
 
-export function ShiftCard({ dateTime, dateHours, totalAmout }) {
+export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   return (
-    <Card style={styles.cardShift}>
+    <Card style={styles.cardShift} elevation={1}>
       <Card.Content>
         <View style={styles.cardDetails}>
           <View style={styles.shiftAmount}>
-            <Text
-              variant="labelLarge"
-              style={{ color: "#213448", fontWeight: 500 }}
-            >
+            <Text variant="labelLarge" style={styles.darkTextBold}>
               Amount
             </Text>
-            <Text variant="headlineSmall" style={{ color: "#213448" }}>
+            <Text variant="headlineSmall" style={styles.darkText}>
               {totalAmout}₪
             </Text>
           </View>
           <Divider style={styles.verticalDivider} />
           <View style={styles.shiftDate}>
-            <Text variant="labelLarge">{dateTime}</Text>
-            <Text variant="labelMedium" style={{ color: "#213448" }}>
+            <Text variant="labelLarge" style={styles.darkText}>
+              {dateTime}
+            </Text>
+            <Text variant="labelMedium" style={styles.darkText}>
               {dateHours}
             </Text>
           </View>
@@ -56,5 +55,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
+  },
+  darkTextBold: {
+    color: "#213448",
+    fontWeight: "600",
+  },
+  dateText: {
+    color: "#64748B", // Slate gray for secondary info
+    marginBottom: 4,
   },
 });
