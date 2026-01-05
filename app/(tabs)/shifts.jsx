@@ -1,9 +1,10 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import {
   ActivityIndicator,
+  Divider,
   IconButton,
   Surface,
   Text,
@@ -85,6 +86,19 @@ export default function ShiftsScreen() {
     });
   };
 
+  // function that run only when data change (shift added ) and calculate total hours and amount the user earn
+  const monthTotals = useMemo(() => {
+    return shifts.reduce(
+      (acc, shift) => {
+        acc.amount += Number(shift.total_amount || 0);
+        acc.hours +=
+          Number(shift.reg_hours || 0) + Number(shift.extra_houes || 0);
+        return acc;
+      },
+      { amount: 0, hours: 0 }
+    );
+  }, [shifts]);
+
   return (
     <View style={styles.container}>
       <Surface style={styles.header}>
@@ -96,6 +110,28 @@ export default function ShiftsScreen() {
           <Text variant="bodySmall">{yearName}</Text>
         </View>
         <IconButton icon="chevron-right" onPress={() => changeMonth(+1)} />
+      </Surface>
+
+      {/** Month summary Section */}
+      <Surface style={styles.summaryBar} elevation={1}>
+        <View>
+          <Text variant="labelMedium" style={styles.summaryLabel}>
+            MONTHLY PAY
+          </Text>
+          <Text variant="titleLarge" style={styles.summaryValue}>
+            {monthTotals.amount.toLocaleString()}₪
+          </Text>
+        </View>
+
+        <Divider style={styles.verticalDivider} />
+        <View>
+          <Text variant="labelMedium" style={styles.summaryLabel}>
+            TOTAL HOURS
+          </Text>
+          <Text variant="titleLarge" style={styles.summaryValue}>
+            {monthTotals.hours.toFixed(1)}h
+          </Text>
+        </View>
       </Surface>
 
       {loading ? (
@@ -114,18 +150,19 @@ export default function ShiftsScreen() {
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/** Card to present shift with date , hours , and total money made this day */}
-          {shifts.map((shift) => (
+          {shifts.map((shift, index) => (
             <ShiftCard
               dateTime={formatShiftDate(shift.start_time)}
               dateHours={`${formatShiftTime(
                 shift.start_time
               )} - ${formatShiftTime(shift.end_time)}`}
               totalAmout={shift.total_amount}
-              key={shift.$id}
+              key={index}
             />
           ))}
         </ScrollView>
       )}
+
       <IconButton
         style={styles.btn}
         icon="plus"
@@ -176,10 +213,7 @@ const styles = StyleSheet.create({
   },
   monthText: { fontWeight: "bold", color: "#213448" },
   scrollContent: { padding: 16 },
-  verticalDivider: {
-    width: 1,
-    height: 40,
-  },
+
   cardDetails: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -210,5 +244,35 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: "auto",
     marginBottom: "auto",
+  },
+  summaryBar: {
+    flexDirection: "row",
+    backgroundColor: "#213448", // Dark theme for contrast
+    marginHorizontal: 16,
+    marginTop: 10, // Pulls it slightly closer to the header
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  summaryItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  summaryLabel: {
+    color: "#94A3B8", // Light gray/blue
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  summaryValue: {
+    color: "#FFFFFF", // White text stands out on dark background
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  verticalDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: "rgba(255,255,255,0.2)", // Semi-transparent white
   },
 });
