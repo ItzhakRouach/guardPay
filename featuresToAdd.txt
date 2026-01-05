@@ -1,4 +1,4 @@
-Add Generic selection of classic shifts like morning , evening , night 
+/* Done */ Add Generic selection of classic shifts like morning , evening , night 
 Able use to define his classic shifts 
 Able user to add training day which calculate as bast rate * 8 
 Add calculation of neto , by subtract taxes 
