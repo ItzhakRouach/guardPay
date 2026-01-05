@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
+import { Swipeable } from "react-native-gesture-handler";
 import {
   ActivityIndicator,
   Divider,
@@ -99,6 +100,63 @@ export default function ShiftsScreen() {
     );
   }, [shifts]);
 
+  // handle Delete action (Sliding to the right)
+  const renderRightAction = (onDelete) => (
+    <View style={styles.deleteAction}>
+      <IconButton
+        icon="delete"
+        iconColor="white"
+        size={40}
+        style={{
+          backgroundColor: "#ef4444",
+          justifyContent: "center",
+          alignItems: "center",
+          width: 80,
+          borderRadius: 12,
+          marginVertical: 15,
+          marginLeft: 16,
+        }}
+        onPress={onDelete}
+      />
+    </View>
+  );
+  // handle Edit Action (sliding to the left)
+  const renderLeftAction = (onEdit) => (
+    <View style={styles.editAction}>
+      <IconButton
+        icon="pencil"
+        iconColor="white"
+        size={40}
+        style={{
+          backgroundColor: "#3b82f6",
+          justifyContent: "center",
+          width: 70,
+          borderRadius: 12,
+          marginVertical: 15,
+          marginRight: 16,
+        }}
+        onPress={onEdit}
+      />
+    </View>
+  );
+
+  const handleDelete = async (shiftId) => {
+    try {
+      await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
+      // refresh current shift list
+      setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleEdit = (shift) => {
+    router.push({
+      pathname: "/add-shift",
+      params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Surface style={styles.header}>
@@ -144,21 +202,30 @@ export default function ShiftsScreen() {
             variant="headlineSmall"
             style={{ letterSpacing: -1, fontWeight: 500, color: "#213448" }}
           >
-            No shifts added yet, please add one
+            No shifts added for {monthName}
           </Text>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/** Card to present shift with date , hours , and total money made this day */}
           {shifts.map((shift, index) => (
-            <ShiftCard
-              dateTime={formatShiftDate(shift.start_time)}
-              dateHours={`${formatShiftTime(
-                shift.start_time
-              )} - ${formatShiftTime(shift.end_time)}`}
-              totalAmout={shift.total_amount}
-              key={index}
-            />
+            <Swipeable
+              key={shift.$id || `shift-${index}`}
+              renderLeftActions={() =>
+                renderLeftAction(() => handleEdit(shift))
+              }
+              renderRightActions={() =>
+                renderRightAction(() => handleDelete(shift.$id))
+              }
+            >
+              <ShiftCard
+                dateTime={formatShiftDate(shift.start_time)}
+                dateHours={`${formatShiftTime(
+                  shift.start_time
+                )} - ${formatShiftTime(shift.end_time)}`}
+                totalAmout={shift.total_amount}
+              />
+            </Swipeable>
           ))}
         </ScrollView>
       )}

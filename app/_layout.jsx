@@ -1,10 +1,10 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth-context";
-
 const theme = {
   ...MD3LightTheme,
   dark: false, // This is the key to stopping "Strict" mode changes
@@ -52,18 +52,20 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <StatusBar style="dark" />
           <RouteGuard>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="add-shift"
-                options={{
-                  headerShown: true,
-                  presentation: "modal",
-                  headerTitle: "Add New Shift",
-                }}
-              />
-            </Stack>
+            <GestureHandlerRootView>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="add-shift"
+                  options={{
+                    headerShown: true,
+                    presentation: "modal",
+                    headerTitle: "Add New Shift",
+                  }}
+                />
+              </Stack>
+            </GestureHandlerRootView>
           </RouteGuard>
         </SafeAreaProvider>
       </PaperProvider>

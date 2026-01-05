@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, View } from "react-native";
 import { ID } from "react-native-appwrite";
 import { Button, Surface, Text, TextInput, useTheme } from "react-native-paper";
@@ -17,6 +17,24 @@ export default function AddShift() {
   //store user end time of the shift
   const [endTime, setEndTime] = useState(new Date());
 
+  const params = useLocalSearchParams();
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (params.existingData) {
+      try {
+        const shiftData = JSON.parse(params.existingData);
+        setIsEditMode(true);
+        // 1. Set states using the parsed data
+        setDate(new Date(shiftData.start_time));
+        setStartTime(new Date(shiftData.start_time));
+        setEndTime(new Date(shiftData.end_time));
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [params.existingData]);
+
   const router = useRouter();
 
   // use to control the show of the picker or not , default not
@@ -26,6 +44,8 @@ export default function AddShift() {
   // use to keep track of which field is active
   const [activeField, setActiveField] = useState(null);
   const { user, profile } = useAuth();
+
+  const buttonLabel = isEditMode ? "Update Shift" : "Save Shift";
 
   // Live calculations of hours
   const shiftSummary = useMemo(() => {
@@ -75,15 +95,36 @@ export default function AddShift() {
     console.log(result.total_amount);
 
     try {
-      //now store the results and shift in the database
-      await databases.createDocument(DATABASE_ID, SHIFTS_HISTORY, ID.unique(), {
-        user_id: user.$id,
-        start_time: finalStart.toISOString(),
-        end_time: finalEnd.toISOString(),
-        total_amount: Number(result.total_amount),
-        reg_hours: Number(result.reg_hours),
-        extra_hours: Number(result.extra_hours),
-      });
+      if (isEditMode && params.shiftId) {
+        // UPDATE EXISTING
+        await databases.updateDocument(
+          DATABASE_ID,
+          SHIFTS_HISTORY,
+          params.shiftId,
+          {
+            start_time: finalStart.toISOString(),
+            end_time: finalEnd.toISOString(),
+            total_amount: Number(result.total_amount),
+            reg_hours: Number(result.reg_hours),
+            extra_hours: Number(result.extra_hours),
+          }
+        );
+      } else {
+        //Create new entry
+        await databases.createDocument(
+          DATABASE_ID,
+          SHIFTS_HISTORY,
+          ID.unique(),
+          {
+            user_id: user.$id,
+            start_time: finalStart.toISOString(),
+            end_time: finalEnd.toISOString(),
+            total_amount: Number(result.total_amount),
+            reg_hours: Number(result.reg_hours),
+            extra_hours: Number(result.extra_hours),
+          }
+        );
+      }
     } catch (err) {
       console.log(err);
     } finally {
@@ -178,7 +219,7 @@ export default function AddShift() {
         contentStyle={{ paddingVertical: 8 }}
         onPress={() => handleSave()}
       >
-        Save Shift
+        {buttonLabel}
       </Button>
 
       {/**Modal Picker */}
