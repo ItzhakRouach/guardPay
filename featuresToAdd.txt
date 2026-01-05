@@ -1,0 +1,7 @@
+Add Generic selection of classic shifts like morning , evening , night 
+Able use to define his classic shifts 
+Able user to add training day which calculate as bast rate * 8 
+Add calculation of neto , by subtract taxes 
+Add copy of the Law that support the calculation and lets guard know their rights
+## Need to add dark mode support and handle it correctly cause right now the Datepicker wont show if someone have darkmode enable 
+## Think about contrast colors , ask even chatGPT or Gemini for a lead
