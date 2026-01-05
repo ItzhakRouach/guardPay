@@ -18,6 +18,7 @@ import { shiftTypeTimes } from "../lib/utils";
 
 export default function AddShift() {
   const theme = useTheme();
+  const styles = makeStyle(theme);
   // store user date of the shift
   const [date, setDate] = useState(new Date());
   //store user start time of the shift
@@ -173,7 +174,7 @@ export default function AddShift() {
   return (
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
-        Shift Details
+        Add New Shift
       </Text>
 
       <Surface style={styles.formCard} elevation={1}>
@@ -246,21 +247,21 @@ export default function AddShift() {
           theme={{
             colors: {
               // Background of the SELECTED button
-              secondaryContainer: "#E0E7FF",
+              secondaryContainer: theme.colors.secondaryContainer,
 
               // Text/Icon color of the SELECTED button
-              onSecondaryContainer: "#213448",
+              onSecondaryContainer: theme.colors.primary,
 
               // Background of UNSELECTED buttons
-              surface: "white",
+              surface: theme.colors.surface,
 
               // Border color
-              outline: "#cbd5e1",
+              outline: theme.colors.borderOutline,
             },
           }}
           buttons={[
             {
-              uncheckedColor: "#213448",
+              uncheckedColor: theme.colors.onSecondaryContainer,
               value: "morning",
               label: "Morning",
               labelStyle: styles.labelStyle,
@@ -268,7 +269,7 @@ export default function AddShift() {
               showSelectedCheck: false,
             },
             {
-              uncheckedColor: "#213448",
+              uncheckedColor: theme.colors.onSecondaryContainer,
               value: "evening",
               label: "Evening",
               labelStyle: styles.labelStyle,
@@ -276,7 +277,7 @@ export default function AddShift() {
               showSelectedCheck: false,
             },
             {
-              uncheckedColor: "#213448",
+              uncheckedColor: theme.colors.onSecondaryContainer,
               value: "night",
               label: "Night",
               labelStyle: styles.labelStyle,
@@ -340,98 +341,100 @@ export default function AddShift() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-    padding: 20,
-  },
-  title: {
-    color: "#213448",
-    fontWeight: "bold",
-    marginBottom: 20,
-    letterSpacing: -0.5,
-  },
-  formCard: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 10,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  formContentWrapper: {
-    borderRadius: 16,
-    overflow: "hidden",
-    padding: 10,
-  },
-  input: {
-    backgroundColor: "white",
-    height: 60,
-  },
-  timeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  flex1: {
-    flex: 1,
-  },
-  arrowIcon: {
-    margin: 5,
-    justifyContent: "center",
-    opacity: 0.5,
-  },
-  summaryBox: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginBottom: 30,
-  },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  warningText: {
-    color: "#B91C1C", // Red for warnings
-    fontSize: 12,
-    marginTop: 10,
-    fontWeight: "500",
-  },
-  saveBtn: {
-    borderRadius: 12,
-    backgroundColor: "#213448",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)", // Dim the background
-    justifyContent: "flex-end",
-  },
-  pickerWrapper: {
-    backgroundColor: "white",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    paddingBottom: Platform.OS === "ios" ? 40 : 20, // Extra padding for iOS notch
-  },
-  pickerHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-  },
-  shiftTypesWrapper: {
-    backgroundColor: "white",
-    marginBottom: 20,
-    borderRadius: 20,
-  },
-  labelStyle: {
-    color: "#213448",
-    fontSize: 16,
-  },
-});
+const makeStyle = (theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      padding: 20,
+    },
+    title: {
+      color: theme.colors.onSurface,
+      fontWeight: "bold",
+      marginBottom: 20,
+      letterSpacing: -0.5,
+    },
+    formCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 16,
+      padding: 10,
+      marginTop: 20,
+      marginBottom: 20,
+    },
+    formContentWrapper: {
+      borderRadius: 16,
+      overflow: "hidden",
+      padding: 10,
+    },
+    input: {
+      backgroundColor: theme.colors.surface,
+      height: 60,
+    },
+    timeRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 10,
+    },
+    flex1: {
+      flex: 1,
+    },
+    arrowIcon: {
+      margin: 5,
+      justifyContent: "center",
+      opacity: 0.5,
+    },
+    summaryBox: {
+      backgroundColor: theme.colors.surface,
+      padding: 20,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: theme.colors.outline,
+      marginBottom: 30,
+    },
+    summaryRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    warningText: {
+      color: theme.colors.error, // Red for warnings
+      fontSize: 12,
+      marginTop: 10,
+      fontWeight: "500",
+    },
+    saveBtn: {
+      borderRadius: 12,
+      backgroundColor: theme.colors.primary,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)", // Dim the background
+      justifyContent: "flex-end",
+    },
+    pickerWrapper: {
+      backgroundColor: theme.colors.surface,
+      borderTopLeftRadius: 25,
+      borderTopRightRadius: 25,
+      paddingBottom: Platform.OS === "ios" ? 40 : 20, // Extra padding for iOS notch
+      elevation: 5,
+    },
+    pickerHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: 20,
+      paddingVertical: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.outlineVariant,
+    },
+    shiftTypesWrapper: {
+      backgroundColor: theme.colors.surface,
+      marginBottom: 20,
+      borderRadius: 20,
+    },
+    labelStyle: {
+      color: theme.colors.primary,
+      fontSize: 16,
+    },
+  });

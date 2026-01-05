@@ -1,7 +1,10 @@
 import { StyleSheet, View } from "react-native";
-import { Card, Divider, Text } from "react-native-paper";
+import { Card, Divider, Text, useTheme } from "react-native-paper";
 
 export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
+  const theme = useTheme();
+  const styles = makeStyle(theme);
+
   return (
     <Card style={styles.cardShift} elevation={1}>
       <Card.Content>
@@ -29,39 +32,40 @@ export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   );
 }
 
-const styles = StyleSheet.create({
-  verticalDivider: {
-    width: 2,
-    backgroundColor: "#213448",
-    height: 60,
-  },
-  cardDetails: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    textAlign: "left",
-  },
-  cardShift: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  shiftAmount: {
-    justifyContent: "center",
-    alignItems: "center",
-    color: "#213448",
-  },
-  shiftDate: {
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-  },
-  darkTextBold: {
-    color: "#213448",
-    fontWeight: "600",
-  },
-  dateText: {
-    color: "#64748B", // Slate gray for secondary info
-    marginBottom: 4,
-  },
-});
+const makeStyle = (theme) =>
+  StyleSheet.create({
+    verticalDivider: {
+      width: 2,
+      backgroundColor: theme.colors.divider,
+      height: 60,
+    },
+    cardDetails: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      textAlign: "left",
+    },
+    cardShift: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 12,
+      marginBottom: 10,
+    },
+    shiftAmount: {
+      justifyContent: "center",
+      alignItems: "center",
+      color: theme.colors.primary,
+    },
+    shiftDate: {
+      textAlign: "center",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 10,
+    },
+    darkTextBold: {
+      color: theme.colors.primary,
+      fontWeight: "600",
+    },
+    dateText: {
+      color: theme.colors.darkText,
+      marginBottom: 4,
+    },
+  });

@@ -8,6 +8,7 @@ import {
   Divider,
   List,
   Text,
+  useTheme,
 } from "react-native-paper";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
@@ -18,6 +19,9 @@ export default function Index() {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+
+  const theme = useTheme();
+  const styles = makeStyle(theme);
 
   const fetchUserProfile = async (user) => {
     if (!user) return;
@@ -50,7 +54,7 @@ export default function Index() {
     <View style={styles.container}>
       <Button
         icon="logout"
-        textColor="#213448"
+        textColor={theme.colors.primary}
         onPress={signOut}
         style={styles.btn}
       >
@@ -123,40 +127,41 @@ export default function Index() {
 }
 
 // styles for the entier screen
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#F8FAFC",
-  },
+const makeStyle = (theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      backgroundColor: theme.colors.background,
+    },
 
-  btn: {
-    position: "absolute",
-    top: 50,
-    right: 10,
-  },
-  loadingProfile: {
-    alignSelf: "center",
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  headerWrapper: {
-    alignItems: "center",
-    marginTop: 100,
-    marginBottom: 20,
-  },
-  userName: {
-    color: "#213448",
-    fontWeight: 500,
-    letterSpacing: -1,
-    marginTop: 15,
-  },
-  contentWrapper: {
-    width: "100%",
-    padding: 10,
-    marginTop: 10,
-  },
-  listItem: {
-    marginBottom: 15,
-  },
-});
+    btn: {
+      position: "absolute",
+      top: 50,
+      right: 10,
+    },
+    loadingProfile: {
+      alignSelf: "center",
+      marginTop: "auto",
+      marginBottom: "auto",
+    },
+    headerWrapper: {
+      alignItems: "center",
+      marginTop: 100,
+      marginBottom: 20,
+    },
+    userName: {
+      color: theme.colors.primary,
+      fontWeight: 500,
+      letterSpacing: -1,
+      marginTop: 15,
+    },
+    contentWrapper: {
+      width: "100%",
+      padding: 10,
+      marginTop: 10,
+    },
+    listItem: {
+      marginBottom: 15,
+    },
+  });

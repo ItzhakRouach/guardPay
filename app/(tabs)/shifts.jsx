@@ -9,6 +9,7 @@ import {
   IconButton,
   Surface,
   Text,
+  useTheme,
 } from "react-native-paper";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
@@ -21,6 +22,9 @@ export default function ShiftsScreen() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+
+  const theme = useTheme();
+  const styles = makeStyle(theme);
 
   // Logic to change months
   const changeMonth = (offset) => {
@@ -93,7 +97,7 @@ export default function ShiftsScreen() {
         iconColor="white"
         size={40}
         style={{
-          backgroundColor: "#ef4444",
+          backgroundColor: theme.colors.delBtn,
           justifyContent: "center",
           alignItems: "center",
           width: 80,
@@ -113,7 +117,7 @@ export default function ShiftsScreen() {
         iconColor="white"
         size={40}
         style={{
-          backgroundColor: "#3b82f6",
+          backgroundColor: theme.colors.editBtn,
           justifyContent: "center",
           width: 70,
           borderRadius: 12,
@@ -185,7 +189,11 @@ export default function ShiftsScreen() {
         <View style={styles.noShifts}>
           <Text
             variant="headlineSmall"
-            style={{ letterSpacing: -1, fontWeight: 500, color: "#213448" }}
+            style={{
+              letterSpacing: -1,
+              fontWeight: 500,
+              color: theme.colors.primary,
+            }}
           >
             No shifts added for {monthName}
           </Text>
@@ -226,7 +234,7 @@ export default function ShiftsScreen() {
         size={30}
         mode="contained"
         iconColor="white"
-        containerColor="#213448"
+        containerColor={theme.colors.primary}
         onPress={() => {
           try {
             router.push("/add-shift");
@@ -239,100 +247,101 @@ export default function ShiftsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-    padding: 10,
-  },
-  btn: {
-    position: "absolute",
-    bottom: 100,
-    alignSelf: "center",
-    marginRight: 23,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 20,
-    paddingBottom: 10,
-    backgroundColor: "white",
-    marginTop: 40,
-    borderRadius: 20,
-  },
-  content: {
-    justifyContent: "center",
-    textAlign: "center",
-    alignItems: "center",
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  dateInfo: {
-    alignItems: "center",
-  },
-  monthText: { fontWeight: "bold", color: "#213448" },
-  scrollContent: { padding: 16 },
+const makeStyle = (theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      padding: 10,
+    },
+    btn: {
+      position: "absolute",
+      bottom: 100,
+      alignSelf: "center",
+      marginRight: 23,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingTop: 20,
+      paddingBottom: 10,
+      backgroundColor: theme.colors.surface,
+      marginTop: 40,
+      borderRadius: 20,
+    },
+    content: {
+      justifyContent: "center",
+      textAlign: "center",
+      alignItems: "center",
+      marginTop: "auto",
+      marginBottom: "auto",
+    },
+    dateInfo: {
+      alignItems: "center",
+    },
+    monthText: { fontWeight: "bold", color: theme.colors.primary },
+    scrollContent: { padding: 16 },
 
-  cardDetails: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    textAlign: "left",
-  },
-  cardShift: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  shiftAmount: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  shiftDate: {
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-  },
-  noShifts: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  loadingShifts: {
-    alignSelf: "center",
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  summaryBar: {
-    flexDirection: "row",
-    backgroundColor: "#213448", // Dark theme for contrast
-    marginHorizontal: 16,
-    marginTop: 10, // Pulls it slightly closer to the header
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-  summaryItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  summaryLabel: {
-    color: "#94A3B8", // Light gray/blue
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  summaryValue: {
-    color: "#FFFFFF", // White text stands out on dark background
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  verticalDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: "rgba(255,255,255,0.2)", // Semi-transparent white
-  },
-});
+    cardDetails: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      textAlign: "left",
+    },
+    cardShift: {
+      backgroundColor: theme.colors.onPrimary,
+      borderRadius: 12,
+      marginBottom: 10,
+    },
+    shiftAmount: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    shiftDate: {
+      textAlign: "center",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 10,
+    },
+    noShifts: {
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: "auto",
+      marginBottom: "auto",
+    },
+    loadingShifts: {
+      alignSelf: "center",
+      marginTop: "auto",
+      marginBottom: "auto",
+    },
+    summaryBar: {
+      flexDirection: "row",
+      backgroundColor: theme.colors.primary, // Dark theme for contrast
+      marginHorizontal: 16,
+      marginTop: 10, // Pulls it slightly closer to the header
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "space-around",
+    },
+    summaryItem: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    summaryLabel: {
+      color: theme.colors.summary, // Light gray/blue
+      letterSpacing: 1,
+      marginBottom: 4,
+    },
+    summaryValue: {
+      color: theme.colors.surface, // White text stands out on dark background
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    verticalDivider: {
+      width: 1,
+      height: 30,
+      backgroundColor: "rgba(255,255,255,0.2)", // Semi-transparent white
+    },
+  });
