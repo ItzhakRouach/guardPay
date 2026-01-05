@@ -265,7 +265,7 @@ const makeStyle = (theme) =>
       paddingTop: 20,
       paddingBottom: 10,
       backgroundColor: theme.colors.surface,
-      marginTop: 40,
+      marginTop: 60,
       borderRadius: 20,
     },
     content: {
