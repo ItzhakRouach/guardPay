@@ -71,7 +71,7 @@ const darkTheme = {
     error: "#F87171", // Lighter red for dark mode contrast
 
     // Selected states for SegmentedButtons
-    secondaryContainer: "#334155",
+    secondaryContainer: "#3a5e91ff",
     onSecondaryContainer: "#38BDF8",
 
     // Custom Mapping

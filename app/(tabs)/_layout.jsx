@@ -5,19 +5,45 @@ import { Tabs } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper"; // Added for icon colors
 
-function GlassTabBarBg() {
+function GlassTabBarBg({ isDark }) {
   // We keep tint="light" even in dark mode so it stays white/milky
   return (
     <View style={styles.bgWrap} pointerEvents="none">
-      <BlurView intensity={95} tint="light" style={styles.blurBase} />
-      <View style={styles.tintLayer} />
+      <BlurView
+        intensity={isDark ? 80 : 95}
+        tint={isDark ? "dark" : "light"}
+        style={styles.blurBase}
+      />
+      <View
+        style={[
+          styles.tintLayer,
+          {
+            backgroundColor: isDark
+              ? "rgba(255,255,255,0.1)"
+              : "rgba(255,255,255,0.3)",
+          },
+        ]}
+      />
       <LinearGradient
-        colors={["rgba(255,255,255,0.7)", "rgba(255,255,255,0.2)"]}
+        colors={
+          isDark
+            ? ["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]
+            : ["rgba(255,255,255,0.7)", "rgba(255,255,255,0.2)"]
+        }
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={styles.innerHighlight}
       />
-      <View style={styles.edgeShine} />
+      <View
+        style={[
+          styles.edgeShine,
+          {
+            borderColor: isDark
+              ? "rgba(255,255,255,0.15)"
+              : "rgba(255,255,255,0.6)",
+          },
+        ]}
+      />
       <LinearGradient
         colors={["rgba(0,0,0,0.00)", "rgba(0,0,0,0.05)"]}
         start={{ x: 0.5, y: 0 }}
@@ -30,16 +56,25 @@ function GlassTabBarBg() {
 
 export default function TabsLayout() {
   const theme = useTheme();
+  const isDark = theme.dark;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         // Since the bar is WHITE, icons must be DARK NAVY to pop
-        tabBarActiveTintColor: "#0F172A",
+        tabBarActiveTintColor: isDark ? theme.colors.primary : "#213448",
         tabBarInactiveTintColor: "rgba(15, 23, 42, 0.4)",
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
-        tabBarItemStyle: { justifyContent: "center", alignItems: "center" },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "700",
+          marginBottom: 8,
+        },
+        tabBarItemStyle: {
+          justifyContent: "center",
+          alignItems: "center",
+          paddingTop: "8",
+        },
         tabBarStyle: styles.glassTabBar,
         tabBarBackground: () => <GlassTabBarBg />,
       }}
@@ -80,6 +115,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0, // Removed border for a cleaner liquid look
     backgroundColor: "transparent",
     elevation: 0,
+    paddingBottom: 0,
     // Stronger shadow so the white bar "floats" over the dark navy background
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 12 },

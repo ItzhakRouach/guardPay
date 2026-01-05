@@ -208,7 +208,10 @@ export default function AddShift() {
                   })}
                   mode="outlined"
                   left={<TextInput.Icon icon="clock-start" />}
-                  style={{ textAlign: "center" }}
+                  style={{
+                    textAlign: "center",
+                    backgroundColor: theme.colors.card,
+                  }}
                 />
               </View>
             </Pressable>
@@ -231,7 +234,10 @@ export default function AddShift() {
                   })}
                   mode="outlined"
                   right={<TextInput.Icon icon="clock-end" />}
-                  style={{ textAlign: "center" }}
+                  style={{
+                    textAlign: "center",
+                    backgroundColor: theme.colors.card,
+                  }}
                 />
               </View>
             </Pressable>
@@ -346,6 +352,7 @@ const makeStyle = (theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
+
       padding: 20,
     },
     title: {
@@ -373,17 +380,14 @@ const makeStyle = (theme) =>
     timeRow: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
-      marginTop: 10,
+      justifyContent: "spcae-between",
+      marginTop: 8,
+      gap: 2,
     },
     flex1: {
       flex: 1,
     },
-    arrowIcon: {
-      margin: 5,
-      justifyContent: "center",
-      opacity: 0.5,
-    },
+
     summaryBox: {
       backgroundColor: theme.colors.surface,
       padding: 20,
