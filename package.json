@@ -14,8 +14,13 @@
     "@bottom-tabs/react-navigation": "^1.1.0",
     "@callstack/liquid-glass": "^0.7.0",
     "@expo/vector-icons": "^15.0.3",
+<<<<<<< HEAD
     "@react-native-community/datetimepicker": "github:react-native-community/datetimepicker",
     "@react-navigation/bottom-tabs": "^7.9.0",
+=======
+    "@react-native-community/datetimepicker": "8.4.4",
+    "@react-navigation/bottom-tabs": "^7.4.0",
+>>>>>>> 7361f43 (in edition to dark mode , also added the user option to edit his base rate and ride rate)
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "dates": "^1.1.0",

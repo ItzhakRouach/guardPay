@@ -141,6 +141,13 @@ export default function RootLayout() {
                     headerTitle: "Add New Shift",
                   }}
                 />
+                <Stack.Screen
+                  name="edit-profile"
+                  options={{
+                    headerShown: false,
+                    presentation: "modal",
+                  }}
+                />
               </Stack>
             </GestureHandlerRootView>
           </RouteGuard>

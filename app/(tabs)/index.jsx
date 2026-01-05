@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
@@ -19,6 +20,7 @@ export default function Index() {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  const router = useRouter();
 
   const theme = useTheme();
   const styles = makeStyle(theme);
@@ -44,11 +46,15 @@ export default function Index() {
   // fetch user info
   useEffect(() => {
     fetchUserProfile(user);
-  }, [user]);
+  });
 
   const AvatarName = () => (
     <Avatar.Text size={100} label={initalName(profile?.user_name)} />
   );
+
+  const handleEditBtn = () => {
+    router.push("/edit-profile");
+  };
 
   return (
     <View style={styles.container}>
@@ -59,6 +65,14 @@ export default function Index() {
         style={styles.btn}
       >
         Sign out
+      </Button>
+      <Button
+        icon="account-edit"
+        textColor={theme.colors.primary}
+        style={styles.editBtn}
+        onPress={() => handleEditBtn()}
+      >
+        Edit
       </Button>
       {loading ? (
         <ActivityIndicator style={styles.loadingProfile} size="large" />
@@ -139,6 +153,11 @@ const makeStyle = (theme) =>
       position: "absolute",
       top: 50,
       right: 10,
+    },
+    editBtn: {
+      position: "absolute",
+      top: 50,
+      left: 10,
     },
     loadingProfile: {
       alignSelf: "center",
