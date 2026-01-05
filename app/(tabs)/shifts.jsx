@@ -70,7 +70,7 @@ export default function ShiftsScreen() {
 
   useEffect(() => {
     fetchShifts();
-  }, [currentDate, user?.$id]);
+  });
 
   // function that run only when data change (shift added ) and calculate total hours and amount the user earn
   const monthTotals = useMemo(() => {
@@ -78,7 +78,7 @@ export default function ShiftsScreen() {
       (acc, shift) => {
         acc.amount += Number(shift.total_amount || 0);
         acc.hours +=
-          Number(shift.reg_hours || 0) + Number(shift.extra_houes || 0);
+          Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
         return acc;
       },
       { amount: 0, hours: 0 }
@@ -191,7 +191,12 @@ export default function ShiftsScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: 300 }]}
+          showsVerticalScrollIndicator={false}
+          snapToInterval={110}
+          decelerationRate="fast"
+        >
           {/** Card to present shift with date , hours , and total money made this day */}
           {shifts.map((shift, index) => (
             <Swipeable
@@ -219,7 +224,9 @@ export default function ShiftsScreen() {
         style={styles.btn}
         icon="plus"
         size={30}
-        iconColor="#213448"
+        mode="contained"
+        iconColor="white"
+        containerColor="#213448"
         onPress={() => {
           try {
             router.push("/add-shift");
@@ -242,6 +249,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 100,
     alignSelf: "center",
+    marginRight: 23,
   },
   header: {
     flexDirection: "row",
