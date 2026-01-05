@@ -23,7 +23,7 @@ const lightTheme = {
     //Surface of Cards and TextInputs
     surface: "#FFFFFF",
     onSurface: "#213448",
-    card: "fff",
+    card: "#F8FAFC",
 
     //Borders and Muted lines
     outline: "#E2E8F0",

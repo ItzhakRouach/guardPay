@@ -100,10 +100,9 @@ export default function ShiftsScreen() {
           backgroundColor: theme.colors.delBtn,
           justifyContent: "center",
           alignItems: "center",
-          width: 80,
+          width: 70,
           borderRadius: 12,
           marginVertical: 15,
-          marginLeft: 16,
         }}
         onPress={onDelete}
       />
@@ -122,7 +121,6 @@ export default function ShiftsScreen() {
           width: 70,
           borderRadius: 12,
           marginVertical: 15,
-          marginRight: 16,
         }}
         onPress={onEdit}
       />
@@ -202,7 +200,7 @@ export default function ShiftsScreen() {
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingBottom: 300 }]}
           showsVerticalScrollIndicator={false}
-          snapToInterval={110}
+          snapToInterval={100}
           decelerationRate="fast"
         >
           {/** Card to present shift with date , hours , and total money made this day */}
@@ -281,7 +279,7 @@ const makeStyle = (theme) =>
       alignItems: "center",
     },
     monthText: { fontWeight: "bold", color: theme.colors.primary },
-    scrollContent: { padding: 16 },
+    scrollContent: { padding: 10, paddingHorizontal: 0 },
 
     cardDetails: {
       flexDirection: "row",
@@ -332,6 +330,7 @@ const makeStyle = (theme) =>
     summaryLabel: {
       color: theme.colors.summary, // Light gray/blue
       letterSpacing: 1,
+      fontWeight: 600,
       marginBottom: 4,
     },
     summaryValue: {

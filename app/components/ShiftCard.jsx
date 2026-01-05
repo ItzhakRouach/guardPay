@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { Card, Divider, Text, useTheme } from "react-native-paper";
+import { Card, Text, useTheme } from "react-native-paper";
 
 export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   const theme = useTheme();
@@ -17,7 +17,6 @@ export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
               {totalAmout}₪
             </Text>
           </View>
-          <Divider style={styles.verticalDivider} />
           <View style={styles.shiftDate}>
             <Text variant="labelLarge" style={styles.darkText}>
               {dateTime}
@@ -34,11 +33,6 @@ export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
 
 const makeStyle = (theme) =>
   StyleSheet.create({
-    verticalDivider: {
-      width: 2,
-      backgroundColor: theme.colors.divider,
-      height: 60,
-    },
     cardDetails: {
       flexDirection: "row",
       justifyContent: "space-around",
@@ -48,6 +42,8 @@ const makeStyle = (theme) =>
       backgroundColor: theme.colors.card,
       borderRadius: 12,
       marginBottom: 10,
+      marginHorizontal: 3,
+      marginVertical: 3,
     },
     shiftAmount: {
       justifyContent: "center",
@@ -58,7 +54,7 @@ const makeStyle = (theme) =>
       textAlign: "center",
       justifyContent: "center",
       alignItems: "center",
-      gap: 10,
+      gap: 5,
     },
     darkTextBold: {
       color: theme.colors.primary,

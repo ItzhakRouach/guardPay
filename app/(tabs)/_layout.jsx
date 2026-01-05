@@ -3,30 +3,23 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
 import { StyleSheet, View } from "react-native";
+import { useTheme } from "react-native-paper"; // Added for icon colors
 
 function GlassTabBarBg() {
+  // We keep tint="light" even in dark mode so it stays white/milky
   return (
     <View style={styles.bgWrap} pointerEvents="none">
-      {/* Strong blur base */}
       <BlurView intensity={95} tint="light" style={styles.blurBase} />
-
-      {/* Slight tint + saturation feel */}
       <View style={styles.tintLayer} />
-
-      {/* Top inner highlight (Apple-ish) */}
       <LinearGradient
-        colors={["rgba(255,255,255,0.55)", "rgba(255,255,255,0.05)"]}
+        colors={["rgba(255,255,255,0.7)", "rgba(255,255,255,0.2)"]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={styles.innerHighlight}
       />
-
-      {/* Edge shine */}
       <View style={styles.edgeShine} />
-
-      {/* Subtle bottom shadow fade inside */}
       <LinearGradient
-        colors={["rgba(0,0,0,0.00)", "rgba(0,0,0,0.10)"]}
+        colors={["rgba(0,0,0,0.00)", "rgba(0,0,0,0.05)"]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={styles.innerShade}
@@ -36,13 +29,16 @@ function GlassTabBarBg() {
 }
 
 export default function TabsLayout() {
+  const theme = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#213448",
-        tabBarInactiveTintColor: "rgba(33,52,72,0.4)",
-        tabBarLabelStyle: { fontSize: 12, fontWeight: 500 },
+        // Since the bar is WHITE, icons must be DARK NAVY to pop
+        tabBarActiveTintColor: "#0F172A",
+        tabBarInactiveTintColor: "rgba(15, 23, 42, 0.4)",
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
         tabBarItemStyle: { justifyContent: "center", alignItems: "center" },
         tabBarStyle: styles.glassTabBar,
         tabBarBackground: () => <GlassTabBarBg />,
@@ -53,7 +49,7 @@ export default function TabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="cog" size={24} color={color} />
+            <MaterialCommunityIcons name="cog" size={30} color={color} />
           ),
         }}
       />
@@ -64,7 +60,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="calendar-plus"
-              size={24}
+              size={30}
               color={color}
             />
           ),
@@ -74,7 +70,6 @@ export default function TabsLayout() {
   );
 }
 
-// defined the style needed for the glass-like tabs view
 const styles = StyleSheet.create({
   glassTabBar: {
     position: "absolute",
@@ -82,48 +77,38 @@ const styles = StyleSheet.create({
     marginHorizontal: 28,
     height: 65,
     borderRadius: 30,
-    borderTopWidth: 1,
+    borderTopWidth: 0, // Removed border for a cleaner liquid look
     backgroundColor: "transparent",
     elevation: 0,
-    // iOS shadow (important for “floating” liquid)
+    // Stronger shadow so the white bar "floats" over the dark navy background
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    flex: 1,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
   },
-
   bgWrap: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 30,
     overflow: "hidden",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Added slight base color for pop
   },
-
   blurBase: {
     ...StyleSheet.absoluteFillObject,
   },
-
-  // Soft white tint that makes it “milky glass”
   tintLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,255,255,0.3)",
   },
-
   innerHighlight: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.9,
   },
-
-  // Thin bright border-like shine
   edgeShine: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.45)",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.6)",
   },
-
   innerShade: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.7,
   },
 });
