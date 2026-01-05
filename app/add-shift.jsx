@@ -241,7 +241,7 @@ export default function AddShift() {
                 }
                 mode={pickerMode}
                 is24Hour={true}
-                display="spinner"
+                display={activeField === "date" ? "inline" : "spinner"}
                 onChange={handleValueChanges}
               />
             </Surface>
