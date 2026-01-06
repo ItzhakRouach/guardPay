@@ -30,14 +30,24 @@
 
 ---
 
+The cleanest and most reliable way to display images on GitHub is using Relative Paths. This method is preferred because it works automatically across different branches and even if you rename your repository, as it doesn't rely on a hardcoded URL.
+
+🖼️ The Cleanest Gallery Snippet
+Replace your gallery section with this code. It uses HTML for better control over alignment and sizing:
+
+Markdown
+
 ## 📸 Screen Gallery
 
-| Shifts Dashboard                                                                 | Add New Shift                                                                    | User Profile                                                                          |
-| :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
-| ![Dashboard](https://github.com/ItzhakRouach/guardPay/screenshots/dashboard.png) | ![Add Shift](https://github.com/ItzhakRouach/guardPay/screenshots/add_shift.png) | ![Profile](https://github.com/ItzhakRouach/guardPay/raw/main/screenshots/profile.png) |
-|                                                                                  |
+<p align="center">
+  <img src="./screenshots/dashboard.png" width="30%" />
+  <img src="./screenshots/add_shift.png" width="30%" />
+  <img src="./screenshots/profile.png" width="30%" />
+</p>
 
----
+<p align="center">
+  <em>Monthly Dashboard &bull; Shift Entry &bull; User Profile</em>
+</p>
 
 ## 🛠️ Installation & Setup
 
