@@ -1,50 +1,92 @@
-# Welcome to your Expo app 👋
+# 🛡️ GuardPay: Smart Shift & Salary Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**GuardPay** is a premium mobile utility designed for security personnel and shift-based workers to effortlessly track work hours, calculate real-time earnings, and manage professional profiles with a modern, glass-morphic interface.
 
-## Get started
+## ✨ Key Features
 
-1. Install dependencies
+- **📊 Monthly Analytics Dashboard**: Get a bird's-eye view of your financial health with real-time tracking of "Monthly Pay" and "Total Hours" worked.
+- **📅 Precision Shift Logging**:
+  - One-tap shift entry with "Morning", "Evening", and "Night" presets.
+  - Automated duration calculation based on start and end times.
+  - Historical shift overview with detailed pay breakdowns per session.
+- **👤 Dynamic Profile Management**:
+  - Set custom base hourly rates and travel/ride compensation.
+  - Automatic age calculation from birthdate.
+  - Seamless integration with Appwrite for secure data persistence.
+- **🎨 Premium Liquid-Glass UI**:
+  - Immersive Dark Mode experience.
+  - Translucent "Glass" tab bar and elevated surface cards.
+  - High-contrast typography for readability in low-light environments.
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 🚀 Tech Stack
 
-   ```bash
-   npx expo start
-   ```
+- **Framework**: [React Native](https://reactnative.dev/) with [Expo](https://expo.dev/)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+- **Backend**: [Appwrite](https://appwrite.io/) (Authentication & NoSQL Database)
+- **UI Components**: [React Native Paper](https://reactnativepaper.com/)
+- **Styling**: Custom Glassmorphism using `expo-blur` and `expo-linear-gradient`
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📸 Screen Gallery
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+| Shifts Dashboard                                                                          | Add New Shift                                                                    | User Profile                                                                          |
+| :---------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| ![Dashboard](https://github.com/ItzhakRouach/guardPay/raw/main/screenshots/dashboard.png) | ![Add Shift](https://github.com/ItzhakRouach/guardPay/screenshots/add_shift.png) | ![Profile](https://github.com/ItzhakRouach/guardPay/raw/main/screenshots/profile.png) |
+|                                                                                           |
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 🛠️ Installation & Setup
 
-```bash
-npm run reset-project
-```
+1.  **Clone the repository**:
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+    ```bash
+    git clone [https://github.com/ItzhakRouach/guardPay.git](https://github.com/ItzhakRouach/guardPay.git)
+    cd guardPay
+    ```
 
-## Learn more
+2.  **Install dependencies**:
 
-To learn more about developing your project with Expo, look at the following resources:
+    ```bash
+    npm install
+    ```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+3.  **Environment Variables**:
+    Create a `.env` file in the root directory and add your Appwrite credentials:
 
-## Join the community
+    ```env
+    EXPO_PUBLIC_APPWRITE_ENDPOINT=[https://cloud.appwrite.io/v1](https://cloud.appwrite.io/v1)
+    EXPO_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
+    EXPO_PUBLIC_APPWRITE_DB=your_database_id
+    EXPO_PUBLIC_APPWRITE_USERS_PREFS_ID=your_collection_id
+    ```
 
-Join our community of developers creating universal apps.
+4.  **Launch the app**:
+    ```bash
+    npx expo start
+    ```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🛣️ Roadmap
+
+- [ ] **Push Notifications**: Reminders to clock out of shifts.
+- [ ] **Export to PDF**: Generate professional monthly work reports for employers.
+- [ ] **Bonus Tracking**: Add holiday pay rates and overtime multipliers.
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/ItzhakRouach/guardPay/issues).
+
+---
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+**Created by [Itzhak Rouach](https://github.com/ItzhakRouach)**
