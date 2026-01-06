@@ -32,10 +32,10 @@
 
 ## 📸 Screen Gallery
 
-| Shifts Dashboard                                                                          | Add New Shift                                                                    | User Profile                                                                          |
-| :---------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
-| ![Dashboard](https://github.com/ItzhakRouach/guardPay/raw/main/screenshots/dashboard.png) | ![Add Shift](https://github.com/ItzhakRouach/guardPay/screenshots/add_shift.png) | ![Profile](https://github.com/ItzhakRouach/guardPay/raw/main/screenshots/profile.png) |
-|                                                                                           |
+| Shifts Dashboard                                                                 | Add New Shift                                                                    | User Profile                                                                          |
+| :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| ![Dashboard](https://github.com/ItzhakRouach/guardPay/screenshots/dashboard.png) | ![Add Shift](https://github.com/ItzhakRouach/guardPay/screenshots/add_shift.png) | ![Profile](https://github.com/ItzhakRouach/guardPay/raw/main/screenshots/profile.png) |
+|                                                                                  |
 
 ---
 
