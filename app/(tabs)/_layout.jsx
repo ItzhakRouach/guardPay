@@ -1,58 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper"; // Added for icon colors
 
-function GlassTabBarBg({ isDark }) {
-  // We keep tint="light" even in dark mode so it stays white/milky
-  return (
-    <View style={styles.bgWrap} pointerEvents="none">
-      <BlurView
-        intensity={isDark ? 80 : 95}
-        tint={isDark ? "dark" : "light"}
-        style={styles.blurBase}
-      />
-      <View
-        style={[
-          styles.tintLayer,
-          {
-            backgroundColor: isDark
-              ? "rgba(255,255,255,0.1)"
-              : "rgba(255,255,255,0.3)",
-          },
-        ]}
-      />
-      <LinearGradient
-        colors={
-          isDark
-            ? ["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]
-            : ["rgba(255,255,255,0.7)", "rgba(255,255,255,0.2)"]
-        }
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.innerHighlight}
-      />
-      <View
-        style={[
-          styles.edgeShine,
-          {
-            borderColor: isDark
-              ? "rgba(255,255,255,0.15)"
-              : "rgba(255,255,255,0.6)",
-          },
-        ]}
-      />
-      <LinearGradient
-        colors={["rgba(0,0,0,0.00)", "rgba(0,0,0,0.05)"]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.innerShade}
-      />
-    </View>
-  );
-}
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -74,9 +24,10 @@ export default function TabsLayout() {
           justifyContent: "center",
           alignItems: "center",
           paddingTop: "8",
+
         },
-        tabBarStyle: styles.glassTabBar,
-        tabBarBackground: () => <GlassTabBarBg />,
+        tabBarStyle: styles.tabBar,
+       
       }}
     >
       <Tabs.Screen
@@ -106,45 +57,21 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  glassTabBar: {
-    position: "absolute",
-    bottom: 24,
-    marginHorizontal: 28,
-    height: 65,
+tabBar: {
+    position:"absolute",
+    alignItems:"center",
+    bottom: 26,
+    marginHorizontal: 85,
+    height: 60,
+    left:60,
+    right:60,
     borderRadius: 30,
-    borderTopWidth: 0, // Removed border for a cleaner liquid look
-    backgroundColor: "transparent",
+    backgroundColor: "#ffffffff",
     elevation: 0,
     paddingBottom: 0,
-    // Stronger shadow so the white bar "floats" over the dark navy background
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
-  },
-  bgWrap: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 30,
-    overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.8)", // Added slight base color for pop
-  },
-  blurBase: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  tintLayer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.3)",
-  },
-  innerHighlight: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  edgeShine: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 30,
-    borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.6)",
-  },
-  innerShade: {
-    ...StyleSheet.absoluteFillObject,
   },
 });
