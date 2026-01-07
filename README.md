@@ -13,10 +13,6 @@
   - Set custom base hourly rates and travel/ride compensation.
   - Automatic age calculation from birthdate.
   - Seamless integration with Appwrite for secure data persistence.
-- **🎨 Premium Liquid-Glass UI**:
-  - Immersive Dark Mode experience.
-  - Translucent "Glass" tab bar and elevated surface cards.
-  - High-contrast typography for readability in low-light environments.
 
 ---
 
@@ -26,7 +22,6 @@
 - **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
 - **Backend**: [Appwrite](https://appwrite.io/) (Authentication & NoSQL Database)
 - **UI Components**: [React Native Paper](https://reactnativepaper.com/)
-- **Styling**: Custom Glassmorphism using `expo-blur` and `expo-linear-gradient`
 
 ---
 
