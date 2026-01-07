@@ -127,6 +127,7 @@ export default function ShiftsScreen() {
     </View>
   );
 
+  // handle the delete functionality
   const handleDelete = async (shiftId) => {
     try {
       await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
@@ -136,7 +137,7 @@ export default function ShiftsScreen() {
       console.log(err);
     }
   };
-
+  // handle the edit functionality
   const handleEdit = (shift) => {
     router.push({
       pathname: "/add-shift",

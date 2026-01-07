@@ -4,6 +4,8 @@ import { StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper"; // Added for icon colors
 
 
+
+
 export default function TabsLayout() {
   const theme = useTheme();
   const isDark = theme.dark;
@@ -23,7 +25,7 @@ export default function TabsLayout() {
         tabBarItemStyle: {
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: "8",
+          paddingTop: "6",
 
         },
         tabBarStyle: styles.tabBar,
@@ -60,13 +62,11 @@ const styles = StyleSheet.create({
 tabBar: {
     position:"absolute",
     alignItems:"center",
-    bottom: 26,
+    bottom: 20,
     marginHorizontal: 85,
     height: 60,
-    left:60,
-    right:60,
     borderRadius: 30,
-    backgroundColor: "#ffffffff",
+    backgroundColor: "#ffffff",
     elevation: 0,
     paddingBottom: 0,
     shadowColor: "#000",
