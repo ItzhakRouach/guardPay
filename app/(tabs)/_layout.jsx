@@ -54,6 +54,16 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen name="overview" 
+        options={{
+          title: "overview",
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="calendar-month" size={30} color={color} />
+          )
+        }}
+        />
+
     </Tabs>
   );
 }

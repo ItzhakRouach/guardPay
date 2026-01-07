@@ -15,6 +15,7 @@ import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
 import { formatShiftDate, formatShiftTime } from "../../lib/utils";
 import ShiftCard from "../components/ShiftCard";
+import MonthPicker from "../components/MonthPicker";
 
 export default function ShiftsScreen() {
   const [shifts, setShifts] = useState(["one"]);
@@ -23,19 +24,10 @@ export default function ShiftsScreen() {
   const { user } = useAuth();
   const router = useRouter();
 
-  const theme = useTheme();
-  const styles = makeStyle(theme);
 
-  // Logic to change months
-  const changeMonth = (offset) => {
-    const newDate = new Date(
-      currentDate.setMonth(currentDate.getMonth() + offset)
-    );
-    setCurrentDate(new Date(newDate));
-  };
-
+  const theme = useTheme()
+  const styles = makeStyle(theme)
   const monthName = currentDate.toLocaleString("default", { month: "long" });
-  const yearName = currentDate.getFullYear();
 
   // run each time the month is changed , to fetch the shifs from that month
   const fetchShifts = async () => {
@@ -147,16 +139,7 @@ export default function ShiftsScreen() {
 
   return (
     <View style={styles.container}>
-      <Surface style={styles.header}>
-        <IconButton icon="chevron-left" onPress={() => changeMonth(-1)} />
-        <View style={styles.dateInfo}>
-          <Text variant="titleLarge" style={styles.monthText}>
-            {monthName}
-          </Text>
-          <Text variant="bodySmall">{yearName}</Text>
-        </View>
-        <IconButton icon="chevron-right" onPress={() => changeMonth(+1)} />
-      </Surface>
+      <MonthPicker currentDate={currentDate} setCurrentDate={setCurrentDate} />
 
       {/** Month summary Section */}
       <Surface style={styles.summaryBar} elevation={1}>
@@ -259,16 +242,6 @@ const makeStyle = (theme) =>
       alignSelf: "center",
       marginRight: 23,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingTop: 20,
-      paddingBottom: 10,
-      backgroundColor: theme.colors.surface,
-      marginTop: 60,
-      borderRadius: 20,
-    },
     content: {
       justifyContent: "center",
       textAlign: "center",
@@ -276,10 +249,6 @@ const makeStyle = (theme) =>
       marginTop: "auto",
       marginBottom: "auto",
     },
-    dateInfo: {
-      alignItems: "center",
-    },
-    monthText: { fontWeight: "bold", color: theme.colors.primary },
     scrollContent: { padding: 10, paddingHorizontal: 0 },
 
     cardDetails: {
