@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
+import { formattedAmount } from "../../lib/utils";
 
 export default function MonthSummary({
   bruto,
@@ -16,6 +17,7 @@ export default function MonthSummary({
 }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
+
   return (
     <Surface elevation={1} style={styles.contentSurface}>
       <View style={styles.salaryContent}>
@@ -23,7 +25,7 @@ export default function MonthSummary({
           Bruto Income:
         </Text>
         <Text variant="bodyLarge" style={styles.income}>
-          {bruto}
+          {formattedAmount(bruto)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -41,7 +43,7 @@ export default function MonthSummary({
           Total Regular Hours:
         </Text>
         <Text variant="bodyLarge" style={styles.shiftsField}>
-          {totalRegHours}
+          {totalRegHours}H
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -50,7 +52,7 @@ export default function MonthSummary({
           Total Extra Hours:
         </Text>
         <Text variant="bodyLarge" style={styles.shiftsField}>
-          {totalExtraHours}
+          {totalExtraHours}H
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -59,7 +61,7 @@ export default function MonthSummary({
           Travel Money:
         </Text>
         <Text variant="bodyLarge" style={styles.income}>
-          {monthTravelMoney}
+          {formattedAmount(monthTravelMoney)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -68,7 +70,7 @@ export default function MonthSummary({
           Regular Hours Money:
         </Text>
         <Text variant="bodyLarge" style={styles.income}>
-          {monthRegPay}
+          {formattedAmount(monthRegPay)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -77,15 +79,16 @@ export default function MonthSummary({
           Extra Hours Money:
         </Text>
         <Text variant="bodyLarge" style={styles.income}>
-          {monthExtraPay}
+          {formattedAmount(monthExtraPay)}₪
         </Text>
       </View>
+      <Divider style={styles.dividerStyle} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Bituah Leumi and Health:
         </Text>
         <Text variant="bodyLarge" style={styles.expense}>
-          {bituahLeumi.toFixed(2)}
+          {formattedAmount(bituahLeumi)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -94,7 +97,7 @@ export default function MonthSummary({
           Pensia:
         </Text>
         <Text variant="bodyLarge" style={styles.expense}>
-          {pensia.toFixed(2)}
+          {formattedAmount(pensia)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -103,7 +106,7 @@ export default function MonthSummary({
           Tax:
         </Text>
         <Text variant="bodyLarge" style={styles.expense}>
-          {incomeTax.toFixed(2)}
+          {formattedAmount(incomeTax)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />
@@ -112,7 +115,7 @@ export default function MonthSummary({
           Total Dedaction:
         </Text>
         <Text variant="bodyLarge" style={styles.expense}>
-          {totalDeductions.toFixed(2)}
+          {formattedAmount(totalDeductions)}₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} />

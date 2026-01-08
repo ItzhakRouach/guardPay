@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
+import { formattedAmount } from "../../lib/utils";
 
 export default function MonthNetoCard({ neto }) {
   const theme = useTheme();
@@ -14,7 +15,7 @@ export default function MonthNetoCard({ neto }) {
         </View>
         <View>
           <Text variant="bodyLarge" style={styles.income}>
-            {neto.toFixed(2)} $
+            {formattedAmount(neto)}₪
           </Text>
         </View>
       </Card.Content>

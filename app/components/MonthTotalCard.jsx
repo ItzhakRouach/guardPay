@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
+import { formattedAmount } from "../../lib/utils";
 
 export default function MonthTotalCard({ totalAmount, totalHours }) {
   const theme = useTheme();
@@ -11,7 +12,7 @@ export default function MonthTotalCard({ totalAmount, totalHours }) {
           MONTHLY PAY
         </Text>
         <Text variant="titleLarge" style={styles.summaryValue}>
-          {totalAmount.toLocaleString()}₪
+          {formattedAmount(totalAmount)}₪
         </Text>
       </View>
 

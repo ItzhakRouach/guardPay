@@ -1,16 +1,9 @@
 import { useEffect, useState } from "react";
 import {
-<<<<<<< HEAD
   StyleSheet,
   View,
   TouchableWithoutFeedback,
   Keyboard,
-=======
-  Keyboard,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
->>>>>>> c6286dd3cbafc3eb2578352beddcd48b3ec483bf
 } from "react-native";
 import { Query } from "react-native-appwrite";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
@@ -88,10 +81,6 @@ export default function EditProfileScreen() {
         >
           Edit Profile
         </Text>
-<<<<<<< HEAD
-
-=======
->>>>>>> c6286dd3cbafc3eb2578352beddcd48b3ec483bf
         <View style={styles.contentWrapper}>
           <TextInput
             label="Price Per Hour"

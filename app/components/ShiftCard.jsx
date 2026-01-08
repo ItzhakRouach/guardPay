@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
+import { formattedAmount } from "../../lib/utils";
 
 export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   const theme = useTheme();
@@ -14,7 +15,7 @@ export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
               Amount
             </Text>
             <Text variant="headlineSmall" style={styles.darkText}>
-              {totalAmout}₪
+              {formattedAmount(totalAmout)}₪
             </Text>
           </View>
           <View style={styles.shiftDate}>

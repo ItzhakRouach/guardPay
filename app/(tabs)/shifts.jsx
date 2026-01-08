@@ -12,6 +12,7 @@ import MonthPicker from "../components/MonthPicker";
 import MonthTotalCard from "../components/MonthTotalCard";
 import NoShiftFound from "../components/NoShiftsFound";
 import ShiftCard from "../components/ShiftCard";
+import { useRouter } from "expo-router";
 
 export default function ShiftsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -21,6 +22,7 @@ export default function ShiftsScreen() {
   const theme = useTheme();
   const styles = makeStyle(theme);
   const monthName = currentDate.toLocaleString("default", { month: "long" });
+  const router = useRouter();
 
   // function that run only when data change (shift added ) and calculate total hours and amount the user earn
   const monthTotals = useMemo(() => {
