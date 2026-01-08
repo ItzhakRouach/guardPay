@@ -1,26 +1,21 @@
-import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
-import {
-  ActivityIndicator,
-  Divider,
-  IconButton,
-  Surface,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { IconButton, useTheme } from "react-native-paper";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
 import { useShift } from "../../lib/useShift";
 import { formatShiftDate, formatShiftTime } from "../../lib/utils";
+import AddShiftButton from "../components/AddShiftButton";
+import LoadingSpinner from "../components/LoadingSpinnner";
 import MonthPicker from "../components/MonthPicker";
+import MonthTotalCard from "../components/MonthTotalCard";
+import NoShiftFound from "../components/NoShiftsFound";
 import ShiftCard from "../components/ShiftCard";
 
 export default function ShiftsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { user } = useAuth();
-  const router = useRouter();
   const { shifts, loading, setShifts } = useShift(user, currentDate);
 
   const theme = useTheme();
@@ -99,46 +94,16 @@ export default function ShiftsScreen() {
   return (
     <View style={styles.container}>
       <MonthPicker currentDate={currentDate} setCurrentDate={setCurrentDate} />
-
       {/** Month summary Section */}
-      <Surface style={styles.summaryBar} elevation={1}>
-        <View>
-          <Text variant="labelMedium" style={styles.summaryLabel}>
-            MONTHLY PAY
-          </Text>
-          <Text variant="titleLarge" style={styles.summaryValue}>
-            {monthTotals.amount.toLocaleString()}₪
-          </Text>
-        </View>
-
-        <Divider style={styles.verticalDivider} />
-        <View>
-          <Text variant="labelMedium" style={styles.summaryLabel}>
-            TOTAL HOURS
-          </Text>
-          <Text variant="titleLarge" style={styles.summaryValue}>
-            {monthTotals.hours.toFixed(1)}h
-          </Text>
-        </View>
-      </Surface>
+      <MonthTotalCard
+        totalAmount={monthTotals.amount}
+        totalHours={monthTotals.hours}
+      />
 
       {loading ? (
-        <View style={styles.loadingShifts}>
-          <ActivityIndicator size={60} />
-        </View>
+        <LoadingSpinner />
       ) : shifts?.length === 0 ? (
-        <View style={styles.noShifts}>
-          <Text
-            variant="headlineSmall"
-            style={{
-              letterSpacing: -1,
-              fontWeight: 500,
-              color: theme.colors.primary,
-            }}
-          >
-            No shifts added for {monthName}
-          </Text>
-        </View>
+        <NoShiftFound monthName={monthName} />
       ) : (
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingBottom: 300 }]}
@@ -168,22 +133,7 @@ export default function ShiftsScreen() {
           ))}
         </ScrollView>
       )}
-
-      <IconButton
-        style={styles.btn}
-        icon="plus"
-        size={30}
-        mode="contained"
-        iconColor="white"
-        containerColor={theme.colors.primary}
-        onPress={() => {
-          try {
-            router.push("/add-shift");
-          } catch (err) {
-            console.log(err);
-          }
-        }}
-      />
+      <AddShiftButton />
     </View>
   );
 }
@@ -195,81 +145,5 @@ const makeStyle = (theme) =>
       backgroundColor: theme.colors.background,
       padding: 10,
     },
-    btn: {
-      position: "absolute",
-      bottom: 100,
-      alignSelf: "center",
-      marginRight: 23,
-    },
-    content: {
-      justifyContent: "center",
-      textAlign: "center",
-      alignItems: "center",
-      marginTop: "auto",
-      marginBottom: "auto",
-    },
     scrollContent: { padding: 10, paddingHorizontal: 0 },
-
-    cardDetails: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      textAlign: "left",
-    },
-    cardShift: {
-      backgroundColor: theme.colors.onPrimary,
-      borderRadius: 12,
-      marginBottom: 10,
-    },
-    shiftAmount: {
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    shiftDate: {
-      textAlign: "center",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: 10,
-    },
-    noShifts: {
-      justifyContent: "center",
-      alignItems: "center",
-      marginTop: "auto",
-      marginBottom: "auto",
-    },
-    loadingShifts: {
-      alignSelf: "center",
-      marginTop: "auto",
-      marginBottom: "auto",
-    },
-    summaryBar: {
-      flexDirection: "row",
-      backgroundColor: theme.colors.primary, // Dark theme for contrast
-      marginHorizontal: 16,
-      marginTop: 10, // Pulls it slightly closer to the header
-      padding: 16,
-      borderRadius: 12,
-      alignItems: "center",
-      justifyContent: "space-around",
-    },
-    summaryItem: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    summaryLabel: {
-      color: theme.colors.summary, // Light gray/blue
-      letterSpacing: 1,
-      fontWeight: 600,
-      marginBottom: 4,
-    },
-    summaryValue: {
-      color: theme.colors.surface, // White text stands out on dark background
-      fontWeight: "bold",
-      textAlign: "center",
-    },
-    verticalDivider: {
-      width: 1,
-      height: 30,
-      backgroundColor: "rgba(255,255,255,0.2)", // Semi-transparent white
-    },
   });
