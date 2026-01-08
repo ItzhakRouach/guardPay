@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { Query } from "react-native-appwrite";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import { DATABASE_ID, USERS_PREFS, databases } from "../lib/appwrite";
@@ -66,55 +71,57 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Text
-        variant="headlineSmall"
-        style={[styles.title, { color: theme.colors.primary }]}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        Edit Profile
-      </Text>
-
-      <View style={styles.contentWrapper}>
-        <TextInput
-          label="Price Per Hour"
-          mode="outlined"
-          keyboardType="numeric"
-          // Always a string, safe from 'undefined' errors
-          value={formData.price_per_hour}
-          onChangeText={(val) =>
-            setFormData((prev) => ({ ...prev, price_per_hour: val }))
-          }
-          style={styles.input}
-        />
-
-        <TextInput
-          label="Price Per Ride"
-          mode="outlined"
-          keyboardType="numeric"
-          value={formData.price_per_ride}
-          onChangeText={(val) =>
-            setFormData((prev) => ({ ...prev, price_per_ride: val }))
-          }
-          style={styles.input}
-        />
-
-        {/* Added a save button for context */}
-        <Button
-          mode="contained"
-          style={styles.saveBtn}
-          onPress={() => handleSaveBtn()}
+        <Text
+          variant="headlineSmall"
+          style={[styles.title, { color: theme.colors.primary }]}
         >
-          Save Changes
-        </Button>
-        {message && (
-          <Text variant="headlineSmall" style={styles.message}>
-            {message}
-          </Text>
-        )}
+          Edit Profile
+        </Text>
+
+        <View style={styles.contentWrapper}>
+          <TextInput
+            label="Price Per Hour"
+            mode="outlined"
+            keyboardType="numeric"
+            // Always a string, safe from 'undefined' errors
+            value={formData.price_per_hour}
+            onChangeText={(val) =>
+              setFormData((prev) => ({ ...prev, price_per_hour: val }))
+            }
+            style={styles.input}
+          />
+
+          <TextInput
+            label="Price Per Ride"
+            mode="outlined"
+            keyboardType="numeric"
+            value={formData.price_per_ride}
+            onChangeText={(val) =>
+              setFormData((prev) => ({ ...prev, price_per_ride: val }))
+            }
+            style={styles.input}
+          />
+
+          {/* Added a save button for context */}
+          <Button
+            mode="contained"
+            style={styles.saveBtn}
+            onPress={() => handleSaveBtn()}
+          >
+            Save Changes
+          </Button>
+          {message && (
+            <Text variant="headlineSmall" style={styles.message}>
+              {message}
+            </Text>
+          )}
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
