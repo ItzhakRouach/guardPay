@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Query } from "react-native-appwrite";
 import { Swipeable } from "react-native-gesture-handler";
 import {
   ActivityIndicator,
@@ -13,60 +12,20 @@ import {
 } from "react-native-paper";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
+import { useShift } from "../../lib/useShift";
 import { formatShiftDate, formatShiftTime } from "../../lib/utils";
-import ShiftCard from "../components/ShiftCard";
 import MonthPicker from "../components/MonthPicker";
+import ShiftCard from "../components/ShiftCard";
 
 export default function ShiftsScreen() {
-  const [shifts, setShifts] = useState(["one"]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const { shifts, loading, setShifts } = useShift(user, currentDate);
 
-
-  const theme = useTheme()
-  const styles = makeStyle(theme)
+  const theme = useTheme();
+  const styles = makeStyle(theme);
   const monthName = currentDate.toLocaleString("default", { month: "long" });
-
-  // run each time the month is changed , to fetch the shifs from that month
-  const fetchShifts = async () => {
-    if (!user) return;
-    try {
-      const startOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        1
-      ).toISOString();
-      const endOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1,
-        0,
-        23,
-        59,
-        59
-      ).toISOString();
-
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        SHIFTS_HISTORY,
-        [
-          Query.equal("user_id", user.$id),
-          Query.between("start_time", startOfMonth, endOfMonth),
-          Query.orderAsc("start_time"),
-        ]
-      );
-      setShifts(response.documents || []);
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-      setShifts([]);
-    }
-  };
-
-  useEffect(() => {
-    fetchShifts();
-  });
 
   // function that run only when data change (shift added ) and calculate total hours and amount the user earn
   const monthTotals = useMemo(() => {

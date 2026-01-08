@@ -1,0 +1,47 @@
+import { StyleSheet, View } from "react-native";
+import { Card, Text, useTheme } from "react-native-paper";
+
+export default function MonthNetoCard({ neto }) {
+  const theme = useTheme();
+  const styles = makeStyle(theme);
+  return (
+    <Card style={styles.netoContainer}>
+      <Card.Content style={styles.cardStyle}>
+        <View>
+          <Text variant="bodyLarge" style={styles.netoField}>
+            Neto
+          </Text>
+        </View>
+        <View>
+          <Text variant="bodyLarge" style={styles.income}>
+            {neto.toFixed(2)} $
+          </Text>
+        </View>
+      </Card.Content>
+    </Card>
+  );
+}
+
+const makeStyle = (theme) =>
+  StyleSheet.create({
+    netoContainer: {
+      marginTop: 40,
+      backgroundColor: theme.colors.surface,
+      padding: 10,
+      marginHorizontal: 20,
+    },
+    cardStyle: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    income: {
+      fontWeight: "bold",
+      color: "#466644",
+      marginRight: 10,
+    },
+    netoField: {
+      fontWeight: "bold",
+      marginLeft: 50,
+      color: theme.colors.primary,
+    },
+  });

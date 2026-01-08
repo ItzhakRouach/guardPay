@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import { DATABASE_ID, USERS_PREFS, databases } from "../lib/appwrite";
 import { useAuth } from "../lib/auth-context";
+import LoadingSpinner from "./components/LoadingSpinnner";
 
 export default function EditProfileScreen() {
   const { user } = useAuth();
@@ -61,11 +62,7 @@ export default function EditProfileScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={[styles.container, { justifyContent: "center" }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
