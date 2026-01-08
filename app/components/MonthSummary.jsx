@@ -139,16 +139,6 @@ const makeStyle = (theme) =>
     dividerStyle: {
       marginBottom: 10,
     },
-    netoContainer: {
-      marginTop: 40,
-      backgroundColor: theme.colors.surface,
-      padding: 10,
-      marginHorizontal: 20,
-    },
-    cardStyle: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-    },
     field: {
       fontWeight: "600",
       marginLeft: 10,

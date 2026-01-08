@@ -102,12 +102,6 @@ export default function AddShift() {
       profile.price_per_hour,
       profile.price_per_ride
     );
-    console.log(result.extra_hours);
-    console.log(result.reg_hours);
-    console.log(result.total_amount);
-    console.log(result.reg_pay_amount);
-    console.log(result.extra_pay_amount);
-    console.log(result.travel_pay_amount);
     try {
       if (isEditMode && params.shiftId) {
         // UPDATE EXISTING
@@ -121,9 +115,9 @@ export default function AddShift() {
             total_amount: Number(result.total_amount),
             reg_hours: Number(result.reg_hours),
             extra_hours: Number(result.extra_hours),
-            reg_pay_amount:Number(result.reg_pay_amount),
+            reg_pay_amount: Number(result.reg_pay_amount),
             extra_pay_amount: Number(result.extra_pay_amount),
-            travel_pay_amount:Number(result.travel_pay_amount)
+            travel_pay_amount: Number(result.travel_pay_amount),
           }
         );
       } else {
@@ -139,9 +133,9 @@ export default function AddShift() {
             total_amount: Number(result.total_amount),
             reg_hours: Number(result.reg_hours),
             extra_hours: Number(result.extra_hours),
-            reg_pay_amount:Number(result.reg_pay_amount),
+            reg_pay_amount: Number(result.reg_pay_amount),
             extra_pay_amount: Number(result.extra_pay_amount),
-            travel_pay_amount:Number(result.travel_pay_amount)
+            travel_pay_amount: Number(result.travel_pay_amount),
           }
         );
       }
