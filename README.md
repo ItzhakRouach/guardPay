@@ -4,15 +4,30 @@
 
 ## ✨ Key Features
 
-- **📊 Monthly Analytics Dashboard**: Get a bird's-eye view of your financial health with real-time tracking of "Monthly Pay" and "Total Hours" worked.
-- **📅 Precision Shift Logging**:
-  - One-tap shift entry with "Morning", "Evening", and "Night" presets.
-  - Automated duration calculation based on start and end times.
-  - Historical shift overview with detailed pay breakdowns per session.
-- **👤 Dynamic Profile Management**:
-  - Set custom base hourly rates and travel/ride compensation.
-  - Automatic age calculation from birthdate.
-  - Seamless integration with Appwrite for secure data persistence.
+### 📊 Monthly Analytics Dashboard
+
+- [cite_start]**Real-Time Financial Health**: Get a bird's-eye view of your earnings with live tracking of "Monthly Pay" and "Total Hours" worked[cite: 1, 12, 13].
+- [cite_start]**Executive Overview**: A high-level summary that simplifies complex payroll data into a clean, intuitive interface[cite: 7, 8].
+- [cite_start]**Smart Salary Breakdown**: Visualize the clear relationship between Gross income, total deductions, and your final Net (Neto) pay[cite: 12, 13].
+- [cite_start]**Detailed Overtime Tracking**: Automatically categorizes work hours into specific legal pay brackets, including 125%, 150%, and specialized weekend rates of 175% and 200%[cite: 2].
+
+### 📅 Precision Shift Logging
+
+- **Smart Presets**: One-tap shift entry using "Morning", "Evening", and "Night" presets for faster logging.
+- [cite_start]**Automated Calculations**: Instant duration and pay calculation based on your specific start and end times[cite: 2].
+- [cite_start]**Shift History**: Access a detailed historical overview of all past sessions with individual pay breakdowns[cite: 1, 2].
+
+### 📄 Professional Paycheck Generation
+
+- [cite_start]**One-Click PDF Statement**: Instantly convert your monthly overview into a formal, structured pay slip with a single tap[cite: 1, 2].
+- [cite_start]**Tax & Deduction Transparency**: Clear itemization of mandatory deductions, including Income Tax (Mas Hachnasa), Social Security (Bituah Leumi), and Pension contributions[cite: 4, 5, 6, 10, 11].
+- **Native Sharing**: Seamlessly export and share your PDF statements via WhatsApp, Email, or save directly to cloud storage.
+
+### 👤 Dynamic Profile Management
+
+- [cite_start]**Custom Compensation**: Set your unique base hourly rates and travel/ride compensation for precise earnings[cite: 2].
+- [cite_start]**Profile Automation**: Automatic age calculation from birthdate and personalized user settings[cite: 1].
+- **Secure Data Persistence**: Seamless integration with Appwrite to ensure your financial data remains secure and accessible.
 
 ---
 
@@ -32,16 +47,35 @@ Replace your gallery section with this code. It uses HTML for better control ove
 
 Markdown
 
-## 📸 Screen Gallery
+## 📸 Screen Gallery Dark Mode
 
 <p align="center">
-  <img src="./screenshots/dashboard.png" width="30%" />
-  <img src="./screenshots/add_shift.png" width="30%" />
-  <img src="./screenshots/profile.png" width="30%" />
+  <img src="./screenshots/DarkMode/add_shift_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/edit_profile_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/overview_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/profile_D.png" />
+  <img src="./screenshots/DarkMode/shifts_D.png" />
+  <img src="./screenshots/paycheck_g.png">
+
 </p>
 
 <p align="center">
-  <em>Monthly Dashboard &bull; Shift Entry &bull; User Profile</em>
+  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Paycheck Pdf Generator</em>
+</p>
+
+## 📸 Screen Gallery Light Mode
+
+<p align="center">
+  <img src="./screenshots/LightMode/add_shift_L.png" width="30%" />
+  <img src="./screenshots/LightMode/edit_profile_L.png" width="30%" />
+  <img src="./screenshots/LightMode/overview_L.png" width="30%" />
+  <img src="./screenshots/LightMode/profile_L.png" />
+  <img src="./screenshots/LightMode/shifts_L.png" />
+   <img src="./screenshots/paycheck_g.png">
+</p>
+
+<p align="center">
+  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Paycheck Pdf Generator</em>
 </p>
 
 ## 🛠️ Installation & Setup
@@ -86,16 +120,12 @@ Markdown
 
 ---
 
-## 🤝 Contributing
+### 🛡️ License & Copyright
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/ItzhakRouach/guardPay/issues).
+**Copyright (c) 2026 Itzhak Rouach. All rights reserved.**
+
+This project is proprietary. [cite_start]While you are welcome to explore the code for educational purposes, copying, distributing, or using the unique calculation logic for commercial or private gain is strictly prohibited without explicit written permission from the author[cite: 1].
 
 ---
-
-## License & Copyright
-
-Copyright (c) 2026 Itzhak Rouach. All rights reserved.
-
-This project is for display purposes only. You are welcome to view the code and learn from it, but you are not permitted to copy, distribute, or use any part of the project for commercial or private purposes without explicit written permission from the author.
 
 **Created by [Itzhak Rouach](https://github.com/ItzhakRouach)**
