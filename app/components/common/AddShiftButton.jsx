@@ -32,6 +32,5 @@ const makeStyle = (theme) =>
       position: "absolute",
       bottom: 100,
       alignSelf: "center",
-      marginRight: 23,
     },
   });
