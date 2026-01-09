@@ -53,9 +53,9 @@ Markdown
   <img src="./screenshots/DarkMode/add_shift_D.png" width="30%" />
   <img src="./screenshots/DarkMode/edit_profile_D.png" width="30%" />
   <img src="./screenshots/DarkMode/overview_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/profile_D.png" />
-  <img src="./screenshots/DarkMode/shifts_D.png" />
-  <img src="./screenshots/paycheck_g.png">
+  <img src="./screenshots/DarkMode/profile_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/shifts_D.png" width="30%"  />
+  <img src="./screenshots/paycheck_g.png" width="30%" >
 
 </p>
 
@@ -69,9 +69,9 @@ Markdown
   <img src="./screenshots/LightMode/add_shift_L.png" width="30%" />
   <img src="./screenshots/LightMode/edit_profile_L.png" width="30%" />
   <img src="./screenshots/LightMode/overview_L.png" width="30%" />
-  <img src="./screenshots/LightMode/profile_L.png" />
-  <img src="./screenshots/LightMode/shifts_L.png" />
-   <img src="./screenshots/paycheck_g.png">
+  <img src="./screenshots/LightMode/profile_L.png" width="30%" />
+  <img src="./screenshots/LightMode/shifts_L.png" width="30%" />
+   <img src="./screenshots/paycheck_g.png" width="30%" >
 </p>
 
 <p align="center">
