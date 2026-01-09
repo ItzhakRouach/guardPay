@@ -2,13 +2,7 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
-import {
-  ActivityIndicator,
-  Avatar,
-  Button,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import {
   client,
   DATABASE_ID,
@@ -16,7 +10,6 @@ import {
   USERS_PREFS,
 } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
-import { initalName } from "../../lib/utils";
 import ProfileSummary from "../components/layout/ProfileSummary";
 
 export default function Index() {
@@ -61,44 +54,36 @@ export default function Index() {
     return () => unsubcribe();
   }, [user, fetchUserProfile]);
 
-  const AvatarName = () => (
-    <Avatar.Text size={100} label={initalName(profile?.user_name)} />
-  );
-
   const handleEditBtn = () => {
     router.push("/edit-profile");
   };
 
   return (
     <View style={styles.container}>
-      <Button
-        icon="logout"
-        textColor={theme.colors.primary}
-        onPress={signOut}
-        style={styles.btn}
-      >
-        Sign out
-      </Button>
-      <Button
-        icon="account-edit"
-        textColor={theme.colors.primary}
-        style={styles.editBtn}
-        onPress={() => handleEditBtn()}
-      >
-        Edit
-      </Button>
       {loading ? (
         <ActivityIndicator style={styles.loadingProfile} size="large" />
       ) : (
         <>
           <View style={styles.headerWrapper}>
-            <AvatarName />
             <Text variant="headlineLarge" style={styles.userName}>
               {profile.user_name}
             </Text>
           </View>
-          <ScrollView showsHorizontalScrollIndicator={false}>
-            <ProfileSummary profile={profile} user={user} />
+          <ScrollView
+            snapToInterval={100}
+            decelerationRate="fast"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: 300 },
+            ]}
+          >
+            <ProfileSummary
+              profile={profile}
+              user={user}
+              signout={signOut}
+              handleEditBtn={handleEditBtn}
+            />
           </ScrollView>
         </>
       )}
@@ -111,29 +96,21 @@ const makeStyle = (theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      padding: 20,
+      padding: 5,
       backgroundColor: theme.colors.background,
     },
 
-    btn: {
-      position: "absolute",
-      top: 50,
-      right: 10,
-    },
-    editBtn: {
-      position: "absolute",
-      top: 50,
-      left: 10,
-    },
     loadingProfile: {
       alignSelf: "center",
       marginTop: "auto",
       marginBottom: "auto",
     },
     headerWrapper: {
-      alignItems: "center",
+      flexDirection: "row",
+      alignItems: "left",
       marginTop: 100,
       marginBottom: 20,
+      marginLeft: 22,
     },
     userName: {
       color: theme.colors.primary,
@@ -141,4 +118,5 @@ const makeStyle = (theme) =>
       letterSpacing: -1,
       marginTop: 15,
     },
+    scrollContent: { padding: 10, paddingHorizontal: 0 },
   });

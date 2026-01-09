@@ -14,7 +14,7 @@ const lightTheme = {
   colors: {
     ...MD3LightTheme.colors,
     //#F8FAFC -> Main App Background
-    background: "#F8FAFC",
+    background: "#F4F4F4",
 
     //Primary brand color (buttons , Titles , labels)
     primary: "#213448",
@@ -24,6 +24,9 @@ const lightTheme = {
     surface: "#FFFFFF",
     onSurface: "#213448",
     card: "#F8FAFC",
+
+    //Profile Sections colors
+    profileSection: "#7D7D7D",
 
     //Borders and Muted lines
     outline: "#E2E8F0",
@@ -74,6 +77,8 @@ const darkTheme = {
     secondaryContainer: "#3a5e91ff",
     onSecondaryContainer: "#38BDF8",
 
+    //Profile Sections colors
+    profileSection: "#38BDF8",
     // Custom Mapping
     borderOutline: "#475569",
     dateText: "#94A3B8", // Muted gray-blue

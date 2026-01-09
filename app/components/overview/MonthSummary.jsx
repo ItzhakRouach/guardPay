@@ -28,7 +28,7 @@ export default function MonthSummary({
           {formattedAmount(bruto)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Shifts Worked:
@@ -37,7 +37,7 @@ export default function MonthSummary({
           {totalShifts}
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Total Regular Hours:
@@ -46,7 +46,7 @@ export default function MonthSummary({
           {totalRegHours}H
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Total Extra Hours:
@@ -55,7 +55,7 @@ export default function MonthSummary({
           {totalExtraHours}H
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Travel Money:
@@ -64,7 +64,7 @@ export default function MonthSummary({
           {formattedAmount(monthTravelMoney)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Regular Hours Money:
@@ -73,7 +73,7 @@ export default function MonthSummary({
           {formattedAmount(monthRegPay)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Extra Hours Money:
@@ -82,7 +82,7 @@ export default function MonthSummary({
           {formattedAmount(monthExtraPay)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Bituah Leumi and Health:
@@ -91,7 +91,7 @@ export default function MonthSummary({
           {formattedAmount(bituahLeumi)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Pensia:
@@ -100,7 +100,7 @@ export default function MonthSummary({
           {formattedAmount(pensia)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Tax:
@@ -109,7 +109,7 @@ export default function MonthSummary({
           {formattedAmount(incomeTax)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
+      <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
           Total Dedaction:
@@ -118,7 +118,6 @@ export default function MonthSummary({
           {formattedAmount(totalDeductions)}₪
         </Text>
       </View>
-      <Divider style={styles.dividerStyle} />
     </Surface>
   );
 }

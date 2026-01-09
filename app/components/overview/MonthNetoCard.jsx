@@ -9,12 +9,12 @@ export default function MonthNetoCard({ neto }) {
     <Card style={styles.netoContainer}>
       <Card.Content style={styles.cardStyle}>
         <View>
-          <Text variant="bodyLarge" style={styles.netoField}>
-            Neto
+          <Text variant="titleLarge" style={styles.netoField}>
+            Neto:
           </Text>
         </View>
         <View>
-          <Text variant="bodyLarge" style={styles.income}>
+          <Text variant="titleLarge" style={styles.income}>
             {formattedAmount(neto)}₪
           </Text>
         </View>
