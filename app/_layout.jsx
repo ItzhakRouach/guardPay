@@ -1,3 +1,4 @@
+import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -7,8 +8,16 @@ import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth-context";
 
-/** Creating colors for dark and light modes */
+//setup the notfication behavior
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldShowBanner: true,
+    shouldSetBadge: true,
+  }),
+});
 
+/** Creating colors for dark and light modes */
 const lightTheme = {
   ...MD3LightTheme,
   colors: {

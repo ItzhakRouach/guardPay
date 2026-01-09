@@ -1,6 +1,7 @@
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import {
@@ -10,6 +11,7 @@ import {
   USERS_PREFS,
 } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
+import { scheduleWeeklyReminder } from "../../lib/notfication";
 import ProfileSummary from "../components/layout/ProfileSummary";
 
 export default function Index() {
@@ -21,6 +23,32 @@ export default function Index() {
 
   const theme = useTheme();
   const styles = makeStyle(theme);
+
+  const getDayName = (dayNum) => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return days[dayNum - 1] || "Set Day";
+  };
+
+  const toggleReminder = async (isEnabled) => {
+    try {
+      setProfile((prev) => ({ ...prev, reminder_enable: isEnabled }));
+      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
+        reminder_enable: isEnabled,
+      });
+
+      if (!isEnabled) {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+      } else {
+        if (profile.reminder_day && profile.reminder_time) {
+          const [hour, minute] = profile.reminder_time.split(":").map(Number);
+          await scheduleWeeklyReminder(profile.reminder_day, hour, minute);
+        }
+      }
+    } catch (error) {
+      setProfile((prev) => ({ ...prev, reminder_enable: !isEnabled }));
+      console.error("Failed to toggle reminder:", error);
+    }
+  };
 
   const fetchUserProfile = useCallback(async (user) => {
     if (!user) return;
@@ -58,6 +86,33 @@ export default function Index() {
     router.push("/edit-profile");
   };
 
+  const onUpdateReminder = async (day, time) => {
+    try {
+      setProfile((prev) => ({
+        ...prev,
+        reminder_day: day,
+        reminder_time: time,
+        reminder_enable: true,
+      }));
+      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
+        reminder_day: day,
+        reminder_time: time,
+        reminder_enable: true,
+      });
+
+      const [hour, minute] = time.split(":").map(Number);
+      await scheduleWeeklyReminder(day, hour, minute);
+
+      Alert.alert(
+        "Success",
+        `Reminder set for every ${getDayName(day)} at ${time}`
+      );
+    } catch (error) {
+      console.error("Failed to update reminder:", error);
+      Alert.alert("Error", "Could not save your reminder settings.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -83,6 +138,8 @@ export default function Index() {
               user={user}
               signout={signOut}
               handleEditBtn={handleEditBtn}
+              onUpdateReminder={onUpdateReminder}
+              toggleReminder={toggleReminder}
             />
           </ScrollView>
         </>
