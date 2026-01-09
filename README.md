@@ -1,6 +1,6 @@
 # 🛡️ GuardPay: Smart Shift & Salary Tracker
 
-**GuardPay** is a premium mobile utility designed for security personnel and shift-based workers to effortlessly track work hours, calculate real-time earnings, and manage professional profiles with a modern, glass-morphic interface.
+**GuardPay** is a mobile utility designed for security personnel and shift-based workers to effortlessly track work hours, calculate real-time earnings, and manage professional profiles with a modern interface.
 
 ## ✨ Key Features
 
