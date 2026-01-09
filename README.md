@@ -81,6 +81,7 @@ Markdown
 - [ ] **Push Notifications**: Reminders to clock out of shifts.
 - [ ] **Export to PDF**: Generate professional monthly work reports for employers.
 - [ ] **Bonus Tracking**: Add holiday pay rates and overtime multipliers.
+- [ ] **Improve Month Summary**: Improve the design and insight of month salaries.
 
 ---
 

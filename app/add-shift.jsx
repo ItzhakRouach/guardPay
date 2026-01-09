@@ -1,14 +1,14 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Keyboard,
   Platform,
   StyleSheet,
-  View,
   TouchableWithoutFeedback,
-  Keyboard,
+  View,
 } from "react-native";
 import { ID, Query } from "react-native-appwrite";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
 import {
   DATABASE_ID,
   SHIFTS_HISTORY,
@@ -18,10 +18,10 @@ import {
 import { useAuth } from "../lib/auth-context";
 import { calculateShiftPay } from "../lib/shift-calculation";
 import { shiftTypeTimes } from "../lib/utils";
-import ShiftDatePicker from "./components/ShiftDatePicker";
-import ShiftTypeSelected from "./components/ShiftTypeSelected";
-import ShiftSummary from "./components/ShiftSummary";
-import DateTimeModal from "./components/DateTimeModal";
+import DateTimeModal from "./components/shifts/DateTimeModal";
+import ShiftDatePicker from "./components/shifts/ShiftDatePicker";
+import ShiftSummary from "./components/shifts/ShiftSummary";
+import ShiftTypeSelected from "./components/shifts/ShiftTypeSelected";
 
 export default function AddShift() {
   // use to control the show of the picker or not , default not

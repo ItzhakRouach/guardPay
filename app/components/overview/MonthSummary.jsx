@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
-import { formattedAmount } from "../../lib/utils";
+import { formattedAmount } from "../../../lib/utils";
 
 export default function MonthSummary({
   bruto,
@@ -153,12 +153,12 @@ const makeStyle = (theme) =>
     },
     income: {
       fontWeight: "bold",
-      color: "#466644",
+      color: "#10B981",
       marginRight: 10,
     },
     expense: {
       fontWeight: "bold",
-      color: "#963a34",
+      color: "#F43F5E",
       marginRight: 10,
     },
   });

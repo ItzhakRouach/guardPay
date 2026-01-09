@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Divider, List, useTheme } from "react-native-paper";
-import { formatDates } from "../../lib/utils";
+import { formatDates } from "../../../lib/utils";
 
 export default function ProfileSummary({ profile, user }) {
   const theme = useTheme();

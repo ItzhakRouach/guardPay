@@ -4,10 +4,10 @@ import { useTheme } from "react-native-paper";
 import { useAuth } from "../../lib/auth-context";
 import { calculateSalary } from "../../lib/salary_calculation";
 import { useShift } from "../../lib/useShift";
-import LoadingSpinner from "../components/LoadingSpinnner";
-import MonthNetoCard from "../components/MonthNetoCard";
-import MonthPicker from "../components/MonthPicker";
-import MonthSummary from "../components/MonthSummary";
+import LoadingSpinner from "../components/common/LoadingSpinnner";
+import MonthPicker from "../components/layout/MonthPicker";
+import MonthNetoCard from "../components/overview/MonthNetoCard";
+import MonthSummary from "../components/overview/MonthSummary";
 
 export default function OverViewScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());

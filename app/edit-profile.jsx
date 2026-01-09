@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  View,
-  TouchableWithoutFeedback,
   Keyboard,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { Query } from "react-native-appwrite";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import { DATABASE_ID, USERS_PREFS, databases } from "../lib/appwrite";
 import { useAuth } from "../lib/auth-context";
-import LoadingSpinner from "./components/LoadingSpinnner";
+import LoadingSpinner from "./components/common/LoadingSpinnner";
 
 export default function EditProfileScreen() {
   const { user } = useAuth();

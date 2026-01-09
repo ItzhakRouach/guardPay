@@ -17,7 +17,7 @@ import {
 } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
 import { initalName } from "../../lib/utils";
-import ProfileSummary from "../components/ProfileSummary";
+import ProfileSummary from "../components/layout/ProfileSummary";
 
 export default function Index() {
   // use the allready defined functions and states

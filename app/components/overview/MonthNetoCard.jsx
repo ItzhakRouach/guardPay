@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
-import { formattedAmount } from "../../lib/utils";
+import { formattedAmount } from "../../../lib/utils";
 
 export default function MonthNetoCard({ neto }) {
   const theme = useTheme();
@@ -37,7 +37,7 @@ const makeStyle = (theme) =>
     },
     income: {
       fontWeight: "bold",
-      color: "#466644",
+      color: "#10B981",
       marginRight: 10,
     },
     netoField: {

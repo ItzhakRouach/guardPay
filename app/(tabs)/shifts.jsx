@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
@@ -6,13 +7,12 @@ import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
 import { useShift } from "../../lib/useShift";
 import { formatShiftDate, formatShiftTime } from "../../lib/utils";
-import AddShiftButton from "../components/AddShiftButton";
-import LoadingSpinner from "../components/LoadingSpinnner";
-import MonthPicker from "../components/MonthPicker";
-import MonthTotalCard from "../components/MonthTotalCard";
-import NoShiftFound from "../components/NoShiftsFound";
-import ShiftCard from "../components/ShiftCard";
-import { useRouter } from "expo-router";
+import AddShiftButton from "../components/common/AddShiftButton";
+import LoadingSpinner from "../components/common/LoadingSpinnner";
+import MonthPicker from "../components/layout/MonthPicker";
+import MonthTotalCard from "../components/layout/MonthTotalCard";
+import NoShiftFound from "../components/layout/NoShiftsFound";
+import ShiftCard from "../components/shifts/ShiftCard";
 
 export default function ShiftsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());

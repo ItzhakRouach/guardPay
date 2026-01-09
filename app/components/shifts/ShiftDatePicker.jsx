@@ -1,10 +1,4 @@
-import {
-  View,
-  Pressable,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, TextInput, useTheme } from "react-native-paper";
 
 export default function ShiftDatePicker({
