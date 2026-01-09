@@ -120,7 +120,7 @@ const makeStyle = (theme) =>
     title: {
       marginBottom: 10,
       textAlign: "left",
-      fontWeight: "400",
+      fontWeight: "500",
       letterSpacing: -1,
       color: theme.colors.profileSection,
     },
@@ -135,22 +135,3 @@ const makeStyle = (theme) =>
       marginTop: 20,
     },
   });
-
-/**
-   *       />
-      <Divider />
-      <List.Item
-        style={styles.listItem}
-        titleStyle={{ fontSize: 20 }}
-        left={(props) => <List.Icon {...props} icon="cash-clock" />}
-        title={`Hour Rate: ${profile.price_per_hour}`}
-      />
-      <Divider />
-      <List.Item
-        style={styles.listItem}
-        titleStyle={{ fontSize: 20 }}
-        left={(props) => <List.Icon {...props} icon="cash-fast" />}
-        title={`Ride Rate: ${profile.price_per_ride}`}
-      />
-      <Divider />
-   */

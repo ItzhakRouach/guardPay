@@ -40,73 +40,10 @@ export default function MonthSummary({
       <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
-          Total Regular Hours:
+          Total Hours:
         </Text>
         <Text variant="bodyLarge" style={styles.shiftsField}>
-          {totalRegHours}H
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Total Extra Hours:
-        </Text>
-        <Text variant="bodyLarge" style={styles.shiftsField}>
-          {totalExtraHours}H
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Travel Money:
-        </Text>
-        <Text variant="bodyLarge" style={styles.income}>
-          {formattedAmount(monthTravelMoney)}₪
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Regular Hours Money:
-        </Text>
-        <Text variant="bodyLarge" style={styles.income}>
-          {formattedAmount(monthRegPay)}₪
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Extra Hours Money:
-        </Text>
-        <Text variant="bodyLarge" style={styles.income}>
-          {formattedAmount(monthExtraPay)}₪
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Bituah Leumi and Health:
-        </Text>
-        <Text variant="bodyLarge" style={styles.expense}>
-          {formattedAmount(bituahLeumi)}₪
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Pensia:
-        </Text>
-        <Text variant="bodyLarge" style={styles.expense}>
-          {formattedAmount(pensia)}₪
-        </Text>
-      </View>
-      <Divider style={styles.dividerStyle} bold={true} />
-      <View style={styles.salaryContent}>
-        <Text variant="bodyLarge" style={styles.field}>
-          Tax:
-        </Text>
-        <Text variant="bodyLarge" style={styles.expense}>
-          {formattedAmount(incomeTax)}₪
+          {totalRegHours + totalExtraHours}H
         </Text>
       </View>
       <Divider style={styles.dividerStyle} bold={true} />

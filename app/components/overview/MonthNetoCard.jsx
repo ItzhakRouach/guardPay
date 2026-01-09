@@ -28,8 +28,11 @@ const makeStyle = (theme) =>
     netoContainer: {
       marginTop: 40,
       backgroundColor: theme.colors.surface,
-      padding: 10,
-      marginHorizontal: 20,
+      padding: 0,
+      borderRadius: 15,
+      marginHorizontal: 10,
+      width: "auto",
+      height: "auto",
     },
     cardStyle: {
       flexDirection: "row",
