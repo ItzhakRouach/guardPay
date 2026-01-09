@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      direction: rtl;
+      padding: 20px;
+      color: #333;
+      background-color: #fff;
+    }
+
+    .header-container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background-color: #fafafa;
+      padding-bottom: 5px;
+    }
+
+    .header-row {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .header-row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-weight: bold;
+      width: 120px; /* Fixed width keeps values aligned in a straight line */
+      color: #555;
+      text-align: right;
+    }
+
+    .value {
+      color: #000;
+      flex: 1;
+      text-align: right;
+      padding-right: 10px;
+    }
+
+    /* Specific styling for the salary month to make it stand out */
+    .month-highlight {
+      font-size: 1.1em;
+      color: #4a69ff; /* Matching your app's primary blue */
+      font-weight: 600;
+    }
+    .payroll-table {
+      width: 100%;
+      border-collapse: collapse; /* מבטל רווחים בין הגבולות */
+      margin-top: 20px;
+      direction: rtl;
+    }
+
+    .payroll-table th {
+      background-color: #f2f2f2; /* צבע אפור בהיר לכותרת הטבלה */
+      color: #333;
+      text-align: right;
+      padding: 10px;
+      border-bottom: 2px solid #4a69ff; /* קו כחול מתחת לכותרות למראה מודרני */
+      font-weight: bold;
+    }
+
+    .payroll-table td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    /* הדגשה של עמודת הסכום */
+    .payroll-table td:last-child {
+      font-weight: 600;
+    }
+
+    /* צבע שונה לשורות זוגיות למניעת בלבול בעין */
+    .payroll-table tbody tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+    /* כותרת החלק (ניכויים) */
+    .section-title {
+      font-size: 18px;
+      color: #333;
+      border-right: 4px solid #e94560; /* קו אדום בצד ימין - מסמל "מינוס" או ניכוי */
+      padding-right: 10px;
+      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+
+    /* התאמה אישית לטבלת ניכויים */
+    .deductions-table th {
+      border-bottom: 2px solid #e94560; /* קו אדום במקום כחול */
+    }
+
+    /* סגנון לסכום הניכוי (שייראה כמו חובה) */
+    .deductions-table td:last-child {
+      color: #d32f2f; /* אדום עדין למספרים שיורדים מהשכר */
+    }
+    .summary-section {
+      margin-top: 40px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .summary-row.gross {
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .summary-label {
+      font-size: 16px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    /* עיצוב מיוחד לנטו - הכי בולט בדף */
+    .summary-row.net {
+      margin-top: 5px;
+    }
+
+    .summary-row.net .summary-label {
+      font-size: 20px;
+      color: #000;
+      font-weight: 800;
+    }
+
+    .summary-row.net .summary-value {
+      font-size: 28px;
+      color: #4a69ff; /* הכחול מהאפליקציה שלך */
+      font-weight: 900;
+    }
+  </style>
+  <body>
+    <div class="header-container">
+      <div class="header-row">
+        <span class="label">שם עובד:</span>
+        <span class="value">יצחק רואש</span>
+      </div>
+
+      <div class="header-row">
+        <span class="label">תאריך לידה:</span>
+        <span class="value">07/08/1998</span>
+      </div>
+
+      <div class="header-row">
+        <span class="label">חודש משכורת:</span>
+        <span class="value">01</span>
+      </div>
+
+      <div class="header-row">
+        <span class="label">כמות שעות:</span>
+        <span class="value">192</span>
+      </div>
+    </div>
+    <table class="payroll-table">
+      <thead>
+        <tr>
+          <th>רכיב</th>
+          <th>כמות</th>
+          <th>תעריף</th>
+          <th>סכום</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>נסיעות</td>
+          <td>20</td>
+          <td>40</td>
+          <td>800</td>
+        </tr>
+        <tr>
+          <td>שעות 100%</td>
+          <td>100</td>
+          <td>52.00</td>
+          <td>5,200</td>
+        </tr>
+        <tr>
+          <td>שעות נוספות 125%</td>
+          <td>20</td>
+          <td>65</td>
+          <td>1,300</td>
+        </tr>
+        <tr>
+          <td>שעות נוספות 150%</td>
+          <td>20</td>
+          <td>65</td>
+          <td>1,300</td>
+        </tr>
+        <tr>
+          <td>שעות נוספות 175%</td>
+          <td>20</td>
+          <td>65</td>
+          <td>1,300</td>
+        </tr>
+        <tr>
+          <td>שעות נוספות 200%</td>
+          <td>20</td>
+          <td>65</td>
+          <td>1,300</td>
+        </tr>
+        <tr>
+          <td>שעות שבת 150%</td>
+          <td>20</td>
+          <td>65</td>
+          <td>1,300</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3 class="section-title">ניכויים</h3>
+    <table class="payroll-table deductions-table">
+      <thead>
+        <tr>
+          <th>רכיב ניכוי</th>
+          <th>סכום לניכוי</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>מס הכנסה</td>
+          <td>520</td>
+        </tr>
+        <tr>
+          <td>ביטוח לאומי ובריאות</td>
+          <td>182</td>
+        </tr>
+        <tr>
+          <td>פנסיה עובד</td>
+          <td>312</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="summary-section">
+      <div class="summary-row gross">
+        <span class="summary-label">סה"כ ברוטו:</span>
+        <span class="summary-value">₪ 5,200</span>
+      </div>
+
+      <div class="summary-row net">
+        <span class="summary-label">נטו לתשלום:</span>
+        <span class="summary-value">₪ 4,025</span>
+      </div>
+    </div>
+  </body>
+</html>

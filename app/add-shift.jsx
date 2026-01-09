@@ -139,6 +139,23 @@ export default function AddShift() {
       rates.price_per_hour,
       rates.price_per_ride
     );
+    const documentData = {
+      user_id: user.$id,
+      start_time: finalStart.toISOString(),
+      end_time: finalEnd.toISOString(),
+      total_amount: Number(result.total_amount),
+      reg_hours: Number(result.reg_hours),
+      extra_hours: Number(result.extra_hours),
+      reg_pay_amount: Number(result.reg_pay_amount),
+      extra_pay_amount: Number(result.extra_pay_amount),
+      travel_pay_amount: Number(result.travel_pay_amount),
+      h100_hours: Number(result.h100_hours),
+      h125_extra_hours: Number(result.h125_extra_hours),
+      h150_extra_hours: Number(result.h150_extra_hours),
+      h175_extra_hours: Number(result.h175_extra_hours),
+      h200_extra_hours: Number(result.h200_extra_hours),
+      h150_shabat: Number(result.h150_shabat),
+    };
     try {
       if (isEditMode && params.shiftId) {
         // UPDATE EXISTING
@@ -146,16 +163,7 @@ export default function AddShift() {
           DATABASE_ID,
           SHIFTS_HISTORY,
           params.shiftId,
-          {
-            start_time: finalStart.toISOString(),
-            end_time: finalEnd.toISOString(),
-            total_amount: Number(result.total_amount),
-            reg_hours: Number(result.reg_hours),
-            extra_hours: Number(result.extra_hours),
-            reg_pay_amount: Number(result.reg_pay_amount),
-            extra_pay_amount: Number(result.extra_pay_amount),
-            travel_pay_amount: Number(result.travel_pay_amount),
-          }
+          documentData
         );
       } else {
         //Create new entry
@@ -163,17 +171,7 @@ export default function AddShift() {
           DATABASE_ID,
           SHIFTS_HISTORY,
           ID.unique(),
-          {
-            user_id: user.$id,
-            start_time: finalStart.toISOString(),
-            end_time: finalEnd.toISOString(),
-            total_amount: Number(result.total_amount),
-            reg_hours: Number(result.reg_hours),
-            extra_hours: Number(result.extra_hours),
-            reg_pay_amount: Number(result.reg_pay_amount),
-            extra_pay_amount: Number(result.extra_pay_amount),
-            travel_pay_amount: Number(result.travel_pay_amount),
-          }
+          documentData
         );
       }
     } catch (err) {
