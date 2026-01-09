@@ -106,16 +106,8 @@ export default function OverViewScreen() {
       <Button
         icon="receipt-text-check"
         style={styles.btn}
-        labelStyle={{
-          fontSize: 20,
-          fontWeight: 500,
-          color: "white",
-          letterSpacing: -0.5,
-        }}
-        contentStyle={{
-          height: 40,
-          flexDirection: "row-reverse",
-        }}
+        labelStyle={styles.btnLabel}
+        contentStyle={styles.btnContent}
         onPress={() => handleGeneratePDF(totals, profile, currentDate)}
         mode="contained"
       >
@@ -135,11 +127,18 @@ const makeStyle = (theme) =>
     },
     btn: {
       marginTop: 40,
-      padding: 10,
       borderRadius: 15,
       width: "95%",
       alignSelf: "center",
       backgroundColor: theme.colors.primary,
       elevation: 5,
+    },
+    btnContent: {
+      paddingVertical: 10,
+      flexDirection: "row-reverse",
+    },
+    btnLabel: {
+      fontSize: 18,
+      fontWeight: "bold",
     },
   });

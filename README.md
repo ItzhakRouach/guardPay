@@ -79,9 +79,10 @@ Markdown
 ## 🛣️ Roadmap
 
 - [ ] **Push Notifications**: Reminders to clock out of shifts.
-- [ ] **Export to PDF**: Generate professional monthly work reports for employers.
+- [ ] **Export to PDF**: Generate professional monthly work reports for employers. ---Done!
 - [ ] **Bonus Tracking**: Add holiday pay rates and overtime multipliers.
-- [ ] **Improve Month Summary**: Improve the design and insight of month salaries.
+- [ ] **Improve Month Summary**: Improve the design and insight of month salaries. ---Done!
+- [ ] **Add multi-languege Support**: Add another languege support like Hebrew and Arabic.
 
 ---
 
@@ -91,8 +92,10 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 
 ---
 
-## 📜 License
+## License & Copyright
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Copyright (c) 2026 Itzhak Rouach. All rights reserved.
+
+This project is for display purposes only. You are welcome to view the code and learn from it, but you are not permitted to copy, distribute, or use any part of the project for commercial or private purposes without explicit written permission from the author.
 
 **Created by [Itzhak Rouach](https://github.com/ItzhakRouach)**
