@@ -16,6 +16,59 @@ export default function OverViewScreen() {
   const { shifts, loading } = useShift(user, currentDate);
 
   const totals = useMemo(() => {
+    // 1. Helper to get the correct rate for each specific shift
+    const getRate = (s) => Number(s.base_rate || profile?.price_per_hour || 0);
+
+    // 2. Calculate Money Totals (using individual shift rates)
+    const h100_Pay = shifts.reduce(
+      (sum, s) => sum + Number(s.h100_hours || 0) * getRate(s),
+      0
+    );
+    const h150s_Pay = shifts.reduce(
+      (sum, s) => sum + Number(s.h150_shabat || 0) * getRate(s) * 1.5,
+      0
+    );
+    const h125e_Pay = shifts.reduce(
+      (sum, s) => sum + Number(s.h125_extra_hours || 0) * getRate(s) * 1.25,
+      0
+    );
+    const h150e_Pay = shifts.reduce(
+      (sum, s) => sum + Number(s.h150_extra_hours || 0) * getRate(s) * 1.5,
+      0
+    );
+    const h175s_Pay = shifts.reduce(
+      (sum, s) => sum + Number(s.h175_extra_hours || 0) * getRate(s) * 1.75,
+      0
+    );
+    const h200s_Pay = shifts.reduce(
+      (sum, s) => sum + Number(s.h200_extra_hours || 0) * getRate(s) * 2,
+      0
+    );
+
+    // 3. Calculate Hour Totals
+    const h100 = shifts.reduce((sum, s) => sum + Number(s.h100_hours || 0), 0);
+    const h150s = shifts.reduce(
+      (sum, s) => sum + Number(s.h150_shabat || 0),
+      0
+    );
+    const h125e = shifts.reduce(
+      (sum, s) => sum + Number(s.h125_extra_hours || 0),
+      0
+    );
+    const h150e = shifts.reduce(
+      (sum, s) => sum + Number(s.h150_extra_hours || 0),
+      0
+    );
+    const h175s = shifts.reduce(
+      (sum, s) => sum + Number(s.h175_extra_hours || 0),
+      0
+    );
+    const h200s = shifts.reduce(
+      (sum, s) => sum + Number(s.h200_extra_hours || 0),
+      0
+    );
+
+    // 4. Existing Pay summaries (from your current database fields)
     const regPay = shifts.reduce(
       (sum, s) => sum + Number(s.reg_pay_amount || 0),
       0
@@ -32,50 +85,35 @@ export default function OverViewScreen() {
       (s) => Number(s.travel_pay_amount) > 0
     ).length;
 
-    // calculate totals hours by fields
-    const h100 = shifts.reduce((sum, s) => sum + Number(s.h100_hours || 0), 0);
-    const h125e = shifts.reduce(
-      (sum, s) => sum + Number(s.h125_extra_hours || 0),
-      0
-    );
-    const h150e = shifts.reduce(
-      (sum, s) => sum + Number(s.h150_extra_hours || 0),
-      0
-    );
-    const h150s = shifts.reduce(
-      (sum, s) => sum + Number(s.h150_shabat || 0),
-      0
-    );
-    const h175s = shifts.reduce(
-      (sum, s) => sum + Number(s.h175_extra_hours || 0),
-      0
-    );
-    const h200s = shifts.reduce(
-      (sum, s) => sum + Number(s.h200_extra_hours || 0),
-      0
-    );
-
-    const reg = h100 + h150s;
-    const extra = h125e + h150e + h175s + h200s;
-    const monthyReport = calculateSalary(regPay, extraPay, travelPay);
+    // 5. Final Calculations
+    const totalHours = h100 + h125e + h150e + h150s + h175s + h200s;
+    const monthlyReport = calculateSalary(regPay, extraPay, travelPay);
 
     return {
       monthlyRegPay: regPay,
       monthlyExtraPay: extraPay,
       monthlyTravelPay: travelPay,
-      monthlyReport: monthyReport,
-      totalReg: reg,
-      totalHours: h100 + h125e + h150e + h150s + h175s + h200s,
+      monthlyReport: monthlyReport,
+      totalReg: h100 + h150s,
+      totalExtra: h125e + h150e + h175s + h200s,
+      totalHours,
+      travelCount,
+      // Hourly Breakdowns
       h100,
+      h150s,
       h125e,
       h150e,
-      h150s,
       h175s,
       h200s,
-      totalExtra: extra,
-      travelCount: travelCount,
+      // Pay Breakdowns (use these in your PDF generator!)
+      h100_Pay,
+      h150s_Pay,
+      h125e_Pay,
+      h150e_Pay,
+      h175s_Pay,
+      h200s_Pay,
     };
-  }, [shifts]);
+  }, [shifts, profile]);
 
   const totalShift = useMemo(() => {
     return Array.isArray(shifts) ? shifts.length : 0;
@@ -94,12 +132,6 @@ export default function OverViewScreen() {
         totalShifts={totalShift}
         totalRegHours={totals.totalReg}
         totalExtraHours={totals.totalExtra}
-        monthTravelMoney={totals.monthlyTravelPay}
-        monthRegPay={totals.monthlyRegPay}
-        monthExtraPay={totals.monthlyExtraPay}
-        pensia={totals.monthlyReport.pensia}
-        bituahLeumi={totals.monthlyReport.bituahLeumiAndHealth}
-        incomeTax={totals.monthlyReport.incomeTax}
         totalDeductions={totals.monthlyReport.totalDeductions}
       />
       <MonthNetoCard neto={totals.monthlyReport.neto} />
@@ -108,7 +140,7 @@ export default function OverViewScreen() {
         style={styles.btn}
         labelStyle={styles.btnLabel}
         contentStyle={styles.btnContent}
-        onPress={() => handleGeneratePDF(totals, profile, currentDate)}
+        onPress={() => handleGeneratePDF(totals, profile, currentDate, shifts)}
         mode="contained"
       >
         Generate Paycheck

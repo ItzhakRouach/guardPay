@@ -31,7 +31,7 @@ export default function AddShift() {
   // use to keep track of which field is active
   const [activeField, setActiveField] = useState(null);
 
-  const [rates, setRates] = useState({ price_per_hour: 0, price_per_ride: 0 });
+  const [hourRate, setHourRate] = useState(0);
 
   const [loading, setLoading] = useState(true);
 
@@ -68,14 +68,11 @@ export default function AddShift() {
     try {
       const response = await databases.listDocuments(DATABASE_ID, USERS_PREFS, [
         Query.equal("user_id", user.$id),
-        Query.select(["price_per_hour", "price_per_ride"]),
+        Query.select("price_per_hour"),
       ]);
       if (response.documents.length > 0) {
         const doc = response.documents[0];
-        setRates({
-          price_per_hour: Number(doc.price_per_hour) || 0,
-          price_per_ride: Number(doc.price_per_ride) || 0,
-        });
+        setHourRate(Number(doc.price_per_hour));
       }
     } catch (err) {
       console.log(err);
@@ -136,8 +133,8 @@ export default function AddShift() {
     const result = calculateShiftPay(
       finalStart,
       finalEnd,
-      rates.price_per_hour,
-      rates.price_per_ride
+      hourRate,
+      profile.price_per_ride
     );
     const documentData = {
       user_id: user.$id,
@@ -155,6 +152,7 @@ export default function AddShift() {
       h175_extra_hours: Number(result.h175_extra_hours),
       h200_extra_hours: Number(result.h200_extra_hours),
       h150_shabat: Number(result.h150_shabat),
+      base_rate: hourRate,
     };
     try {
       if (isEditMode && params.shiftId) {
@@ -221,9 +219,8 @@ export default function AddShift() {
           endTime={endTime}
           openPicker={openPicker}
           loading={loading}
-          setRates={setRates}
-          price_per_hour={rates.price_per_hour}
-          price_per_ride={rates.price_per_ride}
+          setHourRate={setHourRate}
+          hourRate={hourRate}
         />
         {/**Shift type selected */}
         <View style={styles.shiftTypesWrapper}>

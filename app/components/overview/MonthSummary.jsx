@@ -7,12 +7,6 @@ export default function MonthSummary({
   totalShifts,
   totalRegHours,
   totalExtraHours,
-  monthTravelMoney,
-  monthRegPay,
-  monthExtraPay,
-  pensia,
-  bituahLeumi,
-  incomeTax,
   totalDeductions,
 }) {
   const theme = useTheme();

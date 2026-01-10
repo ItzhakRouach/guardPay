@@ -6,9 +6,8 @@ export default function ShiftDatePicker({
   date,
   openPicker,
   endTime,
-  price_per_hour,
-  price_per_ride,
-  setRates,
+  hourRate,
+  setHourRate,
 }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
@@ -84,32 +83,12 @@ export default function ShiftDatePicker({
           <View>
             <TextInput
               mode="outlined"
-              value={String(price_per_hour)}
-              placeholder={String(price_per_hour)}
+              value={String(hourRate)}
+              placeholder={String(hourRate)}
               label="Rate Per Hour"
               keyboardType="decimal-pad"
-              onChangeText={(val) =>
-                setRates((prev) => ({
-                  ...prev,
-                  price_per_hour: val,
-                }))
-              }
+              onChangeText={(val) => setHourRate(Number(val))}
               style={[styles.input, { marginBottom: 10 }]}
-            />
-
-            <TextInput
-              mode="outlined"
-              value={String(price_per_ride)}
-              placeholder={String(price_per_ride)}
-              keyboardType="decimal-pad"
-              label="Rate Per Ride"
-              onChangeText={(val) =>
-                setRates((prev) => ({
-                  ...prev,
-                  price_per_ride: val,
-                }))
-              }
-              style={styles.input}
             />
           </View>
         </View>
