@@ -1,19 +1,15 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import {
-  Button,
   Divider,
   List,
-  Modal,
-  Portal,
-  SegmentedButtons,
   Surface,
   Switch,
   Text,
   useTheme,
 } from "react-native-paper";
 import { formatDates } from "../../../lib/utils";
+import WeeklyReminder from "./WekklyReminder";
 
 export default function ProfileSummary({
   profile,
@@ -58,54 +54,15 @@ export default function ProfileSummary({
 
   return (
     <>
-      <Portal>
-        <Modal
-          visible={visable}
-          onDismiss={hideModal}
-          contentContainerStyle={styles.modalContainer}
-        >
-          <Text style={styles.modalTitle}>Reminder Settings</Text>
-          <Text style={styles.label}>Select Day:</Text>
-          <SegmentedButtons
-            value={tempDay}
-            onValueChange={setTempDay}
-            buttons={[
-              { value: 1, label: "S" },
-              { value: 2, label: "M" },
-              { value: 3, label: "T" },
-              { value: 4, label: "W" },
-            ]}
-            style={styles.segmented}
-          />
-          <SegmentedButtons
-            value={tempDay}
-            onValueChange={setTempDay}
-            buttons={[
-              { value: 5, label: "T" },
-              { value: 6, label: "F" },
-              { value: 7, label: "S" },
-            ]}
-            style={styles.segmented}
-          />
-          <Text style={styles.label}>Select Time:</Text>
-          <DateTimePicker
-            value={tempTime}
-            mode="time"
-            display="spinner"
-            onChange={(event, date) => date && setTempTime(date)}
-            textColor={theme.colors.onSurface}
-          />
-
-          <Button
-            mode="contained"
-            onPress={handleSaveReminder}
-            style={styles.saveBtn}
-            contentStyle={{ height: 50 }}
-          >
-            Update Reminder
-          </Button>
-        </Modal>
-      </Portal>
+      <WeeklyReminder
+        handleSaveReminder={handleSaveReminder}
+        visable={visable}
+        hideModal={hideModal}
+        tempDay={tempDay}
+        tempTime={tempTime}
+        setTempTime={setTempTime}
+        setTempDay={setTempDay}
+      />
       <Surface style={styles.contentWrapper} elevation={1}>
         <Text style={styles.title} variant="headlineMedium">
           General
@@ -241,33 +198,5 @@ const makeStyle = (theme) =>
     },
     preferences: {
       marginTop: 20,
-    },
-    modalContainer: {
-      backgroundColor: theme.colors.surface,
-      padding: 25,
-      margin: 20,
-      borderRadius: 30,
-      width: "90%",
-      alignSelf: "center",
-    },
-    modalTitle: {
-      fontSize: 22,
-      fontWeight: "700",
-      textAlign: "center",
-      marginBottom: 20,
-      color: theme.colors.primary,
-    },
-    label: {
-      fontSize: 16,
-      marginBottom: 8,
-      marginTop: 15,
-      fontWeight: "600",
-    },
-    segmented: {
-      marginBottom: 10,
-    },
-    saveBtn: {
-      marginTop: 25,
-      borderRadius: 15,
     },
   });
