@@ -112,10 +112,11 @@ Markdown
 
 ## 🛣️ Roadmap
 
-- [ ] **Push Notifications**: Reminders to clock out of shifts.
+- [x] **Push Notifications**: Reminders to clock out of shifts.
 - [x] **Export to PDF**: Generate professional monthly work reports for employers.
 - [ ] **Bonus Tracking**: Add holiday pay rates and overtime multipliers.
 - [x] **Improve Month Summary**: Improve the design and insight of month salaries.
+- [ ] **Dynamic Shifts Type**:Enable user to set his shifts types time.
 - [ ] **Add multi-languege Support**: Add another languege support like Hebrew and Arabic.
 
 ---
