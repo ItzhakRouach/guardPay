@@ -16,36 +16,7 @@ export default function OverViewScreen() {
   const { shifts, loading } = useShift(user, currentDate);
 
   const totals = useMemo(() => {
-    // 1. Helper to get the correct rate for each specific shift
-    const getRate = (s) => Number(s.base_rate || profile?.price_per_hour || 0);
-
-    // 2. Calculate Money Totals (using individual shift rates)
-    const h100_Pay = shifts.reduce(
-      (sum, s) => sum + Number(s.h100_hours || 0) * getRate(s),
-      0
-    );
-    const h150s_Pay = shifts.reduce(
-      (sum, s) => sum + Number(s.h150_shabat || 0) * getRate(s) * 1.5,
-      0
-    );
-    const h125e_Pay = shifts.reduce(
-      (sum, s) => sum + Number(s.h125_extra_hours || 0) * getRate(s) * 1.25,
-      0
-    );
-    const h150e_Pay = shifts.reduce(
-      (sum, s) => sum + Number(s.h150_extra_hours || 0) * getRate(s) * 1.5,
-      0
-    );
-    const h175s_Pay = shifts.reduce(
-      (sum, s) => sum + Number(s.h175_extra_hours || 0) * getRate(s) * 1.75,
-      0
-    );
-    const h200s_Pay = shifts.reduce(
-      (sum, s) => sum + Number(s.h200_extra_hours || 0) * getRate(s) * 2,
-      0
-    );
-
-    // 3. Calculate Hour Totals
+    // Calculate Hour Totals
     const h100 = shifts.reduce((sum, s) => sum + Number(s.h100_hours || 0), 0);
     const h150s = shifts.reduce(
       (sum, s) => sum + Number(s.h150_shabat || 0),
@@ -68,7 +39,7 @@ export default function OverViewScreen() {
       0
     );
 
-    // 4. Existing Pay summaries (from your current database fields)
+    // 4. Existing Pay summaries
     const regPay = shifts.reduce(
       (sum, s) => sum + Number(s.reg_pay_amount || 0),
       0
@@ -90,30 +61,14 @@ export default function OverViewScreen() {
     const monthlyReport = calculateSalary(regPay, extraPay, travelPay);
 
     return {
-      monthlyRegPay: regPay,
-      monthlyExtraPay: extraPay,
       monthlyTravelPay: travelPay,
       monthlyReport: monthlyReport,
       totalReg: h100 + h150s,
       totalExtra: h125e + h150e + h175s + h200s,
       totalHours,
       travelCount,
-      // Hourly Breakdowns
-      h100,
-      h150s,
-      h125e,
-      h150e,
-      h175s,
-      h200s,
-      // Pay Breakdowns (use these in your PDF generator!)
-      h100_Pay,
-      h150s_Pay,
-      h125e_Pay,
-      h150e_Pay,
-      h175s_Pay,
-      h200s_Pay,
     };
-  }, [shifts, profile]);
+  }, [shifts]);
 
   const totalShift = useMemo(() => {
     return Array.isArray(shifts) ? shifts.length : 0;
