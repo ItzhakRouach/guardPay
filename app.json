@@ -8,9 +8,15 @@
     "scheme": "guardpay",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "supportsRTL": true
+    },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.anonymous.GuardPay"
+      "bundleIdentifier": "com.anonymous.GuardPay",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +24,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.GuardPay"
+      "package": "com.anonymous.GuardPay",
+      "supportsRTL": true
     },
     "web": {
       "output": "static",
@@ -38,7 +45,8 @@
           }
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

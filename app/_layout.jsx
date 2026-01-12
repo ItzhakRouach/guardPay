@@ -2,11 +2,14 @@ import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { useColorScheme, I18nManager } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth-context";
+import "../Langueges/il18n";
+import { useTranslation } from "react-i18next";
+import RNRestart from "react-native-restart";
 
 //setup the notfication behavior
 Notifications.setNotificationHandler({
@@ -128,6 +131,16 @@ function RouteGuard({ children }) {
 }
 
 export default function RootLayout() {
+  // setup the app languege as the device languege
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    const isRTL = i18n.language === "he";
+    if (I18nManager.isRTL !== isRTL) {
+      I18nManager.forceRTL = isRTL;
+      I18nManager.allowRTL = isRTL;
+    }
+  }, [i18n.language]);
+
   // detect system theme
   const colorScheme = useColorScheme();
 

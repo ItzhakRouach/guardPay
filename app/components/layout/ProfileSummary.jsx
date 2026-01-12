@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, I18nManager } from "react-native";
 import {
   Divider,
   List,
@@ -10,6 +10,9 @@ import {
 } from "react-native-paper";
 import { formatDates } from "../../../lib/utils";
 import WeeklyReminder from "./WekklyReminder";
+import { useTranslation } from "react-i18next";
+import LanguegesChange from "../LanguegesChange";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ProfileSummary({
   profile,
@@ -20,14 +23,37 @@ export default function ProfileSummary({
   toggleReminder,
 }) {
   const [visable, setVisable] = useState(false);
+  const [visableLang, setVisableLang] = useState(false);
   const [tempDay, setTempDay] = useState(profile.reminder_day || 1);
   const [tempTime, setTempTime] = useState(new Date());
   const [isSwitchOn, setIsSwitchOn] = useState(
     profile.reminder_enable || false
   );
+  const [isRTL, setIsRTL] = useState(false);
+
+  const { i18n, t } = useTranslation();
+  const [lang, setLang] = useState(i18n.language);
+
+  const changelang = async (val) => {
+    try {
+      await i18n.changeLanguage(val);
+      setLang(val);
+      if (val === "he") {
+        setIsRTL(true);
+      } else {
+        setIsRTL(false);
+      }
+      await AsyncStorage.setItem("user-languege", val);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const showModal = () => setVisable(true);
   const hideModal = () => setVisable(false);
+  const showLang = () => setVisableLang(true);
+  const hideLang = () => setVisableLang(false);
+
   const onToggleSwitch = async () => {
     const newValue = !isSwitchOn;
     setIsSwitchOn(newValue);
@@ -45,12 +71,12 @@ export default function ProfileSummary({
   };
 
   const getDayName = (dayNum) => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
     return days[dayNum - 1] || "Set Day";
   };
 
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const styles = makeStyle(theme, isRTL);
 
   return (
     <>
@@ -63,38 +89,46 @@ export default function ProfileSummary({
         setTempTime={setTempTime}
         setTempDay={setTempDay}
       />
+      <LanguegesChange
+        visable={visableLang}
+        hideModal={hideLang}
+        lang={lang}
+        setLang={changelang}
+      />
       <Surface style={styles.contentWrapper} elevation={1}>
         <Text style={styles.title} variant="headlineMedium">
-          General
+          {t("index.general")}
         </Text>
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="email" />}
-          title={`Email: ${user.email}`}
+          title={`${t("index.email")} : ${user.email}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="account-outline" />}
-          title={`Name: ${profile.user_name}`}
+          title={`${t("index.name")} : ${profile.user_name}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="numeric" />}
-          title={`Age: ${profile.age}`}
+          title={`${t("index.age")} : ${profile.age}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => (
             <List.Icon {...props} icon="calendar-account-outline" />
           )}
-          title={`Birth Date: ${formatDates(profile.birth_date)}`}
+          title={`${t("index.birth_date")} : ${formatDates(
+            profile.birth_date
+          )}`}
         />
       </Surface>
       {/**Preferences Section */}
@@ -103,37 +137,47 @@ export default function ProfileSummary({
         elevation={1}
       >
         <Text style={styles.title} variant="headlineMedium">
-          Preferences
+          {t("index.pref")}
         </Text>
 
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="cash-clock" />}
-          title={`Hour Rate: ${profile.price_per_hour}`}
+          title={`${t("index.hour_rate")} : ${profile.price_per_hour}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="cash-fast" />}
-          title={`Ride Rate: ${profile.price_per_ride}`}
+          title={`${t("index.ride_rate")} : ${profile.price_per_ride}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
-          left={(props) => <List.Icon {...props} icon="alarm" />}
-          right={(props) => (
-            <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
-          )}
-          title={"Weekly Reminder"}
+          titleStyle={styles.listTitle}
+          left={
+            isRTL
+              ? (props) => (
+                  <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+                )
+              : (props) => <List.Icon {...props} icon="alarm" />
+          }
+          right={
+            isRTL
+              ? ""
+              : (props) => (
+                  <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+                )
+          }
+          title={t("index.weekly_r")}
           onPress={showModal}
-          description={`Every ${getDayName(profile.reminder_day)} at ${
-            profile.reminder_time || "Not set"
-          }`}
-          descriptionStyle={{ color: theme.colors.secondary }}
+          description={`${t("index.every")} ${t(
+            `days.${getDayName(profile.reminder_day)}`
+          )} ${t("index.at")} ${profile.reminder_time || t("index.not_set")}`}
+          descriptionStyle={styles.descStyle}
         />
       </Surface>
       {/**Account Section */}
@@ -142,12 +186,12 @@ export default function ProfileSummary({
         elevation={1}
       >
         <Text style={styles.title} variant="headlineMedium">
-          Account
+          {t("index.account")}
         </Text>
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
           left={(props) => (
             <List.Icon
               {...props}
@@ -155,17 +199,31 @@ export default function ProfileSummary({
               color={theme.colors.primary}
             />
           )}
-          title={"Edit Preferences"}
+          title={t("index.edit_pref")}
           onPress={() => handleEditBtn()}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
-          titleStyle={{ fontSize: 20 }}
+          titleStyle={styles.listTitle}
+          left={(props) => (
+            <List.Icon
+              {...props}
+              icon="translate"
+              color={theme.colors.primary}
+            />
+          )}
+          title={t("index.change_lang")}
+          onPress={showLang}
+        />
+        <Divider style={styles.dividerStyle} bold={true} />
+        <List.Item
+          style={styles.listItem}
+          titleStyle={styles.listTitle}
           left={(props) => (
             <List.Icon {...props} icon="logout" color="#E94560" />
           )}
-          title={"Log Out"}
+          title={t("index.log_out")}
           onPress={signout}
         />
       </Surface>
@@ -173,7 +231,7 @@ export default function ProfileSummary({
   );
 }
 
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     contentWrapper: {
       padding: 15,
@@ -181,11 +239,14 @@ const makeStyle = (theme) =>
       borderRadius: 30,
       backgroundColor: theme.colors.surface,
       marginHorizontal: 10,
+      alignItems: isRTL ? "flex-end" : "flex-start",
     },
     title: {
       marginBottom: 10,
-      textAlign: "left",
       fontWeight: "500",
+      paddingStart: 10,
+      width: "100%",
+      textAlign: isRTL ? "right" : "left",
       letterSpacing: -1,
       color: theme.colors.profileSection,
     },
@@ -196,7 +257,18 @@ const makeStyle = (theme) =>
     listItem: {
       marginBottom: 2,
     },
+    listTitle: {
+      textAlign: isRTL ? "right" : "left",
+      writingDirection: isRTL ? "rtl" : "ltr",
+      fontSize: 20,
+    },
     preferences: {
       marginTop: 20,
+    },
+    descStyle: {
+      textAlign: isRTL ? "right" : "left",
+      marginTop: 5,
+      writingDirection: isRTL ? "rtl" : "ltr",
+      color: theme.colors.secondary,
     },
   });
