@@ -56,8 +56,9 @@ export default function MonthSummary({
 const makeStyle = (theme) =>
   StyleSheet.create({
     contentSurface: {
-      marginTop: 20,
-      padding: 10,
+      marginTop: 100,
+      height: 250,
+      padding: 15,
       marginHorizontal: 10,
       backgroundColor: theme.colors.surface,
       borderRadius: 20,
@@ -70,7 +71,7 @@ const makeStyle = (theme) =>
       marginBottom: 10,
     },
     dividerStyle: {
-      marginBottom: 10,
+      marginBottom: 25,
     },
     field: {
       fontWeight: "600",

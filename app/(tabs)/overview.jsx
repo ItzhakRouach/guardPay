@@ -56,9 +56,35 @@ export default function OverViewScreen() {
       (s) => Number(s.travel_pay_amount) > 0
     ).length;
 
+    const trainingAmount = shifts.reduce((sum, s) => {
+      if (s.is_training) {
+        return sum + s.total_amount || 0;
+      }
+      return sum;
+    }, 0);
+
+    const vacationAmount = shifts.reduce((sum, s) => {
+      if (s.is_vacation) {
+        return sum + s.total_amount || 0;
+      }
+      return sum;
+    }, 0);
+
+    const vacationDays = shifts.filter((s) => s.is_vacation === true).length;
+
+    const trainingDays = shifts.filter((s) => s.is_training === true).length;
+
+    const totalShifts = shifts.length - vacationDays;
+
     // 5. Final Calculations
     const totalHours = h100 + h125e + h150e + h150s + h175s + h200s;
-    const monthlyReport = calculateSalary(regPay, extraPay, travelPay);
+    const monthlyReport = calculateSalary(
+      regPay,
+      extraPay,
+      travelPay,
+      trainingAmount,
+      vacationAmount
+    );
 
     return {
       monthlyTravelPay: travelPay,
@@ -67,11 +93,12 @@ export default function OverViewScreen() {
       totalExtra: h125e + h150e + h175s + h200s,
       totalHours,
       travelCount,
+      trainingDays,
+      trainingAmount,
+      vacationDays,
+      vacationAmount,
+      totalShifts,
     };
-  }, [shifts]);
-
-  const totalShift = useMemo(() => {
-    return Array.isArray(shifts) ? shifts.length : 0;
   }, [shifts]);
 
   // intilize styles
@@ -82,9 +109,10 @@ export default function OverViewScreen() {
     <View style={styles.container}>
       <MonthPicker currentDate={currentDate} setCurrentDate={setCurrentDate} />
       {loading && <LoadingSpinner />}
+
       <MonthSummary
         bruto={totals.monthlyReport.bruto}
-        totalShifts={totalShift}
+        totalShifts={totals.totalShifts}
         totalRegHours={totals.totalReg}
         totalExtraHours={totals.totalExtra}
         totalDeductions={totals.monthlyReport.totalDeductions}
@@ -112,16 +140,18 @@ const makeStyle = (theme) =>
       padding: 10,
       background: theme.colors.background,
     },
+
     btn: {
-      marginTop: 40,
-      borderRadius: 15,
-      width: "95%",
+      marginTop: "auto",
+      marginBottom: "auto",
+      borderRadius: 20,
+      width: "100%",
       alignSelf: "center",
       backgroundColor: theme.colors.primary,
       elevation: 5,
     },
     btnContent: {
-      paddingVertical: 10,
+      paddingVertical: 15,
       flexDirection: "row-reverse",
     },
     btnLabel: {

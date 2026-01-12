@@ -31,7 +31,7 @@ export default function AddShift() {
   // use to keep track of which field is active
   const [activeField, setActiveField] = useState(null);
 
-  const [hourRate, setHourRate] = useState(0);
+  const [hourRate, setHourRate] = useState("");
 
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +72,7 @@ export default function AddShift() {
       ]);
       if (response.documents.length > 0) {
         const doc = response.documents[0];
-        setHourRate(Number(doc.price_per_hour));
+        setHourRate(doc.price_per_hour);
       }
     } catch (err) {
       console.log(err);
@@ -129,14 +129,15 @@ export default function AddShift() {
     const finalEnd = new Date(date);
     finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
 
+    const baseRate = Number(hourRate);
     // calculate by the rules
     const result = calculateShiftPay(
       finalStart,
       finalEnd,
-      hourRate,
+      baseRate,
       profile.price_per_ride
     );
-    const documentData = {
+    let documentData = {
       user_id: user.$id,
       start_time: finalStart.toISOString(),
       end_time: finalEnd.toISOString(),
@@ -152,8 +153,51 @@ export default function AddShift() {
       h175_extra_hours: Number(result.h175_extra_hours),
       h200_extra_hours: Number(result.h200_extra_hours),
       h150_shabat: Number(result.h150_shabat),
-      base_rate: hourRate,
+      base_rate: baseRate,
     };
+    if (value === "training") {
+      documentData = {
+        user_id: user.$id,
+        start_time: finalStart.toISOString(),
+        end_time: finalEnd.toISOString(),
+        total_amount: Number(baseRate * 8),
+        reg_hours: 0,
+        extra_hours: 0,
+        reg_pay_amount: 0,
+        extra_pay_amount: 0,
+        travel_pay_amount: Number(result.travel_pay_amount),
+        h100_hours: 0,
+        h125_extra_hours: 0,
+        h150_extra_hours: 0,
+        h175_extra_hours: 0,
+        h200_extra_hours: 0,
+        h150_shabat: 0,
+        base_rate: baseRate,
+        is_training: true,
+      };
+    }
+    if (value === "vacation") {
+      documentData = {
+        user_id: user.$id,
+        start_time: finalStart.toISOString(),
+        end_time: finalEnd.toISOString(),
+        total_amount: Number(baseRate * 8),
+        reg_hours: 0,
+        extra_hours: 0,
+        reg_pay_amount: 0,
+        extra_pay_amount: 0,
+        travel_pay_amount: 0,
+        h100_hours: 0,
+        h125_extra_hours: 0,
+        h150_extra_hours: 0,
+        h175_extra_hours: 0,
+        h200_extra_hours: 0,
+        h150_shabat: 0,
+        base_rate: baseRate,
+        is_vacation: true,
+      };
+    }
+
     try {
       if (isEditMode && params.shiftId) {
         // UPDATE EXISTING
@@ -182,7 +226,6 @@ export default function AddShift() {
   //function to handle the selected shit type  , and update the hours like it should be.
   const handleShiftTypeChange = (selected) => {
     setValue(selected);
-
     const config = shiftTypeTimes[selected];
     if (!config) return;
 
@@ -201,7 +244,6 @@ export default function AddShift() {
     ) {
       newEnd.setDate(newEnd.getDate() + 1);
     }
-
     setStartTime(newStart);
     setEndTime(newEnd);
   };
@@ -264,7 +306,6 @@ const makeStyle = (theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-
       padding: 20,
     },
     title: {
@@ -280,8 +321,8 @@ const makeStyle = (theme) =>
     },
 
     shiftTypesWrapper: {
-      backgroundColor: theme.colors.surface,
-      marginBottom: 20,
-      borderRadius: 20,
+      marginHorizontal: 10,
+      paddingHorizontal: 0,
+      marginBottom: 30,
     },
   });

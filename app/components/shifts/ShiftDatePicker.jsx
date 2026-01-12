@@ -87,7 +87,7 @@ export default function ShiftDatePicker({
               placeholder={String(hourRate)}
               label="Rate Per Hour"
               keyboardType="decimal-pad"
-              onChangeText={(val) => setHourRate(Number(val))}
+              onChangeText={(val) => setHourRate(val)}
               style={[styles.input, { marginBottom: 10 }]}
             />
           </View>

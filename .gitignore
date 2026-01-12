@@ -44,5 +44,6 @@ app-example
 /ios
 /android
 
-# Ignore the features txt 
+# Ignore the features txt and notes
 featuresToAdd.txt
+ThingsToFix.txt
