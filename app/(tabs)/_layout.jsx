@@ -1,12 +1,11 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper"; // Added for icon colors
 
-
-
-
 export default function TabsLayout() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isDark = theme.dark;
 
@@ -26,16 +25,14 @@ export default function TabsLayout() {
           justifyContent: "center",
           alignItems: "center",
           paddingTop: "6",
-
         },
         tabBarStyle: styles.tabBar,
-       
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Profile",
+          title: t("tabs.profile"),
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="cog" size={30} color={color} />
           ),
@@ -44,7 +41,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="shifts"
         options={{
-          title: "Shifts",
+          title: t("tabs.shifts"),
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="calendar-plus"
@@ -55,25 +52,29 @@ export default function TabsLayout() {
         }}
       />
 
-      <Tabs.Screen name="overview" 
+      <Tabs.Screen
+        name="overview"
         options={{
-          title: "overview",
-          tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons name="calendar-month" size={30} color={color} />
-          )
+          title: t("tabs.overview"),
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="calendar-month"
+              size={30}
+              color={color}
+            />
+          ),
         }}
-        />
-
+      />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-tabBar: {
-    position:"absolute",
-    alignItems:"center",
+  tabBar: {
+    position: "absolute",
+    alignItems: "center",
     bottom: 20,
-    marginHorizontal: 85,
+    marginHorizontal: 75,
     height: 60,
     borderRadius: 30,
     backgroundColor: "#ffffff",

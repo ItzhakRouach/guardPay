@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import { useAuth } from "../../lib/auth-context";
 import { handleGeneratePDF } from "../../lib/GeneratePaycheck";
+import { useLanguage } from "../../lib/lang-context";
 import { calculateSalary } from "../../lib/salary_calculation";
 import { useShift } from "../../lib/useShift";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
@@ -14,6 +16,8 @@ export default function OverViewScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { user, profile } = useAuth();
   const { shifts, loading } = useShift(user, currentDate);
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
 
   const totals = useMemo(() => {
     // Calculate Hour Totals
@@ -103,7 +107,7 @@ export default function OverViewScreen() {
 
   // intilize styles
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const styles = makeStyle(theme, isRTL);
 
   return (
     <View style={styles.container}>
@@ -126,13 +130,13 @@ export default function OverViewScreen() {
         onPress={() => handleGeneratePDF(totals, profile, currentDate, shifts)}
         mode="contained"
       >
-        Generate Paycheck
+        {t("overview.btn")}
       </Button>
     </View>
   );
 }
 
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -142,17 +146,17 @@ const makeStyle = (theme) =>
     },
 
     btn: {
-      marginTop: "auto",
-      marginBottom: "auto",
+      marginTop: 20,
+      marginBottom: 10,
       borderRadius: 20,
-      width: "100%",
+      width: "95%",
       alignSelf: "center",
       backgroundColor: theme.colors.primary,
-      elevation: 5,
+      elevation: 3,
     },
     btnContent: {
       paddingVertical: 15,
-      flexDirection: "row-reverse",
+      flexDirection: isRTL ? "row" : "row-reverse",
     },
     btnLabel: {
       fontSize: 18,

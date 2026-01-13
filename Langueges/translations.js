@@ -1,6 +1,11 @@
 export const resources = {
   he: {
     translation: {
+      tabs: {
+        profile: "הגדרות",
+        shifts: "משמרות",
+        overview: "סיכום חודשי",
+      },
       index: {
         general: "כללי",
         email: "אימייל",
@@ -83,10 +88,33 @@ export const resources = {
         November: "נובמבר",
         December: "דצמבר",
       },
+      overview: {
+        btn: "צור דו״ח שכר",
+        bruto: "שכר ברוטו",
+        shift_t: "סכום משמרות",
+        total_h: "סכום שעות",
+        total_d: "סכום ניקויים צפויי",
+        neto: "שכר נטו",
+      },
+      date_time_picker: {
+        select: "בחר",
+        done: "בוצע",
+        date: "תאריך",
+        start: "התחלה",
+        end: "סיום",
+      },
+      no_shifts: {
+        text: "לא נוספו משמרות לחודש",
+      },
     },
   },
   en: {
     translation: {
+      tabs: {
+        profile: "Profile",
+        shifts: "Shifts",
+        overview: "Overview",
+      },
       index: {
         general: "General",
         email: "Email",
@@ -168,6 +196,24 @@ export const resources = {
         night: "Night",
         training: "Training",
         vacation: "Vacation",
+      },
+      overview: {
+        btn: "Generate Paycheck",
+        bruto: "Bruto Income",
+        shift_t: "Shifts Worked",
+        total_h: "Total Hours",
+        total_d: "Total Dedaction",
+        neto: "Neto",
+      },
+      date_time_picker: {
+        select: "Select",
+        done: "Done",
+        date: "Date",
+        start: "Start",
+        end: "End",
+      },
+      no_shifts: {
+        text: "No Shifts Added For",
       },
     },
   },

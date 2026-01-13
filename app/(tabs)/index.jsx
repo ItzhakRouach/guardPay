@@ -1,5 +1,4 @@
 import * as Notifications from "expo-notifications";
-import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
@@ -11,6 +10,7 @@ import {
   USERS_PREFS,
 } from "../../lib/appwrite";
 import { useAuth } from "../../lib/auth-context";
+import { useLanguage } from "../../lib/lang-context";
 import { scheduleWeeklyReminder } from "../../lib/notfication";
 import ProfileSummary from "../components/layout/ProfileSummary";
 
@@ -19,10 +19,10 @@ export default function Index() {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
-  const router = useRouter();
+  const { isRTL } = useLanguage();
 
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const styles = makeStyle(theme, isRTL);
 
   const getDayName = (dayNum) => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -144,7 +144,7 @@ export default function Index() {
 }
 
 // styles for the entier screen
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -158,8 +158,8 @@ const makeStyle = (theme) =>
       marginBottom: "auto",
     },
     headerWrapper: {
-      flexDirection: "row",
-      alignItems: "left",
+      flexDirection: isRTL ? "row-reverse" : "row",
+      paddingEnd: isRTL ? 20 : 0,
       marginTop: 100,
       marginBottom: 20,
       marginLeft: 22,
@@ -169,6 +169,7 @@ const makeStyle = (theme) =>
       fontWeight: 500,
       letterSpacing: -1,
       marginTop: 15,
+      paddingStart: 10,
     },
     scrollContent: { padding: 10, paddingHorizontal: 0 },
   });

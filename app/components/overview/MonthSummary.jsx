@@ -1,5 +1,7 @@
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
+import { useLanguage } from "../../../lib/lang-context";
 import { formattedAmount } from "../../../lib/utils";
 
 export default function MonthSummary({
@@ -9,23 +11,25 @@ export default function MonthSummary({
   totalExtraHours,
   totalDeductions,
 }) {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const styles = makeStyle(theme, isRTL);
 
   return (
     <Surface elevation={1} style={styles.contentSurface}>
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
-          Bruto Income:
+          {t("overview.bruto")}
         </Text>
         <Text variant="bodyLarge" style={styles.income}>
-          {formattedAmount(bruto)}₪
+          {formattedAmount(bruto)} ₪
         </Text>
       </View>
       <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
-          Shifts Worked:
+          {t("overview.shift_t")}
         </Text>
         <Text variant="bodyLarge" style={styles.shiftsField}>
           {totalShifts}
@@ -34,26 +38,26 @@ export default function MonthSummary({
       <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
-          Total Hours:
+          {t("overview.total_h")}
         </Text>
         <Text variant="bodyLarge" style={styles.shiftsField}>
-          {totalRegHours + totalExtraHours}H
+          {totalRegHours + totalExtraHours} Hr
         </Text>
       </View>
       <Divider style={styles.dividerStyle} bold={true} />
       <View style={styles.salaryContent}>
         <Text variant="bodyLarge" style={styles.field}>
-          Total Dedaction:
+          {t("overview.total_d")}
         </Text>
         <Text variant="bodyLarge" style={styles.expense}>
-          {formattedAmount(totalDeductions)}₪
+          {formattedAmount(totalDeductions)} ₪
         </Text>
       </View>
     </Surface>
   );
 }
 
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     contentSurface: {
       marginTop: 100,
@@ -64,9 +68,10 @@ const makeStyle = (theme) =>
       borderRadius: 20,
     },
     salaryContent: {
-      flexDirection: "row",
+      flexDirection: isRTL ? "row-reverse" : "row",
       justifyContent: "space-between",
       alignItems: "center",
+      paddingStart: 10,
       gap: 20,
       marginBottom: 10,
     },
