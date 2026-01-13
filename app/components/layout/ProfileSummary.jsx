@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, I18nManager } from "react-native";
+import { StyleSheet } from "react-native";
 import {
   Divider,
   List,
@@ -12,7 +12,8 @@ import { formatDates } from "../../../lib/utils";
 import WeeklyReminder from "./WekklyReminder";
 import { useTranslation } from "react-i18next";
 import LanguegesChange from "../LanguegesChange";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLanguage } from "../../../lib/lang-context";
+import PreferencesChange from "../PreferncesChange";
 
 export default function ProfileSummary({
   profile,
@@ -24,35 +25,23 @@ export default function ProfileSummary({
 }) {
   const [visable, setVisable] = useState(false);
   const [visableLang, setVisableLang] = useState(false);
+  const [visablePref, setVisablePref] = useState(false);
   const [tempDay, setTempDay] = useState(profile.reminder_day || 1);
   const [tempTime, setTempTime] = useState(new Date());
   const [isSwitchOn, setIsSwitchOn] = useState(
     profile.reminder_enable || false
   );
-  const [isRTL, setIsRTL] = useState(false);
 
-  const { i18n, t } = useTranslation();
-  const [lang, setLang] = useState(i18n.language);
+  const { isRTL, changeLanguage, lang } = useLanguage();
 
-  const changelang = async (val) => {
-    try {
-      await i18n.changeLanguage(val);
-      setLang(val);
-      if (val === "he") {
-        setIsRTL(true);
-      } else {
-        setIsRTL(false);
-      }
-      await AsyncStorage.setItem("user-languege", val);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const { t } = useTranslation();
 
   const showModal = () => setVisable(true);
   const hideModal = () => setVisable(false);
   const showLang = () => setVisableLang(true);
   const hideLang = () => setVisableLang(false);
+  const showPref = () => setVisablePref(true);
+  const hidePref = () => setVisablePref(false);
 
   const onToggleSwitch = async () => {
     const newValue = !isSwitchOn;
@@ -93,8 +82,9 @@ export default function ProfileSummary({
         visable={visableLang}
         hideModal={hideLang}
         lang={lang}
-        setLang={changelang}
+        setLang={changeLanguage}
       />
+      <PreferencesChange visable={visablePref} hideModal={hidePref} />
       <Surface style={styles.contentWrapper} elevation={1}>
         <Text style={styles.title} variant="headlineMedium">
           {t("index.general")}
@@ -200,7 +190,7 @@ export default function ProfileSummary({
             />
           )}
           title={t("index.edit_pref")}
-          onPress={() => handleEditBtn()}
+          onPress={showPref}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item

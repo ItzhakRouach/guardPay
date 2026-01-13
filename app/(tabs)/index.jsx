@@ -82,10 +82,6 @@ export default function Index() {
     return () => unsubcribe();
   }, [user, fetchUserProfile]);
 
-  const handleEditBtn = () => {
-    router.push("/edit-profile");
-  };
-
   const onUpdateReminder = async (day, time) => {
     try {
       setProfile((prev) => ({
@@ -137,7 +133,6 @@ export default function Index() {
               profile={profile}
               user={user}
               signout={signOut}
-              handleEditBtn={handleEditBtn}
               onUpdateReminder={onUpdateReminder}
               toggleReminder={toggleReminder}
             />

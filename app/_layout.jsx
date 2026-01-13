@@ -7,9 +7,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth-context";
+import { LanguageProvider } from "../lib/lang-context";
 import "../Langueges/il18n";
 import { useTranslation } from "react-i18next";
-import RNRestart from "react-native-restart";
+import * as Updates from "expo-updates";
 
 //setup the notfication behavior
 Notifications.setNotificationHandler({
@@ -147,39 +148,47 @@ export default function RootLayout() {
   // apply theme based on the system theme Dark / Light
   const theme = colorScheme === "dark" ? darkTheme : lightTheme;
   return (
-    <AuthProvider>
-      <PaperProvider theme={theme}>
-        <SafeAreaProvider>
-          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-          <RouteGuard>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <Stack
-                screenOptions={{
-                  headerShown: true,
-                }}
-              >
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="add-shift"
-                  options={{
-                    headerShown: false,
-                    presentation: "modal",
-                    headerTitle: "Add New Shift",
+    <LanguageProvider>
+      <AuthProvider>
+        <PaperProvider theme={theme}>
+          <SafeAreaProvider>
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+            <RouteGuard>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Stack
+                  screenOptions={{
+                    headerShown: true,
                   }}
-                />
-                <Stack.Screen
-                  name="edit-profile"
-                  options={{
-                    headerShown: false,
-                    presentation: "modal",
-                  }}
-                />
-              </Stack>
-            </GestureHandlerRootView>
-          </RouteGuard>
-        </SafeAreaProvider>
-      </PaperProvider>
-    </AuthProvider>
+                >
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="add-shift"
+                    options={{
+                      headerShown: false,
+                      presentation: "modal",
+                      headerTitle: "Add New Shift",
+                    }}
+                  />
+                  <Stack.Screen
+                    name="edit-profile"
+                    options={{
+                      headerShown: false,
+                      presentation: "modal",
+                    }}
+                  />
+                </Stack>
+              </GestureHandlerRootView>
+            </RouteGuard>
+          </SafeAreaProvider>
+        </PaperProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

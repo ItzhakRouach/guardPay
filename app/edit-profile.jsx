@@ -108,7 +108,7 @@ export default function EditProfileScreen() {
           {/* Added a save button for context */}
           <Button
             mode="contained"
-            style={styles.saveBtn}
+            stye={styles.saveBtn}
             onPress={() => handleSaveBtn()}
           >
             Save Changes
