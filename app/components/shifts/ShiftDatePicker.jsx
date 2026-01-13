@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, TextInput, useTheme } from "react-native-paper";
 
@@ -11,6 +12,7 @@ export default function ShiftDatePicker({
 }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
+  const { t } = useTranslation();
 
   return (
     <Surface style={styles.formCard} elevation={1}>
@@ -19,7 +21,7 @@ export default function ShiftDatePicker({
         <Pressable onPress={() => openPicker("date", "date")}>
           <View pointerEvents="none">
             <TextInput
-              label="Work Date"
+              label={t("add_shift.work_d")}
               value={date.toLocaleDateString("en-GB")}
               mode="outlined"
               style={styles.input}
@@ -36,7 +38,7 @@ export default function ShiftDatePicker({
           >
             <View pointerEvents="none">
               <TextInput
-                label="Start Time"
+                label={t("add_shift.start_t")}
                 value={startTime.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -62,7 +64,7 @@ export default function ShiftDatePicker({
           >
             <View pointerEvents="none">
               <TextInput
-                label="End Time"
+                label={t("add_shift.end_t")}
                 value={endTime.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -85,7 +87,7 @@ export default function ShiftDatePicker({
               mode="outlined"
               value={String(hourRate)}
               placeholder={String(hourRate)}
-              label="Rate Per Hour"
+              label={t("add_shift.rate_per_hour")}
               keyboardType="decimal-pad"
               onChangeText={(val) => setHourRate(val)}
               style={[styles.input, { marginBottom: 10 }]}

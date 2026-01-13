@@ -19,7 +19,6 @@ export default function ProfileSummary({
   profile,
   user,
   signout,
-  handleEditBtn,
   onUpdateReminder,
   toggleReminder,
 }) {

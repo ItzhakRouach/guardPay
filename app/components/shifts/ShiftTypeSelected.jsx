@@ -1,9 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import { SegmentedButtons, useTheme } from "react-native-paper";
+import { useLanguage } from "../../../lib/lang-context";
 
 export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   return (
     <>
       <SegmentedButtons
@@ -26,32 +30,61 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             outline: theme.colors.borderOutline,
           },
         }}
-        buttons={[
-          {
-            uncheckedColor: theme.colors.onSecondaryContainer,
-            value: "morning",
-            label: "Morning",
-            labelStyle: styles.labelStyle,
-            icon: "weather-sunset-up",
-            showSelectedCheck: false,
-          },
-          {
-            uncheckedColor: theme.colors.onSecondaryContainer,
-            value: "evening",
-            label: "Evening",
-            labelStyle: styles.labelStyle,
-            icon: "weather-sunset-down",
-            showSelectedCheck: false,
-          },
-          {
-            uncheckedColor: theme.colors.onSecondaryContainer,
-            value: "night",
-            label: "Night",
-            labelStyle: styles.labelStyle,
-            icon: "weather-night",
-            showSelectedCheck: false,
-          },
-        ]}
+        buttons={
+          isRTL
+            ? [
+                {
+                  uncheckedColor: theme.colors.onSecondaryContainer,
+                  value: "morning",
+                  label: t("shift_type.morning"),
+                  labelStyle: styles.labelStyle,
+                  icon: "weather-sunset-up",
+                  showSelectedCheck: false,
+                },
+                {
+                  uncheckedColor: theme.colors.onSecondaryContainer,
+                  value: "evening",
+                  label: t("shift_type.evening"),
+                  labelStyle: styles.labelStyle,
+                  icon: "weather-sunset-down",
+                  showSelectedCheck: false,
+                },
+                {
+                  uncheckedColor: theme.colors.onSecondaryContainer,
+                  value: "night",
+                  label: t("shift_type.night"),
+                  labelStyle: styles.labelStyle,
+                  icon: "weather-night",
+                  showSelectedCheck: false,
+                },
+              ].reverse()
+            : [
+                {
+                  uncheckedColor: theme.colors.onSecondaryContainer,
+                  value: "morning",
+                  label: t("shift_type.morning"),
+                  labelStyle: styles.labelStyle,
+                  icon: "weather-sunset-up",
+                  showSelectedCheck: false,
+                },
+                {
+                  uncheckedColor: theme.colors.onSecondaryContainer,
+                  value: "evening",
+                  label: t("shift_type.evening"),
+                  labelStyle: styles.labelStyle,
+                  icon: "weather-sunset-down",
+                  showSelectedCheck: false,
+                },
+                {
+                  uncheckedColor: theme.colors.onSecondaryContainer,
+                  value: "night",
+                  label: t("shift_type.night"),
+                  labelStyle: styles.labelStyle,
+                  icon: "weather-night",
+                  showSelectedCheck: false,
+                },
+              ]
+        }
       />
       <SegmentedButtons
         value={value}
@@ -76,7 +109,7 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "training",
-            label: "Training",
+            label: t("shift_type.training"),
             labelStyle: styles.labelStyle,
             icon: "karate",
             showSelectedCheck: false,
@@ -84,7 +117,7 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "vacation",
-            label: "Vacation",
+            label: t("shift_type.vacation"),
             labelStyle: styles.labelStyle,
             icon: "home-heart",
             showSelectedCheck: false,

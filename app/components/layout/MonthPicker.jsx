@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { IconButton, Surface, Text, useTheme } from "react-native-paper";
 export default function MonthPicker({ currentDate, setCurrentDate }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
+  const { t } = useTranslation();
 
   // Logic to change months
   const changeMonth = (offset) => {
@@ -12,7 +14,9 @@ export default function MonthPicker({ currentDate, setCurrentDate }) {
     setCurrentDate(new Date(newDate));
   };
 
-  const monthName = currentDate.toLocaleString("default", { month: "long" });
+  const monthName = t(
+    `month.${currentDate.toLocaleString("default", { month: "long" })}`
+  );
   const yearName = currentDate.getFullYear();
 
   return (

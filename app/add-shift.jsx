@@ -22,6 +22,8 @@ import DateTimeModal from "./components/shifts/DateTimeModal";
 import ShiftDatePicker from "./components/shifts/ShiftDatePicker";
 import ShiftSummary from "./components/shifts/ShiftSummary";
 import ShiftTypeSelected from "./components/shifts/ShiftTypeSelected";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../lib/lang-context";
 
 export default function AddShift() {
   // use to control the show of the picker or not , default not
@@ -53,8 +55,10 @@ export default function AddShift() {
     setShow(true);
   };
 
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const styles = makeStyle(theme, isRTL);
 
   // store the current shift type the user selected
   const [value, setValue] = useState("");
@@ -101,7 +105,7 @@ export default function AddShift() {
 
   const { user, profile } = useAuth();
 
-  const buttonLabel = isEditMode ? "Update Shift" : "Save Shift";
+  const buttonLabel = isEditMode ? "update" : "save";
 
   // Live calculations of hours
   const shiftSummary = useMemo(() => {
@@ -252,7 +256,7 @@ export default function AddShift() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <Text variant="headlineMedium" style={styles.title}>
-          Add New Shift
+          {t("add_shift.title")}
         </Text>
         {/**Shift date and time picker */}
         <ShiftDatePicker
@@ -280,7 +284,7 @@ export default function AddShift() {
           contentStyle={{ paddingVertical: 8 }}
           onPress={() => handleSave()}
         >
-          {buttonLabel}
+          {t(`add_shift.${buttonLabel}`)}
         </Button>
 
         {/**Modal Picker */}
@@ -301,7 +305,7 @@ export default function AddShift() {
   );
 }
 
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -313,6 +317,9 @@ const makeStyle = (theme) =>
       fontWeight: "bold",
       marginBottom: 20,
       letterSpacing: -0.5,
+      textAlign: isRTL ? "right" : "left",
+      writingDirection: isRTL ? "rtl" : "ltr",
+      paddingStart: 10,
     },
 
     saveBtn: {

@@ -1,15 +1,17 @@
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
 import { formattedAmount } from "../../../lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function MonthTotalCard({ totalAmount, totalHours }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
+  const { t } = useTranslation();
   return (
     <Surface style={styles.summaryBar} elevation={1}>
       <View>
         <Text variant="labelMedium" style={styles.summaryLabel}>
-          MONTHLY PAY
+          {t("shifts.month_pay")}
         </Text>
         <Text variant="titleLarge" style={styles.summaryValue}>
           {formattedAmount(totalAmount)}₪
@@ -19,7 +21,7 @@ export default function MonthTotalCard({ totalAmount, totalHours }) {
       <Divider style={styles.verticalDivider} />
       <View>
         <Text variant="labelMedium" style={styles.summaryLabel}>
-          TOTAL HOURS
+          {t("shifts.total_h")}
         </Text>
         <Text variant="titleLarge" style={styles.summaryValue}>
           {totalHours.toFixed(1)}h

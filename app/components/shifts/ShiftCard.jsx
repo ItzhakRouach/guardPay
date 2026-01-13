@@ -1,10 +1,12 @@
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
 import { formattedAmount } from "../../../lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
+  const { t } = useTranslation();
 
   return (
     <Card style={styles.cardShift} elevation={1}>
@@ -12,7 +14,7 @@ export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
         <View style={styles.cardDetails}>
           <View style={styles.shiftAmount}>
             <Text variant="labelLarge" style={styles.darkTextBold}>
-              Amount
+              {t("shifts.amount")}
             </Text>
             <Text variant="headlineSmall" style={styles.darkText}>
               {formattedAmount(totalAmout)}₪
