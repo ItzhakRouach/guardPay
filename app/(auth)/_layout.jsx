@@ -1,13 +1,14 @@
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
+import { useTheme } from "react-native-paper";
 
 export default function AuthLayout() {
-  const router = useRouter();
+  const theme = useTheme();
   return (
     <Stack
       screenOptions={{
         headerShadowVisible: false,
         headerTintColor: "rgba(33, 52, 72, 1)",
-        headerStyle: { backgroundColor: "#F8FAFC" },
+        headerStyle: { backgroundColor: theme.colors.background },
         headerTitle: "",
         headerBackTitleVisible: false,
       }}

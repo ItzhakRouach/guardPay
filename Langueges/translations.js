@@ -1,6 +1,43 @@
 export const resources = {
   he: {
     translation: {
+      setupP: {
+        title: "סיים להגדיר את חשבונך",
+        name: "שם מלא",
+        age: "גיל",
+        birth: "תאריך לידה",
+        hour: "תעריף שעתי",
+        ride: "תעריף נסיעה",
+        finish: "סיום",
+        next: "הבא",
+        prev: "קודם",
+      },
+
+      error: {
+        miss_fields: "מלא את כל השדות",
+        pass_len: "סיסמה צריכה להיות לפחות 6 תווים",
+        pass_not_same: "הסיסמה צריכה להיות אותו הדבר",
+        not_auth: "שם משתמש / סיסמה אינם נכונים , אנא נסה שוב",
+      },
+      landing: {
+        subTitle:
+          "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש השכר. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי, ומבטיחה שתקבלו בדיוק את מה שמגיע לכם – בכל פעם מחדש. המערכת מותאמת אישית לחוקי העבודה וההסכמים הקיבוציים בענף האבטחה, כדי ששום שעה (או דקה) לא ילכו לאיבוד",
+        signin: "התחבר",
+        create_acc: "צור חשבון",
+      },
+      signin: {
+        title: "התחבר",
+        email: "אימייל",
+        password: "סיסמה",
+        signin: "התחבר",
+      },
+      create_acc: {
+        title: "צור חשבון",
+        email: "אימייל",
+        password: "סיסמה",
+        re_pass: "אימות סיסמה",
+        signup: "הירשם",
+      },
       tabs: {
         profile: "הגדרות",
         shifts: "משמרות",
@@ -110,6 +147,43 @@ export const resources = {
   },
   en: {
     translation: {
+      setupP: {
+        title: "Finish-up Your Profile",
+        name: "Enter your full name",
+        age: "Enter your Age",
+        birth: "Date of Birth",
+        hour: "Enter your Hourly Rate",
+        ride: "Enter your Ride Rate",
+        finish: "Finish",
+        next: "Next",
+        prev: "Back",
+      },
+      error: {
+        miss_fields: "Please fill in all fields",
+        pass_len: "Password must be at least 6 character long.",
+        pass_not_same: "Password must be the same",
+        not_auth: "Username or Password are Invalid , please try again.",
+      },
+      landing: {
+        subTitle:
+          " Stop worrying about missing hours or paycheck errors. GuardPay tracks every shift with maximum precision, ensuring you get exactly what you earned—every single time. Our system is tailor-made to align with labor laws and collective bargaining agreements in the security sector, so that not a single hour (or minute) ever goes to waste",
+        signin: "sign In",
+        create_acc: "Create Account",
+      },
+      signin: {
+        title: "Sign In",
+        email: "Email",
+        password: "Password",
+        signin: "Sign In",
+      },
+      create_acc: {
+        title: "Create Account",
+        email: "Email",
+        password: "Password",
+        re_pass: "Confrime Password",
+        signup: "Sign Up",
+      },
+
       tabs: {
         profile: "Profile",
         shifts: "Shifts",

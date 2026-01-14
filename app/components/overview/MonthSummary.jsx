@@ -60,7 +60,7 @@ export default function MonthSummary({
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     contentSurface: {
-      marginTop: 100,
+      marginTop: 50,
       height: 250,
       padding: 15,
       marginHorizontal: 10,

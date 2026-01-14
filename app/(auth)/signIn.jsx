@@ -1,15 +1,21 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { Button, Icon, Text, TextInput, useTheme } from "react-native-paper";
 import { useAuth } from "../../lib/auth-context";
+import { useLanguage } from "../../lib/lang-context";
 
 export default function SignInScreen() {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   // define the fields we need to get from user in order to let him sign in
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,15 +24,16 @@ export default function SignInScreen() {
   // import the signIn function we allready created
   const { signIn } = useAuth();
   const theme = useTheme();
+  const styles = makeStyle(theme, isRTL);
 
   //define functions to handle signIn
   const handleSignIn = async () => {
     if (!email || !password) {
-      setError("Please fill in both fields");
+      setError(t("error.miss_fields"));
       return;
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 character long.");
+      setError(t("error.pass_len"));
     }
     setError(null);
 
@@ -34,7 +41,7 @@ export default function SignInScreen() {
       await signIn(email, password);
     } catch (err) {
       console.log(err);
-      setError("Username or Password are Invalid , please try again.");
+      setError(t("error.not_auth"));
       setTimeout(() => {
         setError(null);
       }, 5000);
@@ -42,111 +49,133 @@ export default function SignInScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <View style={styles.headerWrapper}>
-        <Image
-          style={styles.logoIcon}
-          source={require("../../assets/images/GuardAppIcon.png")}
-        />
-        <View style={styles.headerContent}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Sign in
-          </Text>
-          <Icon source="location-enter" color={"#213448"} size={30} />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <View style={styles.headerWrapper}>
+          <Image
+            style={styles.logoIcon}
+            source={require("../../assets/images/GuardAppIcon.png")}
+          />
+          <View style={styles.headerContent}>
+            <Text variant="headlineMedium" style={styles.title}>
+              {t("signin.title")}
+            </Text>
+            <Icon
+              source="location-enter"
+              color={theme.colors.primary}
+              size={30}
+            />
+          </View>
         </View>
-      </View>
-      <View style={styles.contentWrapper}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          mode="outlined"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          onChangeText={setEmail}
-          activeOutlineColor="#75a2ddff"
-          textColor="#000"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          mode="outlined"
-          secureTextEntry
-          onChangeText={setPassword}
-          activeOutlineColor="#75a2ddff"
-          textColor="#000"
-        />
+        <View style={styles.contentWrapper}>
+          <TextInput
+            style={styles.input}
+            placeholder={t("signin.email")}
+            mode="outlined"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            onChangeText={setEmail}
+            activeOutlineColor="#75a2ddff"
+            contentStyle={styles.contentTextStyle}
+            textColor={theme.colors.onSurface}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder={t("signin.password")}
+            mode="outlined"
+            secureTextEntry
+            onChangeText={setPassword}
+            activeOutlineColor="#75a2ddff"
+            textColor={theme.colors.onSurface}
+            contentStyle={styles.contentTextStyle}
+          />
 
-        {error && (
-          <Text
-            style={{ color: theme.colors.error, fontSize: 16, fontWeight: 600 }}
+          {error && (
+            <Text
+              style={{
+                color: theme.colors.error,
+                fontSize: 16,
+                fontWeight: 600,
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </Text>
+          )}
+
+          <Button
+            mode="contained"
+            labelStyle={{ color: theme.colors.onSurface, fontWeight: 700 }}
+            style={styles.btn}
+            onPress={handleSignIn}
           >
-            {error}
-          </Text>
-        )}
-
-        <Button mode="contained" style={styles.btn} onPress={handleSignIn}>
-          Sign in
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+            {t("signin.signin")}
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+const makeStyle = (theme, isRTL) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  logoIcon: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
-    alignSelf: "center",
-  },
+    logoIcon: {
+      width: 100,
+      height: 100,
+      marginBottom: 20,
+      alignSelf: "center",
+    },
 
-  title: {
-    textAlign: "center",
-    color: "#213448",
-    fontWeight: 600,
-  },
+    title: {
+      textAlign: "center",
+      color: theme.colors.primary,
+      fontWeight: 600,
+    },
 
-  headerWrapper: {
-    marginBottom: 30,
-  },
+    headerWrapper: {
+      marginBottom: 30,
+    },
 
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-  },
-  contentWrapper: {
-    padding: 20,
-    gap: 15,
-  },
-  input: {
-    flexDirection: "row",
-    height: 60,
-    fontSize: 16,
-    width: "100%",
-    borderRadius: 20,
-  },
-  btn: {
-    paddingVertical: 6,
-    borderRadius: 20,
-    width: "50%",
-    marginTop: 20,
-    alignContent: "center",
-    marginLeft: "auto",
-    marginRight: "auto",
-    backgroundColor: "#75a2ddff",
-    fontWeight: 600,
-    fontSize: 18,
-  },
-});
+    headerContent: {
+      flexDirection: isRTL ? "row-reverse" : "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 10,
+      writingDirection: isRTL ? "rtl" : "ltr",
+    },
+    contentWrapper: {
+      padding: 20,
+      gap: 15,
+    },
+    contentTextStyle: {
+      textAlign: isRTL ? "right" : "left",
+    },
+    input: {
+      flexDirection: "row",
+      height: 60,
+      fontSize: 16,
+      width: "100%",
+      borderRadius: 20,
+    },
+    btn: {
+      paddingVertical: 6,
+      borderRadius: 20,
+      width: "50%",
+      marginTop: 20,
+      alignContent: "center",
+      marginLeft: "auto",
+      marginRight: "auto",
+      backgroundColor: "#75a2ddff",
+      fontSize: 18,
+    },
+  });

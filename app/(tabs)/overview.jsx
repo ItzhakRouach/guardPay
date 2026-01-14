@@ -146,7 +146,7 @@ const makeStyle = (theme, isRTL) =>
     },
 
     btn: {
-      marginTop: 20,
+      marginTop: 40,
       marginBottom: 10,
       borderRadius: 20,
       width: "95%",
