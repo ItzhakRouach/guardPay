@@ -101,14 +101,14 @@ export default function ProfileSummary({
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="account-outline" />}
-          title={`${t("index.name")} : ${profile.user_name}`}
+          title={`${t("index.name")} : ${profile?.user_name}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="numeric" />}
-          title={`${t("index.age")} : ${profile.age}`}
+          title={`${t("index.age")} : ${profile?.age}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
@@ -118,7 +118,7 @@ export default function ProfileSummary({
             <List.Icon {...props} icon="calendar-account-outline" />
           )}
           title={`${t("index.birth_date")} : ${formatDates(
-            profile.birth_date
+            profile?.birth_date
           )}`}
         />
       </Surface>
@@ -136,14 +136,14 @@ export default function ProfileSummary({
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="cash-clock" />}
-          title={`${t("index.hour_rate")} : ${profile.price_per_hour}`}
+          title={`${t("index.hour_rate")} : ${profile?.price_per_hour}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="cash-fast" />}
-          title={`${t("index.ride_rate")} : ${profile.price_per_ride}`}
+          title={`${t("index.ride_rate")} : ${profile?.price_per_ride}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
@@ -166,8 +166,8 @@ export default function ProfileSummary({
           title={t("index.weekly_r")}
           onPress={showModal}
           description={`${t("index.every")} ${t(
-            `days.${getDayName(profile.reminder_day)}`
-          )} ${t("index.at")} ${profile.reminder_time || t("index.not_set")}`}
+            `days.${getDayName(profile?.reminder_day)}`
+          )} ${t("index.at")} ${profile?.reminder_time || t("index.not_set")}`}
           descriptionStyle={styles.descStyle}
         />
       </Surface>

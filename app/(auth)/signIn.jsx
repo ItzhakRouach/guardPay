@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
+  Alert,
 } from "react-native";
 import { Button, Icon, Text, TextInput, useTheme } from "react-native-paper";
 import { useAuth } from "../../lib/auth-context";
@@ -22,7 +23,7 @@ export default function SignInScreen() {
   //define error so we can display errors that may occure
   const [error, setError] = useState(null);
   // import the signIn function we allready created
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
 
@@ -113,6 +114,17 @@ export default function SignInScreen() {
             onPress={handleSignIn}
           >
             {t("signin.signin")}
+          </Button>
+          <Button
+            icon="google"
+            onPress={async () => {
+              const success = await signInWithGoogle();
+              if (!success) {
+                Alert.alert("Error", "Google sign in failed");
+              }
+            }}
+          >
+            Sign in with Google
           </Button>
         </View>
       </KeyboardAvoidingView>
