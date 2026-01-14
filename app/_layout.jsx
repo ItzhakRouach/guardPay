@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../Langueges/il18n";
 import { AuthProvider, useAuth } from "../lib/auth-context";
 import { LanguageProvider } from "../lib/lang-context";
+import LoadingSpinner from "./components/common/LoadingSpinnner";
 
 //setup the notfication behavior
 Notifications.setNotificationHandler({
@@ -127,6 +128,10 @@ function RouteGuard({ children }) {
       router.replace("/(tabs)");
     }
   }, [user, segments, isLoadingUser, profile]);
+
+  if (isLoadingUser || (user && profile === null)) {
+    return <LoadingSpinner />;
+  }
   return <>{children}</>;
 }
 
