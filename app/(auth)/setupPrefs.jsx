@@ -109,7 +109,7 @@ export default function SetupProfileScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <IconButton
-          onPress={signOut()}
+          onPress={() => signOut}
           style={styles.signOutBtn}
           icon="logout"
           size={30}

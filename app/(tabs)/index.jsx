@@ -51,7 +51,10 @@ export default function Index() {
   };
 
   const fetchUserProfile = useCallback(async (user) => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     try {
       const response = await databases.listDocuments(DATABASE_ID, USERS_PREFS, [
         Query.equal("user_id", user.$id),
@@ -65,21 +68,31 @@ export default function Index() {
     } catch (err) {
       console.log(err);
       setProfile(null);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   // fetch user info
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     fetchUserProfile(user);
+
     const channel = `databases.${DATABASE_ID}.collections.${USERS_PREFS}.documents`;
     const unsubcribe = client.subscribe(channel, (response) => {
+      if (!user) return;
       const isUpdate = response.events.some((e) => e.includes(".update"));
       const isMyDoc = response.payload.user_id === user?.$id;
       if (isMyDoc || isUpdate) {
         fetchUserProfile(user);
       }
     });
-    return () => unsubcribe();
+    return () => {
+      if (unsubcribe) unsubcribe();
+    };
   }, [user, fetchUserProfile]);
 
   const onUpdateReminder = async (day, time) => {
@@ -117,7 +130,7 @@ export default function Index() {
         <>
           <View style={styles.headerWrapper}>
             <Text variant="headlineLarge" style={styles.userName}>
-              {profile.user_name}
+              {profile?.user_name}
             </Text>
           </View>
           <ScrollView

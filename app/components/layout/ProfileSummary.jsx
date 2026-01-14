@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import {
   Divider,
@@ -8,12 +9,11 @@ import {
   Text,
   useTheme,
 } from "react-native-paper";
-import { formatDates } from "../../../lib/utils";
-import WeeklyReminder from "./WekklyReminder";
-import { useTranslation } from "react-i18next";
-import LanguegesChange from "../LanguegesChange";
 import { useLanguage } from "../../../lib/lang-context";
+import { formatDates } from "../../../lib/utils";
+import LanguegesChange from "../LanguegesChange";
 import PreferencesChange from "../PreferncesChange";
+import WeeklyReminder from "./WekklyReminder";
 
 export default function ProfileSummary({
   profile,
@@ -25,10 +25,10 @@ export default function ProfileSummary({
   const [visable, setVisable] = useState(false);
   const [visableLang, setVisableLang] = useState(false);
   const [visablePref, setVisablePref] = useState(false);
-  const [tempDay, setTempDay] = useState(profile.reminder_day || 1);
+  const [tempDay, setTempDay] = useState(profile?.reminder_day || 1);
   const [tempTime, setTempTime] = useState(new Date());
   const [isSwitchOn, setIsSwitchOn] = useState(
-    profile.reminder_enable || false
+    profile?.reminder_enable || false
   );
 
   const { isRTL, changeLanguage, lang } = useLanguage();
@@ -66,6 +66,8 @@ export default function ProfileSummary({
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
 
+  if (!user) return null;
+
   return (
     <>
       <WeeklyReminder
@@ -92,7 +94,7 @@ export default function ProfileSummary({
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="email" />}
-          title={`${t("index.email")} : ${user.email}`}
+          title={`${t("index.email")} : ${user?.email || ""}`}
         />
         <Divider style={styles.dividerStyle} bold={true} />
         <List.Item

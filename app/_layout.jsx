@@ -2,15 +2,14 @@ import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { useColorScheme, I18nManager } from "react-native";
+import { useTranslation } from "react-i18next";
+import { I18nManager, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import "../Langueges/il18n";
 import { AuthProvider, useAuth } from "../lib/auth-context";
 import { LanguageProvider } from "../lib/lang-context";
-import "../Langueges/il18n";
-import { useTranslation } from "react-i18next";
-import * as Updates from "expo-updates";
 
 //setup the notfication behavior
 Notifications.setNotificationHandler({
@@ -158,6 +157,10 @@ export default function RootLayout() {
                 <Stack
                   screenOptions={{
                     headerShown: true,
+                    contentStyle: {
+                      backgroundColor:
+                        colorScheme === "dark" ? "#0F172A" : "#F4F4F4",
+                    },
                   }}
                 >
                   <Stack.Screen
