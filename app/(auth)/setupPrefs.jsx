@@ -73,14 +73,12 @@ export default function SetupProfileScreen() {
     setError(null);
     setIsLoading(true);
     try {
-      console.log("DATABASE_ID =", DATABASE_ID);
-      console.log("USERS_PREFS =", USERS_PREFS);
       await databases.createDocument(DATABASE_ID, USERS_PREFS, ID.unique(), {
         user_id: user.$id,
         price_per_hour: parseFloat(formData.price_per_hour),
         price_per_ride: parseFloat(formData.price_per_ride),
         user_name: formData.user_name,
-        age: formData.age,
+        age: parseInt(formData.age),
         birth_date: formData.birth_date,
       });
       await fetchUserProfile(user);
@@ -109,7 +107,7 @@ export default function SetupProfileScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <IconButton
-          onPress={() => signOut}
+          onPress={() => signOut()}
           style={styles.signOutBtn}
           icon="logout"
           size={30}

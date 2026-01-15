@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
+import { useAuth } from "../../lib/auth-context";
 import { useLanguage } from "../../lib/lang-context";
 
 export default function OnBoardingScreen() {
@@ -9,6 +10,8 @@ export default function OnBoardingScreen() {
   const { isRTL } = useLanguage();
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
+  const { checkAppwriteConnection } = useAuth();
+
   //set navigation so can navigate to the correct View
   const router = useRouter();
   return (
@@ -44,6 +47,15 @@ export default function OnBoardingScreen() {
           onPress={() => router.push("/register")}
         >
           {t("landing.create_acc")}
+        </Button>
+        <Button
+          title="Verify Appwrite Connection"
+          onPress={async () => {
+            const success = await checkAppwriteConnection();
+            if (success) alert("Connected to Appwrite!");
+          }}
+        >
+          Appwrite
         </Button>
       </View>
     </View>

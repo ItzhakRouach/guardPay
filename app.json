@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "GuardPay",
-    "slug": "GuardPay",
+    "name": "guardPay",
+    "slug": "guardPay",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/GuardAppIcon.png",
-    "scheme": "guardpay",
+    "scheme": "appwrite-callback-69583540003a5151db86",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "extra": {
@@ -30,7 +30,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.GuardPay",
+      "package": "com.itzhakrouach.guardpay",
       "supportsRTL": true
     },
     "web": {

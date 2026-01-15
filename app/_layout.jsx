@@ -113,6 +113,7 @@ function RouteGuard({ children }) {
 
     //set the auth loc
     const inAuthGroup = segments[0] === "(auth)";
+    const inSetupScreen = segments[1] === "setupPrefs";
 
     if (!user) {
       if (!inAuthGroup) {
@@ -120,18 +121,18 @@ function RouteGuard({ children }) {
       }
       // if the user dosent allready set his profile
     } else if (user && !profile) {
-      if (segments[1] !== "setupPrefs") {
+      if (!inSetupScreen) {
         router.replace("/setupPrefs");
       }
       //if the use is logged in and allready set his profile then redirect to the app.
     } else if (user && inAuthGroup && profile) {
       router.replace("/(tabs)");
     }
+    if (isLoadingUser) {
+      return <LoadingSpinner />;
+    }
   }, [user, segments, isLoadingUser, profile]);
 
-  if (isLoadingUser || (user && profile === null)) {
-    return <LoadingSpinner />;
-  }
   return <>{children}</>;
 }
 
