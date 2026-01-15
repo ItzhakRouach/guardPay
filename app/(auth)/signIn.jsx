@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -8,9 +9,15 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
-  Alert,
 } from "react-native";
-import { Button, Icon, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  Button,
+  Icon,
+  IconButton,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { useAuth } from "../../lib/auth-context";
 import { useLanguage } from "../../lib/lang-context";
 
@@ -115,17 +122,23 @@ export default function SignInScreen() {
           >
             {t("signin.signin")}
           </Button>
-          <Button
+          <View style={styles.dividerContainer}>
+            <View style={styles.line} />
+            <Text style={styles.dividerText}>{t("signin.or")}</Text>
+            <View style={styles.line} />
+          </View>
+          <IconButton
             icon="google"
+            size={40}
+            style={{ alignSelf: "center" }}
+            iconColor={theme.colors.primary}
             onPress={async () => {
               const success = await signInWithGoogle();
               if (!success) {
                 Alert.alert("Error", "Google sign in failed");
               }
             }}
-          >
-            Sign in with Google
-          </Button>
+          />
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -189,5 +202,24 @@ const makeStyle = (theme, isRTL) =>
       marginRight: "auto",
       backgroundColor: "#75a2ddff",
       fontSize: 18,
+    },
+    dividerContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: 20,
+      marginHorizontal: 20,
+      width: "90%",
+    },
+    line: {
+      flex: 1,
+      height: 1,
+      backgroundColor: "rgba(255, 255, 255, 0.3)", // קו חצי שקוף
+    },
+    dividerText: {
+      marginHorizontal: 10,
+      color: "#64748B", // אפור משני
+      fontSize: 14,
+      fontWeight: "500",
     },
   });

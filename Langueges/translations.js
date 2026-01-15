@@ -21,7 +21,7 @@ export const resources = {
       },
       landing: {
         subTitle:
-          "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש השכר. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי, ומבטיחה שתקבלו בדיוק את מה שמגיע לכם – בכל פעם מחדש. המערכת מותאמת אישית לחוקי העבודה וההסכמים הקיבוציים בענף האבטחה, כדי ששום שעה (או דקה) לא ילכו לאיבוד",
+          "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש השכר. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי, ומבטיחה שתקבלו בדיוק את מה שמגיע לכם  בכל פעם מחדש. המערכת מותאמת אישית לחוקי העבודה וההסכמים הקיבוציים בענף האבטחה, כדי ששום שעה (או דקה) לא ילכו לאיבוד",
         signin: "התחבר",
         create_acc: "צור חשבון",
       },
@@ -30,6 +30,7 @@ export const resources = {
         email: "אימייל",
         password: "סיסמה",
         signin: "התחבר",
+        or: "התחבר באמצעות",
       },
       create_acc: {
         title: "צור חשבון",
@@ -37,6 +38,7 @@ export const resources = {
         password: "סיסמה",
         re_pass: "אימות סיסמה",
         signup: "הירשם",
+        or: "הירשם באמצעות",
       },
       tabs: {
         profile: "הגדרות",
@@ -175,6 +177,7 @@ export const resources = {
         email: "Email",
         password: "Password",
         signin: "Sign In",
+        or: "Sign In Using",
       },
       create_acc: {
         title: "Create Account",
@@ -182,6 +185,7 @@ export const resources = {
         password: "Password",
         re_pass: "Confrime Password",
         signup: "Sign Up",
+        or: "Sign Up Using",
       },
 
       tabs: {
