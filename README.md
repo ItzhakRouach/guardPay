@@ -51,12 +51,13 @@ Markdown
 
 <p align="center">
   <img src="./screenshots/DarkMode/add_shift_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/edit_profile_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/edit_D.png" width="30%" />
   <img src="./screenshots/DarkMode/overview_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/profile_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/pref_D.png" width="30%" />
   <img src="./screenshots/DarkMode/shifts_D.png" width="30%"  />
-  <img src="./screenshots/paycheck_g.png" width="30%" >
-
+  <img src ="./screenshots/DarkMode/law_D.png" width="30%" />
+  <img src ="./screenshots/DarkMode/lang_D.png" width="30%" />
+  <img src ="./screenshots/DarkMode/reminder_D.png" width="30%" />
 </p>
 
 <p align="center">
@@ -67,15 +68,30 @@ Markdown
 
 <p align="center">
   <img src="./screenshots/LightMode/add_shift_L.png" width="30%" />
-  <img src="./screenshots/LightMode/edit_profile_L.png" width="30%" />
-  <img src="./screenshots/LightMode/overview_L.png" width="30%" />
+  <img src="./screenshots/LightMode/edit_L.png" width="30%" />
+  <img src="./screenshots/LightMode/overvirew_L.png" width="30%" />
   <img src="./screenshots/LightMode/profile_L.png" width="30%" />
-  <img src="./screenshots/LightMode/shifts_L.png" width="30%" />
-   <img src="./screenshots/paycheck_g.png" width="30%" >
+  <img src="./screenshots/LightMode/shifts_L.png" width="30%"  />
+  <img src ="./screenshots/LightMode/law_L.png" width="30%" />
+  <img src ="./screenshots/LightMode/lang_L.png" width="30%" />
+  <img src ="./screenshots/LightMode/reminder_L.png" width="30%" />
 </p>
 
 <p align="center">
   <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Paycheck Pdf Generator</em>
+</p>
+
+## Register & Sign-in & Paycheck
+
+<p align="center">
+  <img src="./screenshots/landing.PNG" width="25%" />
+  <img src="./screenshots/paycheck_g.png" width="25%" />
+  <img src="./screenshots/register.PNG" width="25%" />
+  <img src="./screenshots/signin.PNG" width="25%" />
+</p>
+
+<p align="center">
+  <em>Landing Page &bull; Paycheck Generator &bull; Register Page &bull; Sign-in Page </em>
 </p>
 
 ## 🛠️ Installation & Setup
