@@ -50,18 +50,18 @@ Markdown
 ## 📸 Screen Gallery Dark Mode
 
 <p align="center">
-  <img src="./screenshots/DarkMode/add_shift_D.png" width="10%" />
-  <img src="./screenshots/DarkMode/edit_D.png" width="10%" />
-  <img src="./screenshots/DarkMode/overview_D.png" width="10%" />
-  <img src="./screenshots/DarkMode/pref_D.png" width="10%" />
-  <img src="./screenshots/DarkMode/shifts_D.png" width="10%"  />
-  <img src ="./screenshots/DarkMode/law_D.png" width="10%" />
-  <img src ="./screenshots/DarkMode/lang_D.png" width="10%" />
-  <img src ="./screenshots/DarkMode/reminder_D.png" width="10%" />
+  <img src="./screenshots/DarkMode/add_shift_D.png" width="20%" />
+  <img src="./screenshots/DarkMode/edit_D.png" width="20%" />
+  <img src="./screenshots/DarkMode/overview_D.png" width="20%" />
+  <img src="./screenshots/DarkMode/pref_D.png" width="20%" />
+  <img src="./screenshots/DarkMode/shifts_D.png" width="20%"  />
+  <img src ="./screenshots/DarkMode/law_D.png" width="20%" />
+  <img src ="./screenshots/DarkMode/lang_D.png" width="20%" />
+  <img src ="./screenshots/DarkMode/reminder_D.png" width="20%" />
 </p>
 
 <p align="center">
-  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Paycheck Pdf Generator</em>
+  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Law pdf &bull; Language select &bull; set reminder</em>
 </p>
 
 ## 📸 Screen Gallery Light Mode
@@ -78,7 +78,7 @@ Markdown
 </p>
 
 <p align="center">
-  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Paycheck Pdf Generator</em>
+  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Law pdf &bull; Language select &bull; set reminder</em>
 </p>
 
 ## Register & Sign-in & Paycheck
