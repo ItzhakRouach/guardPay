@@ -13,6 +13,7 @@ import { useLanguage } from "../../../lib/lang-context";
 import { formatDates } from "../../../lib/utils";
 import LanguegesChange from "../LanguegesChange";
 import PreferencesChange from "../PreferncesChange";
+import SecurityLawPDF from "../SecurityLawPDF";
 import WeeklyReminder from "./WekklyReminder";
 
 export default function ProfileSummary({
@@ -25,6 +26,7 @@ export default function ProfileSummary({
   const [visable, setVisable] = useState(false);
   const [visableLang, setVisableLang] = useState(false);
   const [visablePref, setVisablePref] = useState(false);
+  const [visablePDF, setVisablePDF] = useState(false);
   const [tempDay, setTempDay] = useState(profile?.reminder_day || 1);
   const [tempTime, setTempTime] = useState(new Date());
   const [isSwitchOn, setIsSwitchOn] = useState(
@@ -41,6 +43,8 @@ export default function ProfileSummary({
   const hideLang = () => setVisableLang(false);
   const showPref = () => setVisablePref(true);
   const hidePref = () => setVisablePref(false);
+  const showPDF = () => setVisablePDF(true);
+  const hidePDF = () => setVisablePDF(false);
 
   const onToggleSwitch = async () => {
     const newValue = !isSwitchOn;
@@ -85,6 +89,7 @@ export default function ProfileSummary({
         lang={lang}
         setLang={changeLanguage}
       />
+      <SecurityLawPDF visable={visablePDF} hideModal={hidePDF} />
       <PreferencesChange visable={visablePref} hideModal={hidePref} />
       <Surface style={styles.contentWrapper} elevation={1}>
         <Text style={styles.title} variant="headlineMedium">
@@ -204,6 +209,17 @@ export default function ProfileSummary({
           onPress={showLang}
         />
         <Divider style={styles.dividerStyle} bold={false} />
+        <List.Item
+          style={styles.listItem}
+          titleStyle={styles.listTitle}
+          descriptionStyle={styles.descStyle}
+          left={(props) => (
+            <List.Icon {...props} icon="gavel" color={theme.colors.primary} />
+          )}
+          title={t("index.security_law")}
+          description={t("index.security_law_desc")}
+          onPress={showPDF}
+        />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}

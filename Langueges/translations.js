@@ -65,6 +65,8 @@ export const resources = {
         every: "כל",
         at: "ב",
         not_set: "לא הוגדר",
+        security_law: "זכויות וחוק המאבטח",
+        security_law_desc: "עיון בחוק המאבטחים וזכויות עבודה",
       },
       days: {
         fri: "שישי",
@@ -213,6 +215,8 @@ export const resources = {
         every: "every",
         at: "at",
         not_set: "Not Set",
+        security_law: "Security Law & Rights",
+        security_law_desc: "Review security guard laws and labor rights",
       },
       days: {
         fri: "Fri",
