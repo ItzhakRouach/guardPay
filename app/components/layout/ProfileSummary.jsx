@@ -94,32 +94,30 @@ export default function ProfileSummary({
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="email" />}
-          title={`${t("index.email")} : ${user?.email || ""}`}
+          title={`${user?.email || ""}`}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="account-outline" />}
-          title={`${t("index.name")} : ${profile?.user_name}`}
+          title={`${profile?.user_name}`}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="numeric" />}
-          title={`${t("index.age")} : ${profile?.age}`}
+          title={`${profile?.age}`}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => (
             <List.Icon {...props} icon="calendar-account-outline" />
           )}
-          title={`${t("index.birth_date")} : ${formatDates(
-            profile?.birth_date
-          )}`}
+          title={`${formatDates(profile?.birth_date)}`}
         />
       </Surface>
       {/**Preferences Section */}
@@ -131,21 +129,20 @@ export default function ProfileSummary({
           {t("index.pref")}
         </Text>
 
-        <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="cash-clock" />}
-          title={`${t("index.hour_rate")} : ${profile?.price_per_hour}`}
+          title={`${t("index.hour_rate")}  ${profile?.price_per_hour} ₪`}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
-          left={(props) => <List.Icon {...props} icon="cash-fast" />}
-          title={`${t("index.ride_rate")} : ${profile?.price_per_ride}`}
+          left={(props) => <List.Icon {...props} icon="car" />}
+          title={`${t("index.ride_rate")}  ${profile?.price_per_ride} ₪`}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
@@ -179,7 +176,6 @@ export default function ProfileSummary({
         <Text style={styles.title} variant="headlineMedium">
           {t("index.account")}
         </Text>
-        <Divider style={styles.dividerStyle} bold={true} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
@@ -193,7 +189,7 @@ export default function ProfileSummary({
           title={t("index.edit_pref")}
           onPress={showPref}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
@@ -207,7 +203,7 @@ export default function ProfileSummary({
           title={t("index.change_lang")}
           onPress={showLang}
         />
-        <Divider style={styles.dividerStyle} bold={true} />
+        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
@@ -242,7 +238,9 @@ const makeStyle = (theme, isRTL) =>
       color: theme.colors.profileSection,
     },
     dividerStyle: {
-      color: theme.colors.divider,
+      backgroundColor: theme.colors.divider,
+      marginVertical: 10,
+      width: "100%",
     },
 
     listItem: {
