@@ -44,7 +44,6 @@ export default function SignInScreen() {
       setError(t("error.pass_len"));
     }
     setError(null);
-
     try {
       await signIn(email, password);
     } catch (err) {

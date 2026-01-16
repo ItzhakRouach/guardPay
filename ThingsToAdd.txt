@@ -1,0 +1,9 @@
+add support for sickness day , using the law to know how to calculate them  
+--- 1st day no pay , 2nd and 3rd you get 50% of your day pay , 4rd and forth you grt 100%.
+--- maby in calculation the user need to enter start date and end date and in the calculation we 
+check the length of the days and its acctully simple calculation from there and on.
+--- need to trigger Sick days in segmentedButton that way when pressed the user only enter start date and end date.
+
+Transforme the code to TypeScript for more type handling and robust code , will help in debugging.
+
+-- Need to add option to let user config his own shifts hours for morning , evening and night

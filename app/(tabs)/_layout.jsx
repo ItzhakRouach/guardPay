@@ -10,7 +10,6 @@ export default function TabsLayout() {
         <Label>{t("tabs.profile")}</Label>
         <Icon sf="gearshape.fill" />
       </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="shifts" disablePopToTop>
         <Label>{t("tabs.shifts")}</Label>
         <Icon sf="calendar.badge.plus" />

@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Keyboard,
   Platform,
@@ -7,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { ID, Query } from "react-native-appwrite";
+import { ID, Permission, Query, Role } from "react-native-appwrite";
 import { Button, Text, useTheme } from "react-native-paper";
 import {
   DATABASE_ID,
@@ -16,14 +17,13 @@ import {
   databases,
 } from "../lib/appwrite";
 import { useAuth } from "../lib/auth-context";
+import { useLanguage } from "../lib/lang-context";
 import { calculateShiftPay } from "../lib/shift-calculation";
 import { shiftTypeTimes } from "../lib/utils";
 import DateTimeModal from "./components/shifts/DateTimeModal";
 import ShiftDatePicker from "./components/shifts/ShiftDatePicker";
 import ShiftSummary from "./components/shifts/ShiftSummary";
 import ShiftTypeSelected from "./components/shifts/ShiftTypeSelected";
-import { useTranslation } from "react-i18next";
-import { useLanguage } from "../lib/lang-context";
 
 export default function AddShift() {
   // use to control the show of the picker or not , default not
@@ -141,6 +141,13 @@ export default function AddShift() {
       baseRate,
       profile.price_per_ride
     );
+    const permissions = [
+      Permission.read(Role.user(user.$id)),
+      Permission.update(Role.user(user.$id)),
+      Permission.delete(Role.user(user.$id)),
+      Permission.write(Role.user(user.$id)),
+    ];
+
     let documentData = {
       user_id: user.$id,
       start_time: finalStart.toISOString(),
@@ -209,7 +216,8 @@ export default function AddShift() {
           DATABASE_ID,
           SHIFTS_HISTORY,
           params.shiftId,
-          documentData
+          documentData,
+          permissions
         );
       } else {
         //Create new entry
@@ -217,7 +225,8 @@ export default function AddShift() {
           DATABASE_ID,
           SHIFTS_HISTORY,
           ID.unique(),
-          documentData
+          documentData,
+          permissions
         );
       }
     } catch (err) {
