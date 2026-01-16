@@ -50,14 +50,14 @@ Markdown
 ## 📸 Screen Gallery Dark Mode
 
 <p align="center">
-  <img src="./screenshots/DarkMode/add_shift_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/edit_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/overview_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/pref_D.png" width="30%" />
-  <img src="./screenshots/DarkMode/shifts_D.png" width="30%"  />
-  <img src ="./screenshots/DarkMode/law_D.png" width="30%" />
-  <img src ="./screenshots/DarkMode/lang_D.png" width="30%" />
-  <img src ="./screenshots/DarkMode/reminder_D.png" width="30%" />
+  <img src="./screenshots/DarkMode/add_shift_D.png" width="10%" />
+  <img src="./screenshots/DarkMode/edit_D.png" width="10%" />
+  <img src="./screenshots/DarkMode/overview_D.png" width="10%" />
+  <img src="./screenshots/DarkMode/pref_D.png" width="10%" />
+  <img src="./screenshots/DarkMode/shifts_D.png" width="10%"  />
+  <img src ="./screenshots/DarkMode/law_D.png" width="10%" />
+  <img src ="./screenshots/DarkMode/lang_D.png" width="10%" />
+  <img src ="./screenshots/DarkMode/reminder_D.png" width="10%" />
 </p>
 
 <p align="center">
