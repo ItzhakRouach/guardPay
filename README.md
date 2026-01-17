@@ -50,14 +50,14 @@ Markdown
 ## 📸 Screen Gallery Dark Mode
 
 <p align="center">
-  <img src="./screenshots/DarkMode/add_shift_D.png" width="20%" />
-  <img src="./screenshots/DarkMode/edit_D.png" width="20%" />
-  <img src="./screenshots/DarkMode/overview_D.png" width="20%" />
-  <img src="./screenshots/DarkMode/pref_D.png" width="20%" />
-  <img src="./screenshots/DarkMode/shifts_D.png" width="20%"  />
-  <img src ="./screenshots/DarkMode/law_D.png" width="20%" />
-  <img src ="./screenshots/DarkMode/lang_D.png" width="20%" />
-  <img src ="./screenshots/DarkMode/reminder_D.png" width="20%" />
+  <img src="./screenshots/DarkMode/add_shift_D.PNG" width="20%" />
+  <img src="./screenshots/DarkMode/edit_D.PNG" width="20%" />
+  <img src="./screenshots/DarkMode/overview_D.PNG" width="20%" />
+  <img src="./screenshots/DarkMode/pref_D.PNG" width="20%" />
+  <img src="./screenshots/DarkMode/shifts_D.PNG" width="20%"  />
+  <img src ="./screenshots/DarkMode/law_D.PNG" width="20%" />
+  <img src ="./screenshots/DarkMode/lang_D.PNG" width="20%" />
+  <img src ="./screenshots/DarkMode/reminder_D.PNG" width="20%" />
 </p>
 
 <p align="center">
@@ -67,14 +67,14 @@ Markdown
 ## 📸 Screen Gallery Light Mode
 
 <p align="center">
-  <img src="./screenshots/LightMode/add_shift_L.png" width="30%" />
-  <img src="./screenshots/LightMode/edit_L.png" width="30%" />
-  <img src="./screenshots/LightMode/overvirew_L.png" width="30%" />
-  <img src="./screenshots/LightMode/profile_L.png" width="30%" />
-  <img src="./screenshots/LightMode/shifts_L.png" width="30%"  />
-  <img src ="./screenshots/LightMode/law_L.png" width="30%" />
-  <img src ="./screenshots/LightMode/lang_L.png" width="30%" />
-  <img src ="./screenshots/LightMode/reminder_L.png" width="30%" />
+  <img src="./screenshots/LightMode/add_shift_L.PNG" width="30%" />
+  <img src="./screenshots/LightMode/edit_L.PNG" width="30%" />
+  <img src="./screenshots/LightMode/overvirew_L.PNG" width="30%" />
+  <img src="./screenshots/LightMode/profile_L.PNG" width="30%" />
+  <img src="./screenshots/LightMode/shifts_L.PNG" width="30%"  />
+  <img src ="./screenshots/LightMode/law_L.PNG" width="30%" />
+  <img src ="./screenshots/LightMode/lang_L.PNG" width="30%" />
+  <img src ="./screenshots/LightMode/reminder_L.PNG" width="30%" />
 </p>
 
 <p align="center">
