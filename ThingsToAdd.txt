@@ -7,3 +7,6 @@ check the length of the days and its acctully simple calculation from there and 
 Transforme the code to TypeScript for more type handling and robust code , will help in debugging.
 
 -- Need to add option to let user config his own shifts hours for morning , evening and night
+
+-- Change Sign in and Sign up to be google and apple without email and password that way 
+i save the need to handle forget passwords, and so on,.
