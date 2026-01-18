@@ -1,15 +1,14 @@
-import { View, StyleSheet } from "react-native";
-import {
-  Text,
-  Portal,
-  Modal,
-  useTheme,
-  Button,
-  SegmentedButtons,
-} from "react-native-paper";
 import { useTranslation } from "react-i18next";
+import { StyleSheet } from "react-native";
+import {
+  Modal,
+  Portal,
+  SegmentedButtons,
+  Text,
+  useTheme,
+} from "react-native-paper";
 
-export default function LanguegesChange({ visable, hideModal, setLang, lang }) {
+export default function LanguagesChange({ visable, hideModal, setLang, lang }) {
   const { t } = useTranslation();
 
   const theme = useTheme();

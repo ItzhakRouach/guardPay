@@ -1,7 +1,7 @@
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
-import { formattedAmount } from "../../../lib/utils";
-import { useTranslation } from "react-i18next";
+import { formattedAmount } from "../../lib/utils";
 
 export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   const theme = useTheme();

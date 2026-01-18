@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
-import { useLanguage } from "../../../lib/lang-context";
-import { formattedAmount } from "../../../lib/utils";
+import { useLanguage } from "../../hooks/lang-context";
+import { formattedAmount } from "../../lib/utils";
 
 export default function MonthNetoCard({ neto }) {
   const { t } = useTranslation();

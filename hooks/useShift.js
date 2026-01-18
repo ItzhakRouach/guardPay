@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Query } from "react-native-appwrite";
-import { client, DATABASE_ID, databases, SHIFTS_HISTORY } from "./appwrite";
+import {
+  client,
+  DATABASE_ID,
+  databases,
+  SHIFTS_HISTORY,
+} from "../lib/appwrite";
 
 export const useShift = (user, currentDate) => {
   const [loading, setLoading] = useState(false);

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ID, Query } from "react-native-appwrite";
-import { account, DATABASE_ID, databases, USERS_PREFS } from "./appwrite";
+import { account, DATABASE_ID, databases, USERS_PREFS } from "../lib/appwrite";
 
 WebBrowser.maybeCompleteAuthSession();
 

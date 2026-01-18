@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Surface, Text, useTheme } from "react-native-paper";
-import { useLanguage } from "../../../lib/lang-context";
+import { useLanguage } from "../../hooks/lang-context";
 
 export default function ShiftSummary({ shiftSummary }) {
   const { t } = useTranslation();

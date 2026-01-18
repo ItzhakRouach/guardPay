@@ -3,16 +3,16 @@ import { useCallback, useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import { ActivityIndicator, Text, useTheme } from "react-native-paper";
+import ProfileSummary from "../../components/profile/ProfileSummary";
+import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
 import {
   client,
   DATABASE_ID,
   databases,
   USERS_PREFS,
 } from "../../lib/appwrite";
-import { useAuth } from "../../lib/auth-context";
-import { useLanguage } from "../../lib/lang-context";
 import { scheduleWeeklyReminder } from "../../lib/notfication";
-import ProfileSummary from "../components/layout/ProfileSummary";
 
 export default function Index() {
   // use the allready defined functions and states

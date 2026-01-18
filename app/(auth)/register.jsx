@@ -18,8 +18,8 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import { useAuth } from "../../lib/auth-context";
-import { useLanguage } from "../../lib/lang-context";
+import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
 
 export default function RegisterScreen() {
   // define the fields we need to get from user in order to let him sign in

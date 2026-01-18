@@ -1,26 +1,24 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
+  Alert,
+  Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
-  Keyboard,
-  Alert,
+  View,
 } from "react-native";
 import {
-  Text,
-  Portal,
-  Modal,
-  useTheme,
   Button,
+  Modal,
+  Portal,
+  Text,
   TextInput,
+  useTheme,
 } from "react-native-paper";
-import { useTranslation } from "react-i18next";
-import { useLanguage } from "../../lib/lang-context";
-import { useAuth } from "../../lib/auth-context";
-import { useState } from "react";
+import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
-import { Query } from "react-native-appwrite";
-import LoadingSpinner from "./common/LoadingSpinnner";
-
+import LoadingSpinner from "../common/LoadingSpinnner";
 export default function PreferencesChange({ visable, hideModal }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();

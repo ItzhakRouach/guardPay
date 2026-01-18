@@ -9,12 +9,12 @@ import {
   Text,
   useTheme,
 } from "react-native-paper";
-import { useLanguage } from "../../../lib/lang-context";
-import { formatDates } from "../../../lib/utils";
-import LanguegesChange from "../LanguegesChange";
-import PreferencesChange from "../PreferncesChange";
-import SecurityLawPDF from "../SecurityLawPDF";
-import WeeklyReminder from "./WekklyReminder";
+import { useLanguage } from "../../hooks/lang-context";
+import { formatDates } from "../../lib/utils";
+import WeeklyReminder from "../layout/WeeklyReminder";
+import SecurityLawPDF from "../legal/SecurityLawPDF";
+import PreferencesChange from "../profile/PreferencesChange";
+import LanguagesChange from "./LanguagesChange";
 
 export default function ProfileSummary({
   profile,
@@ -83,7 +83,7 @@ export default function ProfileSummary({
         setTempTime={setTempTime}
         setTempDay={setTempDay}
       />
-      <LanguegesChange
+      <LanguagesChange
         visable={visableLang}
         hideModal={hideLang}
         lang={lang}

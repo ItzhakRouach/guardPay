@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import { SegmentedButtons, useTheme } from "react-native-paper";
-import { useLanguage } from "../../../lib/lang-context";
+import { useLanguage } from "../../hooks/lang-context";
 
 export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
   const theme = useTheme();

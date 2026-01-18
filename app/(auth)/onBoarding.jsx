@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
-import { useLanguage } from "../../lib/lang-context";
+import { useLanguage } from "../../hooks/lang-context";
 
 export default function OnBoardingScreen() {
   const { t } = useTranslation();

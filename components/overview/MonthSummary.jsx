@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
-import { useLanguage } from "../../../lib/lang-context";
-import { formattedAmount } from "../../../lib/utils";
+import { useLanguage } from "../../hooks/lang-context";
+import { formattedAmount } from "../../lib/utils";
 
 export default function MonthSummary({
   bruto,

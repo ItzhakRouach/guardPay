@@ -10,20 +10,21 @@ import {
 } from "react-native";
 import { ID, Permission, Query, Role } from "react-native-appwrite";
 import { Button, Text, useTheme } from "react-native-paper";
+import LoadingSpinner from "../components/common/LoadingSpinnner";
+import DateTimeModal from "../components/shifts/DateTimeModal";
+import ShiftDatePicker from "../components/shifts/ShiftDatePicker";
+import ShiftSummary from "../components/shifts/ShiftSummary";
+import ShiftTypeSelected from "../components/shifts/ShiftTypeSelected";
+import { useAuth } from "../hooks/auth-context";
+import { useLanguage } from "../hooks/lang-context";
 import {
   DATABASE_ID,
   SHIFTS_HISTORY,
   USERS_PREFS,
   databases,
+  functions,
 } from "../lib/appwrite";
-import { useAuth } from "../lib/auth-context";
-import { useLanguage } from "../lib/lang-context";
-import { calculateShiftPay } from "../lib/shift-calculation";
 import { shiftTypeTimes } from "../lib/utils";
-import DateTimeModal from "./components/shifts/DateTimeModal";
-import ShiftDatePicker from "./components/shifts/ShiftDatePicker";
-import ShiftSummary from "./components/shifts/ShiftSummary";
-import ShiftTypeSelected from "./components/shifts/ShiftTypeSelected";
 
 export default function AddShift() {
   // use to control the show of the picker or not , default not
@@ -127,96 +128,51 @@ export default function AddShift() {
   };
 
   const handleSave = async () => {
-    const finalStart = new Date(date);
-    finalStart.setHours(startTime.getHours(), startTime.getMinutes());
-
-    const finalEnd = new Date(date);
-    finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
-
-    const baseRate = Number(hourRate);
-    // calculate by the rules
-    const result = calculateShiftPay(
-      finalStart,
-      finalEnd,
-      baseRate,
-      profile.price_per_ride
-    );
-    const permissions = [
-      Permission.read(Role.user(user.$id)),
-      Permission.update(Role.user(user.$id)),
-      Permission.delete(Role.user(user.$id)),
-      Permission.write(Role.user(user.$id)),
-    ];
-
-    let documentData = {
-      user_id: user.$id,
-      start_time: finalStart.toISOString(),
-      end_time: finalEnd.toISOString(),
-      total_amount: Number(result.total_amount),
-      reg_hours: Number(result.reg_hours),
-      extra_hours: Number(result.extra_hours),
-      reg_pay_amount: Number(result.reg_pay_amount),
-      extra_pay_amount: Number(result.extra_pay_amount),
-      travel_pay_amount: Number(result.travel_pay_amount),
-      h100_hours: Number(result.h100_hours),
-      h125_extra_hours: Number(result.h125_extra_hours),
-      h150_extra_hours: Number(result.h150_extra_hours),
-      h175_extra_hours: Number(result.h175_extra_hours),
-      h200_extra_hours: Number(result.h200_extra_hours),
-      h150_shabat: Number(result.h150_shabat),
-      base_rate: baseRate,
-    };
-    if (value === "training") {
-      documentData = {
-        user_id: user.$id,
-        start_time: finalStart.toISOString(),
-        end_time: finalEnd.toISOString(),
-        total_amount: Number(baseRate * 8),
-        reg_hours: 0,
-        extra_hours: 0,
-        reg_pay_amount: 0,
-        extra_pay_amount: 0,
-        travel_pay_amount: Number(result.travel_pay_amount),
-        h100_hours: 0,
-        h125_extra_hours: 0,
-        h150_extra_hours: 0,
-        h175_extra_hours: 0,
-        h200_extra_hours: 0,
-        h150_shabat: 0,
-        base_rate: baseRate,
-        is_training: true,
-      };
-    }
-    if (value === "vacation") {
-      documentData = {
-        user_id: user.$id,
-        start_time: finalStart.toISOString(),
-        end_time: finalEnd.toISOString(),
-        total_amount: Number(baseRate * 8),
-        reg_hours: 0,
-        extra_hours: 0,
-        reg_pay_amount: 0,
-        extra_pay_amount: 0,
-        travel_pay_amount: 0,
-        h100_hours: 0,
-        h125_extra_hours: 0,
-        h150_extra_hours: 0,
-        h175_extra_hours: 0,
-        h200_extra_hours: 0,
-        h150_shabat: 0,
-        base_rate: baseRate,
-        is_vacation: true,
-      };
-    }
-
+    setLoading(true);
     try {
+      const finalStart = new Date(date);
+      finalStart.setHours(startTime.getHours(), startTime.getMinutes());
+
+      const finalEnd = new Date(date);
+      finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
+
+      const execution = await functions.createExecution(
+        "696c1035000dbb7488ca",
+        JSON.stringify({
+          startTime: finalStart.toISOString(),
+          endTime: finalEnd.toISOString(),
+          baseRate: Number(hourRate),
+          travelRate: profile.price_per_ride,
+          type: value,
+          user_id: user.$id,
+        }),
+        false,
+        "/",
+        "POST",
+        { "Content-Type": "application/json" }
+      );
+
+      if (execution.status === "failed") {
+        throw new Error("Calculation failed on server");
+      }
+
+      const docData = JSON.parse(execution.responseBody);
+      docData.user_id = user.$id;
+
+      const permissions = [
+        Permission.read(Role.user(user.$id)),
+        Permission.update(Role.user(user.$id)),
+        Permission.delete(Role.user(user.$id)),
+        Permission.write(Role.user(user.$id)),
+      ];
+
       if (isEditMode && params.shiftId) {
         // UPDATE EXISTING
         await databases.updateDocument(
           DATABASE_ID,
           SHIFTS_HISTORY,
           params.shiftId,
-          documentData,
+          docData,
           permissions
         );
       } else {
@@ -225,7 +181,7 @@ export default function AddShift() {
           DATABASE_ID,
           SHIFTS_HISTORY,
           ID.unique(),
-          documentData,
+          docData,
           permissions
         );
       }
@@ -233,6 +189,7 @@ export default function AddShift() {
       console.log(err);
     } finally {
       router.back();
+      setLoading(false);
     }
   };
 
@@ -309,6 +266,7 @@ export default function AddShift() {
             endTime={endTime}
           />
         )}
+        {loading && <LoadingSpinner />}
       </View>
     </TouchableWithoutFeedback>
   );

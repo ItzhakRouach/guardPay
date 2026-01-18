@@ -1,4 +1,5 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import {
   Button,
@@ -8,8 +9,7 @@ import {
   Text,
   useTheme,
 } from "react-native-paper";
-import { useTranslation } from "react-i18next";
-import { useLanguage } from "../../../lib/lang-context";
+import { useLanguage } from "../../hooks/lang-context";
 
 export default function WeeklyReminder({
   visable,

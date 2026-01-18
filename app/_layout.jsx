@@ -8,9 +8,9 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../Langueges/il18n";
-import { AuthProvider, useAuth } from "../lib/auth-context";
-import { LanguageProvider } from "../lib/lang-context";
-import LoadingSpinner from "./components/common/LoadingSpinnner";
+import LoadingSpinner from "../components/common/LoadingSpinnner";
+import { AuthProvider, useAuth } from "../hooks/auth-context";
+import { LanguageProvider } from "../hooks/lang-context";
 
 //setup the notfication behavior
 Notifications.setNotificationHandler({

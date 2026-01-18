@@ -20,9 +20,9 @@ import {
   en,
   registerTranslation,
 } from "react-native-paper-dates";
+import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
-import { useAuth } from "../../lib/auth-context";
-import { useLanguage } from "../../lib/lang-context";
 registerTranslation("en", en);
 
 export default function SetupProfileScreen() {

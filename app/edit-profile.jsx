@@ -7,9 +7,9 @@ import {
 } from "react-native";
 import { Query } from "react-native-appwrite";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import LoadingSpinner from "../components/common/LoadingSpinnner";
+import { useAuth } from "../hooks/auth-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../lib/appwrite";
-import { useAuth } from "../lib/auth-context";
-import LoadingSpinner from "./components/common/LoadingSpinnner";
 
 export default function EditProfileScreen() {
   const { user } = useAuth();

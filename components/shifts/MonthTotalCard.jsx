@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Divider, Surface, Text, useTheme } from "react-native-paper";
-import { formattedAmount } from "../../../lib/utils";
+import { formattedAmount } from "../../lib/utils";
 
 export default function MonthTotalCard({ totalAmount, totalHours }) {
   const theme = useTheme();
