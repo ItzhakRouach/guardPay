@@ -175,7 +175,7 @@ export const resources = {
         create_acc: "Create Account",
       },
       signin: {
-        title: "Sign In",
+        title: "Login",
         email: "Email",
         password: "Password",
         signin: "Sign In",

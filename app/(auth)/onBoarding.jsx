@@ -78,11 +78,14 @@ const makeStyle = (theme, isRTL) =>
     intro: {
       color: theme.colors.onSurface,
       fontWeight: 600,
-      lineHeight: 24,
+      lineHeight: 25,
+      letterSpacing: 1,
       marginTop: 15,
+      padding: 5,
       opacity: 0.7,
       fontSize: 16,
-      textAlign: "justify",
+      textAlign: isRTL ? "right" : "left",
+
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     btnContainer: {
@@ -103,8 +106,8 @@ const makeStyle = (theme, isRTL) =>
     },
 
     icon: {
-      width: 100,
-      height: 100,
+      width: 80,
+      height: 80,
       marginBottom: 20,
     },
 
