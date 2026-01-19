@@ -10,3 +10,5 @@ Transforme the code to TypeScript for more type handling and robust code , will 
 
 -- Change Sign in and Sign up to be google and apple without email and password that way 
 i save the need to handle forget passwords, and so on,.
+
+-- Enable users to delete therir account permently

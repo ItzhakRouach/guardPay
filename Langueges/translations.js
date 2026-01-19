@@ -67,6 +67,7 @@ export const resources = {
         not_set: "לא הוגדר",
         security_law: "זכויות וחוק המאבטח",
         security_law_desc: "עיון בחוק המאבטחים וזכויות עבודה",
+        delete_account: "מחק את החשבון",
       },
       days: {
         fri: "שישי",
@@ -217,6 +218,7 @@ export const resources = {
         not_set: "Not Set",
         security_law: "Security Law & Rights",
         security_law_desc: "Review security guard laws and labor rights",
+        delete_account: "Delete the Account",
       },
       days: {
         fri: "Fri",

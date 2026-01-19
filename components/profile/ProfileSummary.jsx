@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import {
   Divider,
   List,
@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
+import { account } from "../../lib/appwrite";
 import { formatDates } from "../../lib/utils";
 import WeeklyReminder from "../layout/WeeklyReminder";
 import SecurityLawPDF from "../legal/SecurityLawPDF";
@@ -30,7 +31,7 @@ export default function ProfileSummary({
   const [tempDay, setTempDay] = useState(profile?.reminder_day || 1);
   const [tempTime, setTempTime] = useState(new Date());
   const [isSwitchOn, setIsSwitchOn] = useState(
-    profile?.reminder_enable || false
+    profile?.reminder_enable || false,
   );
 
   const { isRTL, changeLanguage, lang } = useLanguage();
@@ -65,6 +66,32 @@ export default function ProfileSummary({
   const getDayName = (dayNum) => {
     const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
     return days[dayNum - 1] || "Set Day";
+  };
+
+  const handleDeleteAccount = (user) => {
+    Alert.alert(
+      t("settings.delete_title"),
+      t("settings.delete_message"),
+      [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await account.deleteIdentity({ identityId: `${user.id}` });
+              await account.deleteSession("current");
+            } catch (err) {
+              console.log(err);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   const theme = useTheme();
@@ -168,7 +195,7 @@ export default function ProfileSummary({
           title={t("index.weekly_r")}
           onPress={showModal}
           description={`${t("index.every")} ${t(
-            `days.${getDayName(profile?.reminder_day)}`
+            `days.${getDayName(profile?.reminder_day)}`,
           )} ${t("index.at")} ${profile?.reminder_time || t("index.not_set")}`}
           descriptionStyle={styles.descStyle}
         />
@@ -219,6 +246,15 @@ export default function ProfileSummary({
           title={t("index.security_law")}
           description={t("index.security_law_desc")}
           onPress={showPDF}
+        />
+        <List.Item
+          style={styles.listItem}
+          titleStyle={styles.listTitle}
+          left={(props) => (
+            <List.Icon {...props} icon="account-remove" color="#E94560" />
+          )}
+          title={t("index.delete_account")}
+          onPress={() => handleDeleteAccount(user)}
         />
         <List.Item
           style={styles.listItem}
