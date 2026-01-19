@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 
@@ -15,10 +15,6 @@ export default function OnBoardingScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.contentWrapper}>
-        <Image
-          source={require("../../assets/images/GuardAppIcon.png")}
-          style={styles.icon}
-        />
         <Text variant="headlineLarge" style={styles.title}>
           Guard<Text style={styles.titleSec}>Pay</Text>
         </Text>

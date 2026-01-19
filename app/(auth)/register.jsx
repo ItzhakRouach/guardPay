@@ -1,7 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useTranslation } from "react-i18next";
 import {
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -28,10 +27,6 @@ export default function RegisterScreen() {
         style={styles.container}
       >
         <View style={styles.headerWrapper}>
-          <Image
-            style={styles.logoIcon}
-            source={require("../../assets/images/GuardAppIcon.png")}
-          />
           <View style={styles.headerContent}>
             <Text variant="headlineMedium" style={styles.title}>
               {t("create_acc.title")}

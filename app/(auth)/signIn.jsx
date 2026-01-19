@@ -1,7 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useTranslation } from "react-i18next";
 import {
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -28,12 +27,7 @@ export default function SignInScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <View style={styles.headerWrapper}>
-          <Image
-            style={styles.logoIcon}
-            source={require("../../assets/images/GuardAppIcon.png")}
-          />
-        </View>
+        <View style={styles.headerWrapper}></View>
         <View style={styles.headerContent}>
           <Icon source="login" size="30" color={theme.colors.primary} />
           <Text style={styles.title}>{t("signin.title")}</Text>
