@@ -70,6 +70,7 @@ export default function SetupProfileScreen() {
       }, 3000);
       return;
     }
+
     setError(null);
     setIsLoading(true);
     try {
@@ -158,9 +159,20 @@ export default function SetupProfileScreen() {
                 presentationStyle="pageSheet"
                 mode="outlined"
                 value={formData.birth_date}
-                onChange={(d) =>
-                  setFormData({ ...formData, birth_date: d || undefined })
-                }
+                onChange={(d) => {
+                  if (d) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (d > today) {
+                      setError(t("error.invalid_birth_date"));
+                      setTimeout(() => setError(null), 3000);
+                      return;
+                    }
+                    const normalizedDate = new Date(d);
+                    normalizedDate.setHours(12, 0, 0, 0);
+                    setFormData({ ...formData, birth_date: normalizedDate });
+                  }
+                }}
               />
               {error && (
                 <Text
@@ -232,15 +244,17 @@ export default function SetupProfileScreen() {
           <ProgressBar progress={step / 2} style={styles.progress} />
         </View>
         <View style={styles.btnContainer}>
-          <Button
-            icon="chevron-left"
-            mode="contained"
-            style={styles.btn}
-            labelStyle={{ fontWeight: 700 }}
-            onPress={() => handlePrev()}
-          >
-            {t("setupP.prev")}
-          </Button>
+          {step > 1 && (
+            <Button
+              icon="chevron-left"
+              mode="contained"
+              style={styles.btn}
+              labelStyle={{ fontWeight: 700 }}
+              onPress={() => handlePrev()}
+            >
+              {t("setupP.prev")}
+            </Button>
+          )}
           <Button
             icon={step !== 2 ? "chevron-right" : "check-all"}
             mode="contained"

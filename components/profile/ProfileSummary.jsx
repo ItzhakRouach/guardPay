@@ -9,6 +9,7 @@ import {
   Surface,
   Switch,
   Text,
+  TouchableRipple,
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
@@ -247,49 +248,71 @@ export default function ProfileSummary({
           onPress={showPref}
         />
         <Divider style={styles.dividerStyle} bold={false} />
-        <List.Item
-          style={styles.listItem}
-          titleStyle={styles.listTitle}
-          left={(props) => (
-            <List.Icon
-              {...props}
-              icon="translate"
-              color={theme.colors.primary}
-            />
-          )}
-          title={t("index.change_lang")}
+        <TouchableRipple
           onPress={showLang}
-        />
+          borderless={false}
+          style={styles.ripple}
+        >
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            left={(props) => (
+              <List.Icon
+                {...props}
+                icon="translate"
+                color={theme.colors.primary}
+              />
+            )}
+            title={t("index.change_lang")}
+          />
+        </TouchableRipple>
         <Divider style={styles.dividerStyle} bold={false} />
-        <List.Item
-          style={styles.listItem}
-          titleStyle={styles.listTitle}
-          descriptionStyle={styles.descStyle}
-          left={(props) => (
-            <List.Icon {...props} icon="gavel" color={theme.colors.primary} />
-          )}
-          title={t("index.security_law")}
-          description={t("index.security_law_desc")}
+        <TouchableRipple
           onPress={showPDF}
-        />
-        <List.Item
-          style={styles.listItem}
-          titleStyle={styles.listTitle}
-          left={(props) => (
-            <List.Icon {...props} icon="account-remove" color="#E94560" />
-          )}
-          title={t("index.delete_account")}
+          borderless={false}
+          style={styles.ripple}
+        >
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            descriptionStyle={styles.descStyle}
+            left={(props) => (
+              <List.Icon {...props} icon="gavel" color={theme.colors.primary} />
+            )}
+            title={t("index.security_law")}
+            description={t("index.security_law_desc")}
+          />
+        </TouchableRipple>
+        <Divider style={styles.dividerStyle} bold={false} />
+        <TouchableRipple
           onPress={() => handleDeleteAccount(user)}
-        />
-        <List.Item
-          style={styles.listItem}
-          titleStyle={styles.listTitle}
-          left={(props) => (
-            <List.Icon {...props} icon="logout" color="#E94560" />
-          )}
-          title={t("index.log_out")}
+          borderless={false}
+          style={styles.ripple}
+        >
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            left={(props) => (
+              <List.Icon {...props} icon="account-remove" color="#E94560" />
+            )}
+            title={t("index.delete_account")}
+          />
+        </TouchableRipple>
+        <Divider style={styles.dividerStyle} bold={false} />
+        <TouchableRipple
           onPress={signout}
-        />
+          borderless={false}
+          style={styles.ripple}
+        >
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            left={(props) => (
+              <List.Icon {...props} icon="logout" color="#E94560" />
+            )}
+            title={t("index.log_out")}
+          />
+        </TouchableRipple>
       </Surface>
       <Portal>
         {loading && (
@@ -309,14 +332,15 @@ export default function ProfileSummary({
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     contentWrapper: {
-      padding: 15,
-      marginTop: 5,
+      marginTop: 20,
+      marginHorizontal: 10,
       borderRadius: 30,
       backgroundColor: theme.colors.surface,
-      marginHorizontal: 10,
+      overflow: "hidden",
       alignItems: isRTL ? "flex-end" : "flex-start",
     },
     title: {
+      padding: 10,
       marginBottom: 10,
       fontWeight: "500",
       paddingStart: 10,
@@ -327,12 +351,14 @@ const makeStyle = (theme, isRTL) =>
     },
     dividerStyle: {
       backgroundColor: theme.colors.divider,
-      marginVertical: 10,
+      marginVertical: 1,
       width: "100%",
     },
 
     listItem: {
-      marginBottom: 2,
+      flex: 1,
+      paddingHorizontal: 15,
+      paddingVertical: 15,
     },
     listTitle: {
       textAlign: isRTL ? "right" : "left",
@@ -353,6 +379,11 @@ const makeStyle = (theme, isRTL) =>
       backgroundColor: theme.colors.background,
       opacity: 0.7,
       justifyContent: "center",
+      alignItems: "center",
+    },
+    ripple: {
+      flex: 1,
+      flexDirection: "row",
       alignItems: "center",
     },
   });

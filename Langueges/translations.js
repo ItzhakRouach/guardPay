@@ -10,6 +10,7 @@ export const resources = {
         delete_message:
           "האם אתה בטוח? כל נתוני המשמרות והשכר שלך יימחקו לצמיתות ולא יהיה ניתן לשחזרם.",
         success: "חשבון נמחק בהצלחה",
+        deleted: "החשבון נמחק",
       },
       setupP: {
         title: "סיים להגדיר את חשבונך",
@@ -28,6 +29,7 @@ export const resources = {
         pass_len: "סיסמה צריכה להיות לפחות 6 תווים",
         pass_not_same: "הסיסמה צריכה להיות אותו הדבר",
         not_auth: "שם משתמש / סיסמה אינם נכונים , אנא נסה שוב",
+        invalid_birth_date: "תאריך לידה אינו יכול להיות בעתיד",
       },
       landing: {
         subTitle:
@@ -171,6 +173,7 @@ export const resources = {
         delete_message:
           "Are you sure? all salary and shifts records will. be premently deleted and wont be able to recover ",
         success: "Account Deleted Successfully",
+        deleted: "Account Deleted",
       },
       setupP: {
         title: "Finish-up Your Profile",
@@ -188,6 +191,7 @@ export const resources = {
         pass_len: "Password must be at least 6 character long.",
         pass_not_same: "Password must be the same",
         not_auth: "Username or Password are Invalid , please try again.",
+        invalid_birth_date: "Birth date cannot be in the future",
       },
       landing: {
         subTitle:
