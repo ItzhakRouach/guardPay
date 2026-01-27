@@ -336,7 +336,6 @@ const makeStyle = (theme, isRTL) =>
       marginHorizontal: 10,
       borderRadius: 30,
       backgroundColor: theme.colors.surface,
-      overflow: "hidden",
       alignItems: isRTL ? "flex-end" : "flex-start",
     },
     title: {

@@ -1,7 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { I18nManager } from "react-native";
-import i18n from "../Langueges/il18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useContext, useEffect, useState } from "react";
+import { I18nManager } from "react-native";
+import i18n from "../translations/il18n";
 
 const LanguageContext = createContext();
 
