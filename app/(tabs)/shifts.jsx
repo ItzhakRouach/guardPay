@@ -33,7 +33,7 @@ export default function ShiftsScreen() {
           Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
         return acc;
       },
-      { amount: 0, hours: 0 }
+      { amount: 0, hours: 0 },
     );
   }, [shifts]);
 
@@ -47,7 +47,6 @@ export default function ShiftsScreen() {
         style={{
           backgroundColor: theme.colors.delBtn,
           justifyContent: "center",
-          alignItems: "center",
           width: 70,
           borderRadius: 12,
           marginVertical: 15,
@@ -127,7 +126,7 @@ export default function ShiftsScreen() {
               <ShiftCard
                 dateTime={formatShiftDate(shift.start_time)}
                 dateHours={`${formatShiftTime(
-                  shift.start_time
+                  shift.start_time,
                 )} - ${formatShiftTime(shift.end_time)}`}
                 totalAmout={shift.total_amount}
               />

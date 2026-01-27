@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet } from "react-native";
 import {
+  ActivityIndicator,
   Divider,
   List,
+  Portal,
   Surface,
   Switch,
   Text,
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
-import { account } from "../../lib/appwrite";
+import { functions } from "../../lib/appwrite";
 import { formatDates } from "../../lib/utils";
 import WeeklyReminder from "../layout/WeeklyReminder";
 import SecurityLawPDF from "../legal/SecurityLawPDF";
@@ -33,6 +35,7 @@ export default function ProfileSummary({
   const [isSwitchOn, setIsSwitchOn] = useState(
     profile?.reminder_enable || false,
   );
+  const [loading, setLoading] = useState(false);
 
   const { isRTL, changeLanguage, lang } = useLanguage();
 
@@ -81,11 +84,32 @@ export default function ProfileSummary({
           text: t("common.delete"),
           style: "destructive",
           onPress: async () => {
+            setLoading(true);
+            const userId = user.$id || user.id;
             try {
-              await account.deleteIdentity({ identityId: `${user.id}` });
-              await account.deleteSession("current");
+              const execution = await functions.createExecution(
+                "696dacb9001aaac9ee09",
+                JSON.stringify({
+                  userId: userId,
+                }),
+                false,
+                "/",
+                "POST",
+              );
+              Alert.alert(t("settings.deleted"), t("settings.success"), [
+                {
+                  text: "OK",
+                },
+              ]);
+            } catch (e) {
+              console.log(e);
+            }
+            try {
+              signout();
             } catch (err) {
               console.log(err);
+            } finally {
+              setLoading(false);
             }
           },
         },
@@ -118,6 +142,7 @@ export default function ProfileSummary({
       />
       <SecurityLawPDF visable={visablePDF} hideModal={hidePDF} />
       <PreferencesChange visable={visablePref} hideModal={hidePref} />
+
       <Surface style={styles.contentWrapper} elevation={1}>
         <Text style={styles.title} variant="headlineMedium">
           {t("index.general")}
@@ -266,6 +291,17 @@ export default function ProfileSummary({
           onPress={signout}
         />
       </Surface>
+      <Portal>
+        {loading && (
+          <Surface style={styles.loadingOverlay} elevation={0}>
+            <ActivityIndicator
+              animating={true}
+              color={theme.colors.primary}
+              size={80}
+            />
+          </Surface>
+        )}
+      </Portal>
     </>
   );
 }
@@ -311,5 +347,12 @@ const makeStyle = (theme, isRTL) =>
       marginTop: 5,
       writingDirection: isRTL ? "rtl" : "ltr",
       color: theme.colors.secondary,
+    },
+    loadingOverlay: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      opacity: 0.7,
+      justifyContent: "center",
+      alignItems: "center",
     },
   });

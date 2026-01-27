@@ -1,6 +1,16 @@
 export const resources = {
   he: {
     translation: {
+      common: {
+        cancel: "ביטול",
+        delete: "מחק",
+      },
+      settings: {
+        delete_title: "מחיקת החשבון",
+        delete_message:
+          "האם אתה בטוח? כל נתוני המשמרות והשכר שלך יימחקו לצמיתות ולא יהיה ניתן לשחזרם.",
+        success: "חשבון נמחק בהצלחה",
+      },
       setupP: {
         title: "סיים להגדיר את חשבונך",
         name: "שם מלא",
@@ -152,6 +162,16 @@ export const resources = {
   },
   en: {
     translation: {
+      common: {
+        cancel: "Cancel",
+        delete: "Delete",
+      },
+      settings: {
+        delete_title: "Delete Account",
+        delete_message:
+          "Are you sure? all salary and shifts records will. be premently deleted and wont be able to recover ",
+        success: "Account Deleted Successfully",
+      },
       setupP: {
         title: "Finish-up Your Profile",
         name: "Enter your full name",

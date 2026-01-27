@@ -6,7 +6,11 @@ export default function LoadingSpinner() {
   const styles = makeStyle(theme);
   return (
     <View style={[styles.container, { justifyContent: "center" }]}>
-      <ActivityIndicator size="large" color={theme.colors.primary} />
+      <ActivityIndicator
+        size="70"
+        color={theme.colors.primary}
+        animating={true}
+      />
     </View>
   );
 }
@@ -16,6 +20,8 @@ const makeStyle = (theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.backgroundColor,
-      padding: 20,
+      padding: 30,
+      alignSelf: "center",
+      justifyContent: "center",
     },
   });

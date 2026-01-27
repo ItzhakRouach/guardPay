@@ -65,14 +65,17 @@ export const useMonthlySalary = (shifts) => {
       }
       try {
         const execution = await functions.createExecution(
-          "696c2537001de745514b",
+          "696daaef000724d0b99b",
           JSON.stringify({
-            regularPay: totals.regPay,
-            extraPay: totals.extraPay,
-            travelPay: totals.travelPay,
-            vacation_pay: totals.vacationAmount,
-            training_pay: totals.trainingAmount,
-          })
+            action: "CALCULATE_SALARY",
+            payload: {
+              regularPay: totals.regPay,
+              extraPay: totals.extraPay,
+              travelPay: totals.travelPay,
+              vacation_pay: totals.vacationAmount,
+              training_pay: totals.trainingAmount,
+            },
+          }),
         );
         const result = JSON.parse(execution.responseBody);
         setMonthlyReport(result);

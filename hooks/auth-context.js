@@ -61,13 +61,13 @@ export function AuthProvider({ children }) {
       const loginUrl = await account.createOAuth2Token(
         "google",
         `${deepLink}`,
-        `${deepLink}`
+        `${deepLink}`,
       );
 
       // Open loginUrl and listen for the scheme redirect
       const result = await WebBrowser.openAuthSessionAsync(
         `${loginUrl}`,
-        scheme
+        scheme,
       );
       if (result.type === "success" && result.url) {
         // Extract credentials from OAuth redirect URL
@@ -119,11 +119,11 @@ export function AuthProvider({ children }) {
       console.log("Session deleted from server");
       setUser(null);
       setProfile(null);
+      router.replace("/(auth)/onBoarding");
     } catch (error) {
       console.log("User already signed out or session expired:", error.message);
       setUser(null);
       setProfile(null);
-      router.replace("/(auth)/onBoarding");
     }
   };
 

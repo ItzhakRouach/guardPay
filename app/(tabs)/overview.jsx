@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Button, useTheme } from "react-native-paper";
-import LoadingSpinner from "../../components/common/LoadingSpinnner";
+import { ActivityIndicator, Button, useTheme } from "react-native-paper";
 import MonthPicker from "../../components/layout/MonthPicker";
 import MonthNetoCard from "../../components/overview/MonthNetoCard";
 import MonthSummary from "../../components/overview/MonthSummary";
@@ -23,11 +22,11 @@ export default function OverViewScreen() {
 
   // intilize styles
   const theme = useTheme();
-  const styles = makeStyle(theme, isRTL);
+  const styles = makeStyle(theme, isRTL, loading);
 
   return (
     <View style={styles.container}>
-      {monthlyReport ? (
+      {monthlyReport !== null ? (
         <>
           <MonthPicker
             currentDate={currentDate}
@@ -52,7 +51,7 @@ export default function OverViewScreen() {
                 profile,
                 currentDate,
                 shifts,
-                monthlyReport
+                monthlyReport,
               )
             }
             mode="contained"
@@ -61,7 +60,13 @@ export default function OverViewScreen() {
           </Button>
         </>
       ) : (
-        <LoadingSpinner />
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator
+            animating={true}
+            color={theme.colors.primary}
+            size={80}
+          />
+        </View>
       )}
     </View>
   );
@@ -92,5 +97,9 @@ const makeStyle = (theme, isRTL) =>
     btnLabel: {
       fontSize: 18,
       fontWeight: "bold",
+    },
+    loadingOverlay: {
+      flex: 1,
+      justifyContent: "center",
     },
   });

@@ -137,19 +137,21 @@ export default function AddShift() {
       finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
 
       const execution = await functions.createExecution(
-        "696c1035000dbb7488ca",
+        "696daaef000724d0b99b",
         JSON.stringify({
-          startTime: finalStart.toISOString(),
-          endTime: finalEnd.toISOString(),
-          baseRate: Number(hourRate),
-          travelRate: profile.price_per_ride,
-          type: value,
-          user_id: user.$id,
+          action: "CALCULATE_SHIFT",
+          payload: {
+            startTime: finalStart.toISOString(),
+            endTime: finalEnd.toISOString(),
+            baseRate: Number(hourRate),
+            travelRate: profile.price_per_ride,
+            type: value,
+            user_id: user.$id,
+          },
         }),
         false,
         "/",
         "POST",
-        { "Content-Type": "application/json" }
       );
 
       if (execution.status === "failed") {
@@ -173,7 +175,7 @@ export default function AddShift() {
           SHIFTS_HISTORY,
           params.shiftId,
           docData,
-          permissions
+          permissions,
         );
       } else {
         //Create new entry
@@ -182,7 +184,7 @@ export default function AddShift() {
           SHIFTS_HISTORY,
           ID.unique(),
           docData,
-          permissions
+          permissions,
         );
       }
     } catch (err) {
