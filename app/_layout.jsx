@@ -7,10 +7,10 @@ import { I18nManager, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import "../Langueges/il18n";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import { AuthProvider, useAuth } from "../hooks/auth-context";
 import { LanguageProvider } from "../hooks/lang-context";
+import "../translations/il18n";
 
 //setup the notfication behavior
 Notifications.setNotificationHandler({
