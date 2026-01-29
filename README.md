@@ -6,27 +6,22 @@
 
 ### 📊 Monthly Analytics Dashboard
 
-- [cite_start]**Real-Time Financial Health**: Get a bird's-eye view of your earnings with live tracking of "Monthly Pay" and "Total Hours" worked[cite: 1, 12, 13].
-- [cite_start]**Executive Overview**: A high-level summary that simplifies complex payroll data into a clean, intuitive interface[cite: 7, 8].
-- [cite_start]**Smart Salary Breakdown**: Visualize the clear relationship between Gross income, total deductions, and your final Net (Neto) pay[cite: 12, 13].
-- [cite_start]**Detailed Overtime Tracking**: Automatically categorizes work hours into specific legal pay brackets, including 125%, 150%, and specialized weekend rates of 175% and 200%[cite: 2].
+-**Real-Time Financial Health**: Get a bird's-eye view of your earnings with live tracking of "Monthly Pay" and "Total Hours" worked[cite: 1, 12, 13]. -**Executive Overview**: A high-level summary that simplifies complex payroll data into a clean, intuitive interface[cite: 7, 8]. -**Smart Salary Breakdown**: Visualize the clear relationship between Gross income, total deductions, and your final Net (Neto) pay[cite: 12, 13]. -**Detailed Overtime Tracking**: Automatically categorizes work hours into specific legal pay brackets, including 125%, 150%, and specialized weekend rates of 175% and 200%[cite: 2].
 
 ### 📅 Precision Shift Logging
 
-- **Smart Presets**: One-tap shift entry using "Morning", "Evening", and "Night" presets for faster logging.
-- [cite_start]**Automated Calculations**: Instant duration and pay calculation based on your specific start and end times[cite: 2].
-- [cite_start]**Shift History**: Access a detailed historical overview of all past sessions with individual pay breakdowns[cite: 1, 2].
+- **Smart Presets**: One-tap shift entry using "Morning", "Evening", and "Night" presets for faster logging. -**Automated Calculations**: Instant duration and pay calculation based on your specific start and end times[cite: 2]. -**Shift History**: Access a detailed historical overview of all past sessions with individual pay breakdowns[cite: 1, 2].
 
 ### 📄 Professional Paycheck Generation
 
-- [cite_start]**One-Click PDF Statement**: Instantly convert your monthly overview into a formal, structured pay slip with a single tap[cite: 1, 2].
-- [cite_start]**Tax & Deduction Transparency**: Clear itemization of mandatory deductions, including Income Tax (Mas Hachnasa), Social Security (Bituah Leumi), and Pension contributions[cite: 4, 5, 6, 10, 11].
+-**One-Click PDF Statement**: Instantly convert your monthly overview into a formal, structured pay slip with a single tap[cite: 1, 2]. -**Tax & Deduction Transparency**: Clear itemization of mandatory deductions, including Income Tax (Mas Hachnasa), Social Security (Bituah Leumi), and Pension contributions[cite: 4, 5, 6, 10, 11].
+
 - **Native Sharing**: Seamlessly export and share your PDF statements via WhatsApp, Email, or save directly to cloud storage.
 
 ### 👤 Dynamic Profile Management
 
-- [cite_start]**Custom Compensation**: Set your unique base hourly rates and travel/ride compensation for precise earnings[cite: 2].
-- [cite_start]**Profile Automation**: Automatic age calculation from birthdate and personalized user settings[cite: 1].
+-**Custom Compensation**: Set your unique base hourly rates and travel/ride compensation for precise earnings[cite: 2]. -**Profile Automation**: Automatic age calculation from birthdate and personalized user settings[cite: 1].
+
 - **Secure Data Persistence**: Seamless integration with Appwrite to ensure your financial data remains secure and accessible.
 
 ---
@@ -105,7 +100,7 @@ Markdown
 
 **Copyright (c) 2026 Itzhak Rouach. All rights reserved.**
 
-This project is proprietary. [cite_start]While you are welcome to explore the code for educational purposes, copying, distributing, or using the unique calculation logic for commercial or private gain is strictly prohibited without explicit written permission from the author[cite: 1].
+This project is proprietary.While you are welcome to explore the code for educational purposes, copying, distributing, or using the unique calculation logic for commercial or private gain is strictly prohibited without explicit written permission from the author[cite: 1].
 
 ---
 
