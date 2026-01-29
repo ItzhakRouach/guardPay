@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, StyleSheet } from "react-native";
+import { Alert, Linking, StyleSheet } from "react-native";
 import {
   ActivityIndicator,
   Divider,
@@ -281,6 +281,29 @@ export default function ProfileSummary({
             )}
             title={t("index.security_law")}
             description={t("index.security_law_desc")}
+          />
+        </TouchableRipple>
+        <Divider style={styles.dividerStyle} bold={false} />
+        <TouchableRipple
+          onPress={() =>
+            Linking.openURL(
+              "https://gistcdn.githack.com/ItzhakRouach/8544fa6efc006e2b1275e6921edf098a/raw/policy.html",
+            )
+          }
+          borderless={false}
+          style={styles.ripple}
+        >
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            left={(props) => (
+              <List.Icon
+                {...props}
+                icon="shield-outline"
+                color={theme.colors.primary}
+              />
+            )}
+            title={t("index.privacy")}
           />
         </TouchableRipple>
         <Divider style={styles.dividerStyle} bold={false} />

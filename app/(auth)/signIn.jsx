@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { Button, Icon, Text, useTheme } from "react-native-paper";
+import { PrivacyConsent } from "../../components/common/privacyConsent";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 
@@ -62,6 +63,7 @@ export default function SignInScreen() {
           >
             Sign in with Google
           </Button>
+          <PrivacyConsent />
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>

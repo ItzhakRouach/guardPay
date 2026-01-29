@@ -4,6 +4,8 @@ export const resources = {
       common: {
         cancel: "ביטול",
         delete: "מחק",
+        privacy_aggrement: "בשימוש באפליקציית GuardPay , הנך מאשר/ת כי קראת את",
+        privacy: "מדיניות הפרטיות שלנו",
       },
       settings: {
         delete_title: "מחיקת החשבון",
@@ -80,6 +82,7 @@ export const resources = {
         security_law: "זכויות וחוק המאבטח",
         security_law_desc: "עיון בחוק המאבטחים וזכויות עבודה",
         delete_account: "מחק את החשבון",
+        privacy: "מדיניות פרטיות",
       },
       days: {
         fri: "שישי",
@@ -167,6 +170,9 @@ export const resources = {
       common: {
         cancel: "Cancel",
         delete: "Delete",
+        privacy_aggrement:
+          "By using GuardPay, you acknowledge that you have read our",
+        privacy: "Privacy Policy",
       },
       settings: {
         delete_title: "Delete Account",
@@ -243,6 +249,7 @@ export const resources = {
         security_law: "Security Law & Rights",
         security_law_desc: "Review security guard laws and labor rights",
         delete_account: "Delete the Account",
+        privacy: "Privacy Policy",
       },
       days: {
         fri: "Fri",
