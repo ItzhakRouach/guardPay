@@ -47,51 +47,15 @@ Replace your gallery section with this code. It uses HTML for better control ove
 
 Markdown
 
-## 📸 Screen Gallery Dark Mode
+## 📸 Screen Gallery App Store Ready
 
 <p align="center">
-  <img src="./screenshots/DarkMode/add_shift_D.PNG" width="20%" />
-  <img src="./screenshots/DarkMode/edit_D.PNG" width="20%" />
-  <img src="./screenshots/DarkMode/overview_D.PNG" width="20%" />
-  <img src="./screenshots/DarkMode/pref_D.PNG" width="20%" />
-  <img src="./screenshots/DarkMode/shifts_D.PNG" width="20%"  />
-  <img src ="./screenshots/DarkMode/law_D.PNG" width="20%" />
-  <img src ="./screenshots/DarkMode/lang_D.PNG" width="20%" />
-  <img src ="./screenshots/DarkMode/reminder_D.PNG" width="20%" />
-</p>
-
-<p align="center">
-  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Law pdf &bull; Language select &bull; set reminder</em>
-</p>
-
-## 📸 Screen Gallery Light Mode
-
-<p align="center">
-  <img src="./screenshots/LightMode/add_shift_L.PNG" width="30%" />
-  <img src="./screenshots/LightMode/edit_L.PNG" width="30%" />
-  <img src="./screenshots/LightMode/overvirew_L.PNG" width="30%" />
-  <img src="./screenshots/LightMode/profile_L.PNG" width="30%" />
-  <img src="./screenshots/LightMode/shifts_L.PNG" width="30%"  />
-  <img src ="./screenshots/LightMode/law_L.PNG" width="30%" />
-  <img src ="./screenshots/LightMode/lang_L.PNG" width="30%" />
-  <img src ="./screenshots/LightMode/reminder_L.PNG" width="30%" />
-</p>
-
-<p align="center">
-  <em>Add shift &bull; Edit profile &bull; Month overview &bull; Profile &bull; Shifts Dashbord &bull; Law pdf &bull; Language select &bull; set reminder</em>
-</p>
-
-## Register & Sign-in & Paycheck
-
-<p align="center">
-  <img src="./screenshots/landing.PNG" width="25%" />
-  <img src="./screenshots/paycheck_g.png" width="25%" />
-  <img src="./screenshots/register.PNG" width="25%" />
-  <img src="./screenshots/signin.PNG" width="25%" />
-</p>
-
-<p align="center">
-  <em>Landing Page &bull; Paycheck Generator &bull; Register Page &bull; Sign-in Page </em>
+  <img src="./screenshots/guardpay.png" width="20%" />
+  <img src="./screenshots/shifts_tracker.png" width="20%" />
+  <img src="./screenshots/efforless_logging.png" width="20%" />
+  <img src="./screenshots/salary_insights.png" width="20%" />
+  <img src="./screenshots/detailed_paychecks.png" width="20%"  />
+  
 </p>
 
 ## 🛠️ Installation & Setup

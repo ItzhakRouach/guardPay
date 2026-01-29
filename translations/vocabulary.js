@@ -310,8 +310,8 @@ export const resources = {
         bruto: "Bruto Income",
         shift_t: "Shifts Worked",
         total_h: "Total Hours",
-        total_d: "Total Dedaction",
-        neto: "Neto",
+        total_d: "Total Deduction",
+        neto: "Net Income",
       },
       date_time_picker: {
         select: "Select",
