@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
-import { Surface, TextInput, useTheme } from "react-native-paper";
+import { Surface, Text, TextInput, useTheme } from "react-native-paper";
+import { useLanguage } from "../../hooks/lang-context";
 
 export default function ShiftDatePicker({
   startTime,
@@ -11,7 +12,8 @@ export default function ShiftDatePicker({
   setHourRate,
 }) {
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const { isRTL } = useLanguage();
+  const styles = makeStyle(theme, isRTL);
   const { t } = useTranslation();
 
   return (
@@ -21,12 +23,12 @@ export default function ShiftDatePicker({
         <Pressable onPress={() => openPicker("date", "date")}>
           <View pointerEvents="none">
             <TextInput
-              label={t("add_shift.work_d")}
               value={date.toLocaleDateString("en-GB")}
               mode="outlined"
               style={styles.input}
               left={<TextInput.Icon icon="calendar-range" />}
             />
+            <Text style={styles.label}>{t("add_shift.work_d")}</Text>
           </View>
         </Pressable>
 
@@ -38,25 +40,23 @@ export default function ShiftDatePicker({
           >
             <View pointerEvents="none">
               <TextInput
-                label={t("add_shift.start_t")}
                 value={startTime.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                   hour12: false,
                 })}
                 mode="outlined"
-                left={<TextInput.Icon icon="clock-start" />}
+                contentStyle={{ textAlign: isRTL ? "right" : "left" }}
+                left={isRTL ? <TextInput.Icon icon="clock-start" /> : ""}
+                right={isRTL ? "" : <TextInput.Icon icon="clock-start" />}
                 style={{
                   textAlign: "center",
                   backgroundColor: theme.colors.card,
                 }}
               />
+              <Text style={styles.label}>{t("add_shift.start_t")}</Text>
             </View>
           </Pressable>
-
-          <View style={styles.arrowIcon}>
-            <TextInput.Icon icon="arrow-right" />
-          </View>
 
           <Pressable
             style={styles.flex1}
@@ -64,19 +64,21 @@ export default function ShiftDatePicker({
           >
             <View pointerEvents="none">
               <TextInput
-                label={t("add_shift.end_t")}
                 value={endTime.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                   hour12: false,
                 })}
                 mode="outlined"
-                right={<TextInput.Icon icon="clock-end" />}
+                contentStyle={{ textAlign: isRTL ? "right" : "left" }}
+                right={isRTL ? "" : <TextInput.Icon icon="clock-end" />}
+                left={isRTL ? <TextInput.Icon icon="clock-end" /> : ""}
                 style={{
                   textAlign: "center",
                   backgroundColor: theme.colors.card,
                 }}
               />
+              <Text style={styles.label}>{t("add_shift.end_t")}</Text>
             </View>
           </Pressable>
         </View>
@@ -87,11 +89,15 @@ export default function ShiftDatePicker({
               mode="outlined"
               value={String(hourRate)}
               placeholder={String(hourRate)}
-              label={t("add_shift.rate_per_hour")}
               keyboardType="decimal-pad"
               onChangeText={(val) => setHourRate(val)}
+              contentStyle={{
+                writingDirection: "rtl",
+                textAlign: isRTL ? "right" : "left",
+              }}
               style={[styles.input, { marginBottom: 10 }]}
             />
+            <Text style={styles.label}>{t("add_shift.rate_per_hour")}</Text>
           </View>
         </View>
       </View>
@@ -99,7 +105,7 @@ export default function ShiftDatePicker({
   );
 }
 
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     formCard: {
       backgroundColor: theme.colors.surface,
@@ -118,7 +124,7 @@ const makeStyle = (theme) =>
       height: 60,
     },
     timeRow: {
-      flexDirection: "row",
+      flexDirection: isRTL ? "row-reverse" : "row",
       alignItems: "center",
       justifyContent: "spcae-between",
       marginTop: 8,
@@ -126,5 +132,15 @@ const makeStyle = (theme) =>
     },
     flex1: {
       flex: 1,
+    },
+    label: {
+      position: "absolute",
+      top: -5,
+      right: isRTL ? 12 : "",
+      left: isRTL ? "" : 12,
+      backgroundColor: theme.colors.card,
+      paddingHorizontal: 5,
+      fontSize: 12,
+      color: theme.colors.primary,
     },
   });
