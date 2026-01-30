@@ -15,7 +15,7 @@ import { useLanguage } from "../../hooks/lang-context";
 
 export default function RegisterScreen() {
   // import the signIn function we allready created
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInWithApple } = useAuth();
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const theme = useTheme();
@@ -55,7 +55,7 @@ export default function RegisterScreen() {
               }
               cornerRadius={10}
               style={styles.appleBtn}
-              onPress={() => console.log("Apple sign in")}
+              onPress={() => signInWithApple()}
             />
           )}
           <Button

@@ -1,9 +1,16 @@
+import * as AppleAuthentication from "expo-apple-authentication";
 import { makeRedirectUri } from "expo-auth-session";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ID, Query } from "react-native-appwrite";
-import { account, DATABASE_ID, databases, USERS_PREFS } from "../lib/appwrite";
+import {
+  account,
+  DATABASE_ID,
+  databases,
+  functions,
+  USERS_PREFS,
+} from "../lib/appwrite";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -86,6 +93,47 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const signInWithApple = async () => {
+    try {
+      // 1. Native FaceID / TouchID Prompt
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      // 2. Send the Identity Token to your Backend Function
+      // Replace 'apple-auth' with your actual Function ID
+      const execution = await functions.createExecution(
+        "697d1855002cf9854228",
+        JSON.stringify({
+          code: credential.authorizationCode,
+          email: credential.email, // Only exists on FIRST login
+          fullName: credential.fullName, // Only exists on FIRST login
+        }),
+      );
+
+      // 3. Handle the response from your function
+      const response = JSON.parse(execution.responseBody);
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      // 4. Log in using the short "secret" the function created
+      await account.createSession(
+        response.userId,
+        response.secret, // This is a valid Appwrite secret
+      );
+      await getUser();
+      console.log("Logged in natively!");
+      return true;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // function to handle users Sign In the app
   const signIn = async (email, password) => {
     try {
@@ -145,6 +193,7 @@ export function AuthProvider({ children }) {
         setIsLoadingUser,
         setProfile,
         signInWithGoogle,
+        signInWithApple,
       }}
     >
       {children}

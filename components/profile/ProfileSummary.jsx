@@ -86,12 +86,11 @@ export default function ProfileSummary({
           style: "destructive",
           onPress: async () => {
             setLoading(true);
-            const userId = user.$id || user.id;
             try {
               const execution = await functions.createExecution(
-                "696dacb9001aaac9ee09",
+                "697d0f3c001bba7f03d2",
                 JSON.stringify({
-                  userId: userId,
+                  action: "DELETE_ACCOUNT",
                 }),
                 false,
                 "/",
@@ -144,7 +143,7 @@ export default function ProfileSummary({
       <SecurityLawPDF visable={visablePDF} hideModal={hidePDF} />
       <PreferencesChange visable={visablePref} hideModal={hidePref} />
 
-      <Surface style={styles.contentWrapper} elevation={1}>
+      <Surface style={styles.contentWrapper} elevation={0}>
         <Text style={styles.title} variant="headlineMedium">
           {t("index.general")}
         </Text>
@@ -181,7 +180,7 @@ export default function ProfileSummary({
       {/**Preferences Section */}
       <Surface
         style={[styles.contentWrapper, styles.preferences]}
-        elevation={1}
+        elevation={0}
       >
         <Text style={styles.title} variant="headlineMedium">
           {t("index.pref")}
@@ -229,7 +228,7 @@ export default function ProfileSummary({
       {/**Account Section */}
       <Surface
         style={[styles.contentWrapper, styles.preferences]}
-        elevation={1}
+        elevation={0}
       >
         <Text style={styles.title} variant="headlineMedium">
           {t("index.account")}
@@ -389,6 +388,7 @@ const makeStyle = (theme, isRTL) =>
     },
     preferences: {
       marginTop: 20,
+      overflow: "hidden",
     },
     descStyle: {
       textAlign: isRTL ? "right" : "left",

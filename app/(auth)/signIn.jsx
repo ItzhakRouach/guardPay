@@ -18,7 +18,7 @@ export default function SignInScreen() {
   const { isRTL } = useLanguage();
 
   // import the signIn function we allready created
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInWithApple } = useAuth();
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
 
@@ -50,7 +50,7 @@ export default function SignInScreen() {
               }
               cornerRadius={10}
               style={styles.appleBtn}
-              onPress={() => console.log("Apple sign in")}
+              onPress={() => signInWithApple()}
             />
           )}
           <Button
