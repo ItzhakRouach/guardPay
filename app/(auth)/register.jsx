@@ -1,4 +1,5 @@
 import * as AppleAuthentication from "expo-apple-authentication";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Keyboard,
@@ -8,7 +9,13 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, Icon, Text, useTheme } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Icon,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import { PrivacyConsent } from "../../components/common/privacyConsent";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
@@ -20,6 +27,31 @@ export default function RegisterScreen() {
   const { isRTL } = useLanguage();
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAppleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithApple();
+    } catch (e) {
+      console.log(e);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithGoogle();
+    } catch (e) {
+      console.log(e);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -27,6 +59,15 @@ export default function RegisterScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator
+              animating={true}
+              color={theme.colors.primary}
+              size={80}
+            />
+          </View>
+        )}
         <View style={styles.headerWrapper}>
           <View style={styles.headerContent}>
             <Text variant="headlineMedium" style={styles.title}>
@@ -55,12 +96,12 @@ export default function RegisterScreen() {
               }
               cornerRadius={10}
               style={styles.appleBtn}
-              onPress={() => signInWithApple()}
+              onPress={() => handleAppleSignIn()}
             />
           )}
           <Button
             mode="outlined"
-            onPress={() => signInWithGoogle()}
+            onPress={() => handleGoogleSignIn()}
             style={styles.googleBtn}
             contentStyle={styles.googleBtnContent}
             labelStyle={styles.googleBtnLabel}
@@ -178,5 +219,16 @@ const makeStyle = (theme, isRTL) =>
       fontWeight: 500,
       fontSize: 19,
       letterSpacing: -1,
+    },
+    loadingOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 100,
+      backgroundColor: theme.colors.background,
     },
   });

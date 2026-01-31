@@ -4,6 +4,9 @@
     "slug": "GuardPay",
     "version": "1.0.0",
     "orientation": "portrait",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "icon": "./assets/images/icon.png",
     "scheme": "appwrite-callback-69583540003a5151db86",
     "userInterfaceStyle": "automatic",
@@ -17,6 +20,7 @@
     },
     "ios": {
       "supportsTablet": false,
+      "buildNumber": "1",
       "bundleIdentifier": "com.itzhakrouach.guardpay",
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -32,8 +36,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.itzhakrouach.guardpay",
-      "supportsRTL": true
+      "package": "com.itzhakrouach.guardpay"
     },
     "web": {
       "output": "static",
@@ -56,9 +59,9 @@
       "@react-native-community/datetimepicker",
       "expo-localization",
       "expo-web-browser",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-asset"
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

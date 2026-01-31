@@ -114,7 +114,7 @@ export default function Index() {
 
       Alert.alert(
         "Success",
-        `Reminder set for every ${getDayName(day)} at ${time}`
+        `Reminder set for every ${getDayName(day)} at ${time}`,
       );
     } catch (error) {
       console.error("Failed to update reminder:", error);

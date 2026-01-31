@@ -111,10 +111,8 @@ function RouteGuard({ children }) {
     //first check if user is still in loading phase
     if (isLoadingUser) return;
 
-    //set the auth loc
     const inAuthGroup = segments[0] === "(auth)";
     const inSetupScreen = segments[1] === "setupPrefs";
-
     if (!user) {
       if (!inAuthGroup) {
         router.replace("/onBoarding");
@@ -128,10 +126,11 @@ function RouteGuard({ children }) {
     } else if (user && inAuthGroup && profile) {
       router.replace("/(tabs)");
     }
-    if (isLoadingUser) {
-      return <LoadingSpinner />;
-    }
   }, [user, segments, isLoadingUser, profile]);
+
+  if (isLoadingUser) {
+    return <LoadingSpinner />;
+  }
 
   return <>{children}</>;
 }
