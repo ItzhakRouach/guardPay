@@ -1,6 +1,9 @@
 {
   "name": "guardpay",
   "main": "expo-router/entry",
+  "overrides": {
+    "expo-file-system": "19.0.21"
+  },
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
