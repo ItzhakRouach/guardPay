@@ -21,7 +21,7 @@ export default function ShiftsScreen() {
 
   const theme = useTheme();
   const styles = makeStyle(theme);
-  const monthName = currentDate.toLocaleString("default", { month: "long" });
+  const monthName = currentDate.getMonth();
   const router = useRouter();
 
   // function that run only when data change (shift added ) and calculate total hours and amount the user earn

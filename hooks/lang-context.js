@@ -1,29 +1,21 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
-import { I18nManager } from "react-native";
 import i18n from "../translations/il18n";
 
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-  const [isRTL, setIsRTL] = useState(i18n.language === "he");
+  const [isRTL, setIsRTL] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadSavedLanguage = async () => {
       try {
         const savedLang = await AsyncStorage.getItem("user-language");
-        if (savedLang) {
-          await i18n.changeLanguage(savedLang);
-          const shouldBeRTL = savedLang === "he";
-          setIsRTL(shouldBeRTL);
-
-          // Keep I18nManager in sync with the saved preference
-          if (I18nManager.isRTL !== shouldBeRTL) {
-            I18nManager.allowRTL = shouldBeRTL;
-            I18nManager.forceRTL = shouldBeRTL;
-          }
-        }
+        const langToUse = savedLang || "en";
+        const shouldBeRTL = langToUse === "he";
+        await i18n.changeLanguage(langToUse);
+        setIsRTL(shouldBeRTL);
       } catch (error) {
         console.error("Failed to load language", error);
       } finally {
@@ -36,15 +28,11 @@ export const LanguageProvider = ({ children }) => {
 
   const changeLanguage = async (lang) => {
     try {
-      const isRTLChosen = lang === "he";
+      const shouldBeRTL = lang === "he";
+      console.log("🛑 CRITICAL CHECK: Button sent me ->", lang);
       await i18n.changeLanguage(lang);
       await AsyncStorage.setItem("user-language", lang);
-      setIsRTL(isRTLChosen);
-
-      if (I18nManager.isRTL !== isRTLChosen) {
-        I18nManager.allowRTL = isRTLChosen;
-        I18nManager.forceRTL = isRTLChosen;
-      }
+      setIsRTL(shouldBeRTL);
     } catch (e) {
       console.log("error in loading the language", e);
     }

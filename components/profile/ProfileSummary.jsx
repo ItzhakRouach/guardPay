@@ -38,8 +38,6 @@ export default function ProfileSummary({
   );
   const [loading, setLoading] = useState(false);
 
-  const { isRTL, changeLanguage, lang } = useLanguage();
-
   const { t } = useTranslation();
 
   const showModal = () => setVisable(true);
@@ -119,6 +117,7 @@ export default function ProfileSummary({
   };
 
   const theme = useTheme();
+  const { isRTL, changeLanguage, lang } = useLanguage();
   const styles = makeStyle(theme, isRTL);
 
   if (!user) return null;
@@ -358,15 +357,16 @@ const makeStyle = (theme, isRTL) =>
       marginHorizontal: 10,
       borderRadius: 30,
       backgroundColor: theme.colors.surface,
-      alignItems: isRTL ? "flex-end" : "flex-start",
     },
     title: {
-      padding: 10,
-      marginBottom: 10,
-      fontWeight: "500",
-      paddingStart: 10,
-      width: "100%",
+      flexDirection: isRTL ? "row-reverse" : "row",
       textAlign: isRTL ? "right" : "left",
+      padding: 10,
+      paddingEnd: isRTL ? 30 : 0,
+      paddingStart: isRTL ? 0 : 30,
+      marginBottom: 10,
+      fontWeight: "600",
+      width: "100%",
       letterSpacing: -1,
       color: theme.colors.profileSection,
     },

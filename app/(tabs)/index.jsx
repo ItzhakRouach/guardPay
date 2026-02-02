@@ -75,23 +75,42 @@ export default function Index() {
 
   // fetch user info
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    fetchUserProfile(user);
+    let unsubscribe;
 
-    const channel = `databases.${DATABASE_ID}.collections.${USERS_PREFS}.documents`;
-    const unsubcribe = client.subscribe(channel, (response) => {
-      if (!user) return;
-      const isUpdate = response.events.some((e) => e.includes(".update"));
-      const isMyDoc = response.payload.user_id === user?.$id;
-      if (isMyDoc || isUpdate) {
-        fetchUserProfile(user);
+    const setupRealtime = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
       }
-    });
+      fetchUserProfile(user);
+
+      const channel = `databases.${DATABASE_ID}.collections.${USERS_PREFS}.documents`;
+
+      try {
+        unsubscribe = client.subscribe(channel, (response) => {
+          if (!user) return;
+          const isUpdate = response.events.some((e) => e.includes(".update"));
+          const isMyDoc = response.payload.user_id === user?.$id;
+          if (isMyDoc || isUpdate) {
+            fetchUserProfile(user);
+          }
+        });
+      } catch (err) {
+        console.log("Realtime connect error (ignorable):", err);
+      }
+    };
+
+    setupRealtime();
+
     return () => {
-      if (unsubcribe) unsubcribe();
+      // Safe cleanup
+      if (unsubscribe) {
+        try {
+          unsubscribe();
+        } catch (e) {
+          // Ignore socket closing errors during reload
+        }
+      }
     };
   }, [user, fetchUserProfile]);
 
@@ -171,18 +190,17 @@ const makeStyle = (theme, isRTL) =>
       marginBottom: "auto",
     },
     headerWrapper: {
-      flexDirection: isRTL ? "row-reverse" : "row",
-      paddingEnd: isRTL ? 20 : 0,
       marginTop: 100,
       marginBottom: 20,
-      marginLeft: 22,
     },
     userName: {
       color: theme.colors.primary,
       fontWeight: 500,
       letterSpacing: -1,
       marginTop: 15,
-      paddingStart: 10,
+      textAlign: isRTL ? "right" : "left",
+      paddingEnd: isRTL ? 30 : 0,
+      paddingStart: isRTL ? 0 : 30,
     },
     scrollContent: { padding: 10, paddingHorizontal: 0 },
   });

@@ -9,14 +9,12 @@ export default function MonthPicker({ currentDate, setCurrentDate }) {
   // Logic to change months
   const changeMonth = (offset) => {
     const newDate = new Date(
-      currentDate.setMonth(currentDate.getMonth() + offset)
+      currentDate.setMonth(currentDate.getMonth() + offset),
     );
     setCurrentDate(new Date(newDate));
   };
 
-  const monthName = t(
-    `month.${currentDate.toLocaleString("default", { month: "long" })}`
-  );
+  const monthName = t(`month.${currentDate.getMonth()}`);
   const yearName = currentDate.getFullYear();
 
   return (

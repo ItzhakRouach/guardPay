@@ -1,11 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
+import { useLanguage } from "../../hooks/lang-context";
 import { formattedAmount } from "../../lib/utils";
 
 export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   const theme = useTheme();
-  const styles = makeStyle(theme);
+  const { isRTL } = useLanguage();
+  const styles = makeStyle(theme, isRTL);
   const { t } = useTranslation();
 
   return (
@@ -34,7 +36,7 @@ export default function ShiftCard({ dateTime, dateHours, totalAmout }) {
   );
 }
 
-const makeStyle = (theme) =>
+const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     cardDetails: {
       flexDirection: "row",

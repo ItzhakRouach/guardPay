@@ -136,8 +136,8 @@ const makeStyle = (theme, isRTL) =>
     label: {
       position: "absolute",
       top: -5,
-      right: isRTL ? 12 : "",
-      left: isRTL ? "" : 12,
+      left: isRTL ? "" : 20,
+      right: isRTL ? 20 : "",
       backgroundColor: theme.colors.card,
       paddingHorizontal: 5,
       fontSize: 12,

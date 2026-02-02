@@ -2,7 +2,7 @@
   "expo": {
     "name": "GuardPay",
     "slug": "GuardPay",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "runtimeVersion": {
       "policy": "appVersion"
@@ -12,7 +12,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "extra": {
-      "supportsRTL": true,
+      "supportsRTL": false,
       "router": {},
       "eas": {
         "projectId": "0854cd6f-9ceb-43af-826c-a63c2517b59a"
@@ -25,7 +25,7 @@
       "usesAppleSignIn": true,
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
-        "ExpoLocalization_supportsRTL": true,
+        "ExpoLocalization_supportsRTL": false,
         "ITSAppUsesNonExemptEncryption": false
       }
     },

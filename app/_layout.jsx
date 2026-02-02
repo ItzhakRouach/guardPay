@@ -2,7 +2,6 @@ import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { I18nManager, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
@@ -135,20 +134,18 @@ function RouteGuard({ children }) {
   return <>{children}</>;
 }
 
-export default function RootLayout() {
-  // setup the app languege as the device languege
-  const { i18n } = useTranslation();
-  useEffect(() => {
-    const isRTL = i18n.language === "he";
-    if (I18nManager.isRTL !== isRTL) {
-      I18nManager.forceRTL = isRTL;
-      I18nManager.allowRTL = isRTL;
-    }
-  }, [i18n.language]);
+try {
+  if (I18nManager.isRTL) {
+    I18nManager.allowRTL(false);
+    I18nManager.forceRTL(false);
+  }
+} catch (e) {
+  console.log(e);
+}
 
+export default function RootLayout() {
   // detect system theme
   const colorScheme = useColorScheme();
-
   // apply theme based on the system theme Dark / Light
   const theme = colorScheme === "dark" ? darkTheme : lightTheme;
   return (
