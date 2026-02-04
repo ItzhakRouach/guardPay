@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, useTheme } from "react-native-paper";
 import MonthPicker from "../../components/layout/MonthPicker";
 import MonthNetoCard from "../../components/overview/MonthNetoCard";
@@ -27,7 +27,12 @@ export default function OverViewScreen() {
   return (
     <View style={styles.container}>
       {monthlyReport !== null ? (
-        <>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          snapToInterval={100}
+          decelerationRate="normal"
+        >
           <MonthPicker
             currentDate={currentDate}
             setCurrentDate={setCurrentDate}
@@ -54,11 +59,11 @@ export default function OverViewScreen() {
                 monthlyReport,
               )
             }
-            mode="contained"
+            mode="elevated"
           >
             {t("overview.btn")}
           </Button>
-        </>
+        </ScrollView>
       ) : (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator
@@ -85,10 +90,11 @@ const makeStyle = (theme, isRTL) =>
       marginTop: 40,
       marginBottom: 10,
       borderRadius: 20,
-      width: "95%",
+      // -- Ipad Fix --- //
+      width: "100%",
       alignSelf: "center",
-      backgroundColor: theme.colors.primary,
-      elevation: 3,
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.surface,
     },
     btnContent: {
       paddingVertical: 15,
@@ -101,5 +107,14 @@ const makeStyle = (theme, isRTL) =>
     loadingOverlay: {
       flex: 1,
       justifyContent: "center",
+      alignItems: "center",
+    },
+    scrollContent: {
+      padding: 10,
+      paddingBottom: 100,
+      // --- Ipad fix -- //
+      width: "100%",
+      maxWidth: 600,
+      alignSelf: "center",
     },
   });

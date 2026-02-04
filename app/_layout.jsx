@@ -38,7 +38,7 @@ const lightTheme = {
     card: "#F8FAFC",
 
     //Profile Sections colors
-    profileSection: "#7D7D7D",
+    profileSection: "#213448",
 
     //Borders and Muted lines
     outline: "#E2E8F0",

@@ -31,7 +31,7 @@ const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     netoContainer: {
       marginTop: 20,
-      backgroundColor: theme.colors.card,
+      backgroundColor: theme.colors.surface,
       borderRadius: 15,
       marginHorizontal: 10,
       elevation: 4,

@@ -35,7 +35,7 @@ export const resources = {
       },
       landing: {
         subTitle:
-          "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש השכר. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי, ומבטיחה שתקבלו בדיוק את מה שמגיע לכם  בכל פעם מחדש. המערכת מותאמת אישית לחוקי העבודה וההסכמים הקיבוציים בענף האבטחה, כדי ששום שעה (או דקה) לא ילכו לאיבוד",
+          "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש השכר. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי, ומבטיחה שתקבלו בדיוק את מה שמגיע לכם",
         signin: "התחבר",
         create_acc: "צור חשבון",
       },
@@ -201,7 +201,7 @@ export const resources = {
       },
       landing: {
         subTitle:
-          " Stop worrying about missing hours or paycheck errors. GuardPay tracks every shift with maximum precision, ensuring you get exactly what you earned—every single time. Our system is tailor-made to align with labor laws and collective bargaining agreements in the security sector, so that not a single hour (or minute) ever goes to waste",
+          " Stop worrying about missing hours or paycheck errors. GuardPay tracks every shift with maximum precision, ensuring you get exactly what you earned",
         signin: "sign In",
         create_acc: "Create Account",
       },

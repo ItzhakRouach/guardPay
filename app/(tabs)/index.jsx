@@ -190,8 +190,7 @@ const makeStyle = (theme, isRTL) =>
       marginBottom: "auto",
     },
     headerWrapper: {
-      marginTop: 100,
-      marginBottom: 20,
+      marginTop: 50,
     },
     userName: {
       color: theme.colors.primary,

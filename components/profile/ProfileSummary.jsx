@@ -365,7 +365,7 @@ const makeStyle = (theme, isRTL) =>
       paddingEnd: isRTL ? 30 : 0,
       paddingStart: isRTL ? 0 : 30,
       marginBottom: 10,
-      fontWeight: "600",
+      fontWeight: "500",
       width: "100%",
       letterSpacing: -1,
       color: theme.colors.profileSection,

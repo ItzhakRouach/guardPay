@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 
@@ -13,53 +13,62 @@ export default function OnBoardingScreen() {
   //set navigation so can navigate to the correct View
   const router = useRouter();
   return (
-    <View style={styles.container}>
-      <View style={styles.contentWrapper}>
-        <Text variant="headlineLarge" style={styles.title}>
-          Guard<Text style={styles.titleSec}>Pay</Text>
-        </Text>
-        <Text variant="bodyLarge" style={styles.intro}>
-          {t("landing.subTitle")}
-        </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.contentWrapper}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Guard<Text style={styles.titleSec}>Pay</Text>
+          </Text>
+          <Text variant="bodyLarge" style={styles.intro}>
+            {t("landing.subTitle")}
+          </Text>
+        </View>
+        <View style={styles.btnContainer}>
+          <Button
+            mode="contained"
+            labelStyle={styles.btnLabel}
+            style={styles.btn}
+            buttonColor="#E2EAF2"
+            textColor={theme.colors.onSecondaryContainer}
+            onPress={() => router.push("/signIn")}
+          >
+            {t("landing.signin")}
+          </Button>
+          <Button
+            mode="outlined"
+            labelStyle={styles.btnLabel}
+            style={styles.secondeBtn}
+            textColor={theme.colors.primary}
+            onPress={() => router.push("/register")}
+          >
+            {t("landing.create_acc")}
+          </Button>
+        </View>
       </View>
-      <View style={styles.btnContainer}>
-        <Button
-          mode="contained"
-          labelStyle={styles.btnLabel}
-          style={styles.btn}
-          buttonColor="#E2EAF2"
-          textColor={theme.colors.onSecondaryContainer}
-          onPress={() => router.push("/signIn")}
-        >
-          {t("landing.signin")}
-        </Button>
-        <Button
-          mode="outlined"
-          labelStyle={styles.btnLabel}
-          style={styles.secondeBtn}
-          textColor={theme.colors.primary}
-          onPress={() => router.push("/register")}
-        >
-          {t("landing.create_acc")}
-        </Button>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-      alignContent: "center",
+      alignItems: "center",
       justifyContent: "center",
-      paddingVertical: 60,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      width: "100%",
+      maxWidth: 600,
     },
     contentWrapper: {
       alignItems: "center",
       paddingHorizontal: 40,
-      marginTop: "30%",
+      justifyContent: "center",
     },
     title: {
       fontSize: 32,
@@ -74,31 +83,26 @@ const makeStyle = (theme, isRTL) =>
     intro: {
       color: theme.colors.onSurface,
       fontWeight: 600,
-      lineHeight: 25,
+      lineHeight: 26,
       letterSpacing: 1,
       marginTop: 15,
-      padding: 5,
       opacity: 0.7,
       fontSize: 16,
       textAlign: isRTL ? "right" : "left",
+      maxWidth: 300,
 
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     btnContainer: {
-      flex: 1,
-      gap: 12,
-      marginTop: 80,
-      paddingHorizontal: 20,
       width: "100%",
+      gap: 15,
+      marginTop: 20,
     },
     btnLabel: {
-      borderRadius: 1,
       fontWeight: 700,
-      paddingVertical: 12,
-      paddingHorizontal: 20,
-      fontSize: 18,
+      paddingVertical: 8,
+      fontSize: 17,
       letterSpacing: 0.5,
-      borderColor: theme.colors.outline,
     },
 
     icon: {
@@ -106,9 +110,14 @@ const makeStyle = (theme, isRTL) =>
       height: 80,
       marginBottom: 20,
     },
-
+    btn: {
+      borderRadius: 30,
+      width: "100%",
+    },
     secondeBtn: {
-      borderColor: theme.colors.borderOutline,
+      borderRadius: 30,
+      borderColor: theme.colors.borderOutline || theme.colors.outline,
       borderWidth: 1,
+      width: "100%",
     },
   });

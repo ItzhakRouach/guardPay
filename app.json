@@ -19,7 +19,7 @@
       }
     },
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "buildNumber": "1",
       "bundleIdentifier": "com.itzhakrouach.guardpay",
       "usesAppleSignIn": true,
