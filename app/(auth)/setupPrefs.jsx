@@ -10,7 +10,9 @@ import { ID } from "react-native-appwrite";
 import {
   Button,
   IconButton,
+  Portal,
   ProgressBar,
+  Snackbar,
   Text,
   TextInput,
   useTheme,
@@ -55,6 +57,12 @@ export default function SetupProfileScreen() {
         setError(null);
       }, 2500);
       return;
+    } else if (isNaN(Number(formData.age))) {
+      setError(t("error.incorrect_data_type"));
+      setTimeout(() => {
+        setError(null);
+      }, 2500);
+      return;
     }
     if (step < 2) {
       setStep((prev) => prev + 1);
@@ -68,6 +76,15 @@ export default function SetupProfileScreen() {
       setTimeout(() => {
         setError(null);
       }, 3000);
+      return;
+    } else if (
+      isNaN(Number(formData.price_per_hour)) ||
+      isNaN(Number(formData.price_per_ride))
+    ) {
+      setError(t("error.incorrect_data_type"));
+      setTimeout(() => {
+        setError(null);
+      }, 2500);
       return;
     }
 
@@ -114,7 +131,6 @@ export default function SetupProfileScreen() {
           size={30}
           iconColor={theme.colors.error}
         />
-
         <Text variant="displaySmall" style={styles.title}>
           {t("setupP.title")}
         </Text>
@@ -174,21 +190,6 @@ export default function SetupProfileScreen() {
                   }
                 }}
               />
-              {error && (
-                <Text
-                  variant="bodySmall"
-                  style={{
-                    color: theme.colors.error,
-                    fontSize: 18,
-                    fontWeight: 500,
-                    textAlign: "center",
-                    marginTop: 20,
-                    padding: 10,
-                  }}
-                >
-                  {error}
-                </Text>
-              )}
             </View>
           </View>
         )}
@@ -222,21 +223,6 @@ export default function SetupProfileScreen() {
                 }
                 keyboardType="numeric"
               />
-              {error && (
-                <Text
-                  variant="bodySmall"
-                  style={{
-                    color: theme.colors.error,
-                    fontSize: 18,
-                    fontWeight: 500,
-                    textAlign: "center",
-                    marginTop: 20,
-                    padding: 10,
-                  }}
-                >
-                  {error}
-                </Text>
-              )}
             </View>
           </View>
         )}
@@ -265,6 +251,27 @@ export default function SetupProfileScreen() {
             {step === 2 ? t("setupP.finish") : t("setupP.next")}
           </Button>
         </View>
+        <Portal>
+          <Snackbar
+            visible={!!error}
+            action={{
+              label: "Dismmis",
+              onPress: () => setError(null),
+              textColor: "#fff",
+            }}
+            onDismiss={() => setError(null)}
+            duration={3000}
+            style={{
+              backgroundColor: theme.colors.error,
+              width: "100%",
+              marginLeft: "auto",
+              marginRight: "auto",
+              top: 0,
+            }}
+          >
+            {error}
+          </Snackbar>
+        </Portal>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -276,12 +283,12 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       padding: 20,
       backgroundColor: theme.colors.background,
-      justifyContent: "center",
-      gap: 20,
+      marginTop: 100,
+      gap: 10,
     },
     signOutBtn: {
       position: "absolute",
-      top: 100,
+      top: -50,
       left: 10,
     },
     stepsContainer: {

@@ -32,6 +32,7 @@ export const resources = {
         pass_not_same: "הסיסמה צריכה להיות אותו הדבר",
         not_auth: "שם משתמש / סיסמה אינם נכונים , אנא נסה שוב",
         invalid_birth_date: "תאריך לידה אינו יכול להיות בעתיד",
+        incorrect_data_type: "בבקשה תשתמש בספרות בלבד",
       },
       landing: {
         subTitle:
@@ -198,6 +199,7 @@ export const resources = {
         pass_not_same: "Password must be the same",
         not_auth: "Username or Password are Invalid , please try again.",
         invalid_birth_date: "Birth date cannot be in the future",
+        incorrect_data_type: "Please Enter Valid Numbers",
       },
       landing: {
         subTitle:
