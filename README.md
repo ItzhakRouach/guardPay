@@ -40,12 +40,6 @@
 
 ---
 
-The cleanest and most reliable way to display images on GitHub is using Relative Paths. This method is preferred because it works automatically across different branches and even if you rename your repository, as it doesn't rely on a hardcoded URL.
-
-🖼️ The Cleanest Gallery Snippet
-Replace your gallery section with this code. It uses HTML for better control over alignment and sizing:
-
-Markdown
 
 ## 📸 Screen Gallery App Store Ready
 
