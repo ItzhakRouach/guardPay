@@ -116,7 +116,6 @@ const makeStyle = (theme, isRTL) =>
       paddingBottom: 100,
       // --- Ipad fix -- //
       width: "100%",
-
       alignSelf: "center",
     },
   });
