@@ -82,7 +82,9 @@ const makeStyle = (theme, isRTL) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-      padding: 10,
+      paddingVertical: 40,
+      paddingHorizontal: 10,
+
       background: theme.colors.background,
     },
 
@@ -114,7 +116,7 @@ const makeStyle = (theme, isRTL) =>
       paddingBottom: 100,
       // --- Ipad fix -- //
       width: "100%",
-      maxWidth: 600,
+
       alignSelf: "center",
     },
   });

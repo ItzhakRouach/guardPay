@@ -60,6 +60,7 @@ const makeStyle = (theme, isRTL) =>
       backgroundColor: theme.colors.background,
       alignItems: "center",
       justifyContent: "center",
+      alignSelf: "center",
       paddingVertical: 10,
       paddingHorizontal: 20,
       width: "100%",

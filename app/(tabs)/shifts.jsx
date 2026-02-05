@@ -144,7 +144,11 @@ const makeStyle = (theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-      padding: 10,
+      paddingVertical: 50,
+      paddingHorizontal: 10,
     },
-    scrollContent: { padding: 10, paddingHorizontal: 0 },
+    scrollContent: {
+      padding: 10,
+      paddingHorizontal: 0,
+    },
   });

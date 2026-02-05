@@ -40,7 +40,7 @@ const makeStyle = (theme) =>
       paddingTop: 20,
       paddingBottom: 10,
       backgroundColor: theme.colors.surface,
-      marginTop: 30,
+      marginTop: 50,
       borderRadius: 20,
     },
     dateInfo: {
