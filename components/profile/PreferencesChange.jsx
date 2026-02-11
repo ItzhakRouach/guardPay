@@ -19,19 +19,25 @@ import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import LoadingSpinner from "../common/LoadingSpinnner";
-export default function PreferencesChange({ visable, hideModal }) {
+export default function PreferencesChange({
+  visable,
+  hideModal,
+  setVisablePref,
+}) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
   const { profile, loading } = useAuth();
   const { t } = useTranslation();
   const styles = makeStyle(theme, isRTL);
   const [formData, setFormData] = useState({
-    price_per_hour: "",
-    price_per_ride: "",
+    price_per_hour: profile.price_per_hour,
+    price_per_ride: profile.price_per_ride,
   });
   const [message, setMessage] = useState("");
 
   const handleSaveBtn = async () => {
+    if (!formData.price_per_hour || !formData.price_per_ride) return;
+
     try {
       await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
         price_per_hour: parseFloat(formData.price_per_hour),
@@ -41,6 +47,7 @@ export default function PreferencesChange({ visable, hideModal }) {
       setTimeout(() => {
         setMessage("");
       }, 3000);
+      hideModal();
     } catch (err) {
       console.log(err);
       setMessage(t("edit_pref.msg_err"));
@@ -63,6 +70,7 @@ export default function PreferencesChange({ visable, hideModal }) {
               mode="outlined"
               keyboardType="numeric"
               value={formData.price_per_hour}
+              placeholder={String(profile.price_per_hour)}
               onChangeText={(val) =>
                 setFormData((prev) => ({ ...prev, price_per_hour: val }))
               }
@@ -73,6 +81,7 @@ export default function PreferencesChange({ visable, hideModal }) {
               mode="outlined"
               keyboardType="numeric"
               value={formData.price_per_ride}
+              placeholder={String(profile.price_per_ride)}
               onChangeText={(val) =>
                 setFormData((prev) => ({ ...prev, price_per_ride: val }))
               }

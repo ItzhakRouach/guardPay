@@ -8,11 +8,21 @@ import {
   useTheme,
 } from "react-native-paper";
 
-export default function LanguagesChange({ visable, hideModal, setLang, lang }) {
+export default function LanguagesChange({
+  visable,
+  hideModal,
+  setLang,
+  lang,
+  setVisableLang,
+}) {
   const { t } = useTranslation();
-
   const theme = useTheme();
   const styles = makeStyle(theme);
+
+  const handleLanguageChange = (val) => {
+    setLang(val);
+    hideModal();
+  };
 
   return (
     <Portal>
@@ -24,7 +34,7 @@ export default function LanguagesChange({ visable, hideModal, setLang, lang }) {
         <Text style={styles.modalTitle}>{t("index.choose_lang")}</Text>
         <SegmentedButtons
           value={lang}
-          onValueChange={setLang}
+          onValueChange={handleLanguageChange}
           buttons={[
             { value: "he", label: t("index.he"), icon: "abjad-hebrew" },
             { value: "en", label: t("index.en"), icon: "alphabet-latin" },

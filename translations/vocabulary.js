@@ -115,7 +115,7 @@ export const resources = {
         hours: "שעות",
       },
       add_shift: {
-        title: "הוסף משמרת חדשה",
+        add: "הוסף משמרת חדשה",
         start_t: "זמן התחלה",
         end_t: "זמן סיום",
         work_d: "תאריך משמרת",
@@ -297,7 +297,7 @@ export const resources = {
         hours: "Hours",
       },
       add_shift: {
-        title: "Add New Shift",
+        add: "Add New Shift",
         start_t: "Start Time",
         end_t: "End Time",
         work_d: "Shift Date",

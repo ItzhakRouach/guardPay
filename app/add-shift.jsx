@@ -224,7 +224,7 @@ export default function AddShift() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <Text variant="headlineMedium" style={styles.title}>
-          {t("add_shift.title")}
+          {!isEditMode ? t("add_shift.add") : t("add_shift.update")}
         </Text>
         {/**Shift date and time picker */}
         <ShiftDatePicker

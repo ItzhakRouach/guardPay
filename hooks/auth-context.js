@@ -1,5 +1,4 @@
 import * as AppleAuthentication from "expo-apple-authentication";
-import { makeRedirectUri } from "expo-auth-session";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -61,21 +60,21 @@ export function AuthProvider({ children }) {
   // sign in using google
   const signInWithGoogle = async () => {
     try {
-      const deepLink = new URL(makeRedirectUri({ preferLocalhost: true }));
-      const scheme = `${deepLink.protocol}//`; // e.g. 'exp://' or 'appwrite-callback-<PROJECT_ID>://'
+      const redirectUrl = `appwrite-callback-69583540003a5151db86://google`;
 
       // Start OAuth flow
       const loginUrl = await account.createOAuth2Token(
         "google",
-        `${deepLink}`,
-        `${deepLink}`,
+        redirectUrl,
+        redirectUrl,
       );
 
       // Open loginUrl and listen for the scheme redirect
       const result = await WebBrowser.openAuthSessionAsync(
-        `${loginUrl}`,
-        scheme,
+        loginUrl.toString(),
+        redirectUrl,
       );
+
       if (result.type === "success" && result.url) {
         // Extract credentials from OAuth redirect URL
         const url = new URL(result.url);
@@ -116,6 +115,7 @@ export function AuthProvider({ children }) {
 
       // 3. Handle the response from the function
       const response = JSON.parse(execution.responseBody);
+      console.log(JSON.stringify(credential.fullName));
 
       if (response.error) {
         throw new Error(response.error);
@@ -130,7 +130,7 @@ export function AuthProvider({ children }) {
       if (credential.fullName && credential.fullName.givenName) {
         const userName =
           `${credential.fullName.givenName} ${credential.fullName.familyName || ""}`.trim();
-
+        console.log(userName);
         try {
           await account.updateName(userName);
         } catch (err) {

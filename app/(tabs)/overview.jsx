@@ -83,8 +83,6 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       backgroundColor: theme.colors.background,
       paddingVertical: 40,
-      paddingHorizontal: 10,
-
       background: theme.colors.background,
     },
 

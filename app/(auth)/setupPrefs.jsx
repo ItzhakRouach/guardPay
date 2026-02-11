@@ -152,7 +152,7 @@ export default function SetupProfileScreen() {
                 keyboardType="numeric"
               />
               <DatePickerInput
-                locale="en"
+                locale="en-GB"
                 label={t("setupP.birth")}
                 contentStyle={styles.contentStyle}
                 inputMode="start"

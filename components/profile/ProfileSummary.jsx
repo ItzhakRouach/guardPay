@@ -138,21 +138,19 @@ export default function ProfileSummary({
         hideModal={hideLang}
         lang={lang}
         setLang={changeLanguage}
+        setVisableLang={setVisableLang}
       />
       <SecurityLawPDF visable={visablePDF} hideModal={hidePDF} />
-      <PreferencesChange visable={visablePref} hideModal={hidePref} />
+      <PreferencesChange
+        visable={visablePref}
+        hideModal={hidePref}
+        setVisablePref={setVisablePref}
+      />
 
       <Surface style={styles.contentWrapper} elevation={0}>
         <Text style={styles.title} variant="headlineMedium">
           {t("index.general")}
         </Text>
-        <List.Item
-          style={styles.listItem}
-          titleStyle={styles.listTitle}
-          left={(props) => <List.Icon {...props} icon="email" />}
-          title={`${user?.email || ""}`}
-        />
-        <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
           titleStyle={styles.listTitle}
