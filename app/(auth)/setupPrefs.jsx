@@ -32,7 +32,6 @@ export default function SetupProfileScreen() {
   const [step, setStep] = useState(1);
   // State to store all user fields data
   const [formData, setFormData] = useState({
-    user_name: "",
     age: "",
     birth_date: undefined,
     price_per_hour: 0,
@@ -51,7 +50,7 @@ export default function SetupProfileScreen() {
   // function that after the user fill all the fields in page 1 , then on click next show
   // the new page
   const handleFirstStep = () => {
-    if (!formData.age || !formData.user_name || !formData.birth_date) {
+    if (!formData.age || !formData.birth_date) {
       setError(t("error.miss_fields"));
       setTimeout(() => {
         setError(null);
@@ -95,8 +94,8 @@ export default function SetupProfileScreen() {
         user_id: user.$id,
         price_per_hour: parseFloat(formData.price_per_hour),
         price_per_ride: parseFloat(formData.price_per_ride),
-        user_name: formData.user_name,
         age: parseInt(formData.age),
+        user_name: user.name,
         birth_date: formData.birth_date,
       });
       await fetchUserProfile(user);
@@ -139,19 +138,6 @@ export default function SetupProfileScreen() {
         {step === 1 && (
           <View style={styles.stepsContainer}>
             <View style={styles.inputWrapper}>
-              <TextInput
-                placeholder={t("setupP.name")}
-                mode="outlined"
-                value={formData.user_name}
-                style={styles.textInput}
-                onChangeText={(val) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    user_name: val,
-                  }))
-                }
-                contentStyle={styles.contentStyle}
-              />
               <TextInput
                 placeholder={t("setupP.age")}
                 contentStyle={styles.contentStyle}
@@ -282,13 +268,13 @@ const makeStyle = (theme, isRTL) =>
     container: {
       flex: 1,
       padding: 20,
+      justifyContent: "center",
       backgroundColor: theme.colors.background,
-      marginTop: 100,
       gap: 10,
     },
     signOutBtn: {
       position: "absolute",
-      top: -50,
+      top: 100,
       left: 10,
     },
     stepsContainer: {

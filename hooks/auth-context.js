@@ -3,7 +3,7 @@ import { makeRedirectUri } from "expo-auth-session";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, useContext, useEffect, useState } from "react";
-import { ID, Query } from "react-native-appwrite";
+import { Query } from "react-native-appwrite";
 import {
   account,
   DATABASE_ID,
@@ -114,7 +114,7 @@ export function AuthProvider({ children }) {
         }),
       );
 
-      // 3. Handle the response from your function
+      // 3. Handle the response from the function
       const response = JSON.parse(execution.responseBody);
 
       if (response.error) {
@@ -126,36 +126,23 @@ export function AuthProvider({ children }) {
         response.userId,
         response.secret, // This is a valid Appwrite secret
       );
+
+      if (credential.fullName && credential.fullName.givenName) {
+        const userName =
+          `${credential.fullName.givenName} ${credential.fullName.familyName || ""}`.trim();
+
+        try {
+          await account.updateName(userName);
+        } catch (err) {
+          console.log("Name update failed!", err);
+        }
+      }
+
       await getUser();
       console.log("Logged in natively!");
       return true;
     } catch (e) {
       console.error(e);
-    }
-  };
-
-  // function to handle users Sign In the app
-  const signIn = async (email, password) => {
-    try {
-      await account.createEmailPasswordSession(email, password);
-      await getUser();
-      return null;
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  // function to handle users sign up the app
-  const signUp = async (email, password) => {
-    try {
-      //create the new account
-      await account.create(ID.unique(), email, password);
-      //if created then signin the new user
-      await signIn(email, password);
-      return null;
-    } catch (err) {
-      console.log(err);
-      return err || "Error occured during Sign Up";
     }
   };
 
@@ -185,9 +172,7 @@ export function AuthProvider({ children }) {
       value={{
         isLoadingUser,
         user,
-        signIn,
         signOut,
-        signUp,
         profile,
         fetchUserProfile,
         setIsLoadingUser,

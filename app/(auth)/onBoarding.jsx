@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLanguage } from "../../hooks/lang-context";
 
 export default function OnBoardingScreen() {

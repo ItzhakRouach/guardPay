@@ -157,7 +157,7 @@ export default function ProfileSummary({
           style={styles.listItem}
           titleStyle={styles.listTitle}
           left={(props) => <List.Icon {...props} icon="account-outline" />}
-          title={`${profile?.user_name}`}
+          title={`${user?.name}`}
         />
         <Divider style={styles.dividerStyle} bold={false} />
         <List.Item

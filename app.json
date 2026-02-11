@@ -7,6 +7,13 @@
     "runtimeVersion": {
       "policy": "appVersion"
     },
+    "notification": {
+      "icon": "./assets/images/icon.png",
+      "androidCollapsedTitle": "Update From GuardPay",
+      "androidMode": "collapse",
+      "color": "#ffffff",
+      "iosDisplayInForeground": true
+    },
     "icon": "./assets/images/icon.png",
     "scheme": "appwrite-callback-69583540003a5151db86",
     "userInterfaceStyle": "automatic",
