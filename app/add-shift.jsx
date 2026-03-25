@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { ID, Permission, Query, Role } from "react-native-appwrite";
+import { ID, Permission, Role } from "react-native-appwrite";
 import { Button, Text, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
@@ -20,7 +20,6 @@ import { useLanguage } from "../hooks/lang-context";
 import {
   DATABASE_ID,
   SHIFTS_HISTORY,
-  USERS_PREFS,
   databases,
   functions,
 } from "../lib/appwrite";
@@ -71,32 +70,30 @@ export default function AddShift() {
     if (!user) return;
     setLoading(true);
     try {
-      const response = await databases.listDocuments(DATABASE_ID, USERS_PREFS, [
-        Query.equal("user_id", user.$id),
-        Query.select("price_per_hour"),
-      ]);
-      if (response.documents.length > 0) {
-        const doc = response.documents[0];
-        setHourRate(doc.price_per_hour);
+      if (!params.existingData) {
+        setHourRate("");
+      } else {
+        const shiftData = JSON.parse(params.existingData);
+        setHourRate(shiftData.base_rate || "");
       }
     } catch (err) {
-      console.log(err);
+      console.log("Error fetching rates:", err);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, params.existingData]);
 
   useEffect(() => {
     if (params.existingData) {
       try {
         const shiftData = JSON.parse(params.existingData);
         setIsEditMode(true);
-        // 1. Set states using the parsed data
         setDate(new Date(shiftData.start_time));
         setStartTime(new Date(shiftData.start_time));
         setEndTime(new Date(shiftData.end_time));
+        setHourRate(shiftData.base_rate);
       } catch (err) {
-        console.log(err);
+        console.log("Error parsing shift data:", err);
       }
     }
     fetchUserRates();
@@ -130,6 +127,11 @@ export default function AddShift() {
   const handleSave = async () => {
     setLoading(true);
     try {
+      const finalBaseRate =
+        hourRate === "" || hourRate === null
+          ? profile?.price_per_hour
+          : Number(hourRate);
+
       const finalStart = new Date(date);
       finalStart.setHours(startTime.getHours(), startTime.getMinutes());
 
@@ -143,7 +145,7 @@ export default function AddShift() {
           payload: {
             startTime: finalStart.toISOString(),
             endTime: finalEnd.toISOString(),
-            baseRate: Number(hourRate),
+            baseRate: finalBaseRate,
             travelRate: profile.price_per_ride,
             type: value,
             user_id: user.$id,
@@ -235,6 +237,7 @@ export default function AddShift() {
           loading={loading}
           setHourRate={setHourRate}
           hourRate={hourRate}
+          defaultRate={profile?.price_per_hour}
         />
         {/**Shift type selected */}
         <View style={styles.shiftTypesWrapper}>

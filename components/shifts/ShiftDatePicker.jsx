@@ -8,8 +8,9 @@ export default function ShiftDatePicker({
   date,
   openPicker,
   endTime,
-  hourRate,
-  setHourRate,
+  hourRate, // ערך ה-State (יכול להיות מחרוזת ריקה)
+  setHourRate, // פונקציית העדכון
+  defaultRate, // תעריף ברירת המחדל מהפרופיל (למשל 52)
 }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
@@ -27,6 +28,7 @@ export default function ShiftDatePicker({
               mode="outlined"
               style={styles.input}
               left={<TextInput.Icon icon="calendar-range" />}
+              outlineStyle={styles.outline}
             />
             <Text style={styles.label}>{t("add_shift.work_d")}</Text>
           </View>
@@ -47,12 +49,10 @@ export default function ShiftDatePicker({
                 })}
                 mode="outlined"
                 contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-                left={isRTL ? <TextInput.Icon icon="clock-start" /> : ""}
-                right={isRTL ? "" : <TextInput.Icon icon="clock-start" />}
-                style={{
-                  textAlign: "center",
-                  backgroundColor: theme.colors.card,
-                }}
+                left={isRTL ? <TextInput.Icon icon="clock-start" /> : null}
+                right={!isRTL ? <TextInput.Icon icon="clock-start" /> : null}
+                style={styles.timeInput}
+                outlineStyle={styles.outline}
               />
               <Text style={styles.label}>{t("add_shift.start_t")}</Text>
             </View>
@@ -71,31 +71,38 @@ export default function ShiftDatePicker({
                 })}
                 mode="outlined"
                 contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-                right={isRTL ? "" : <TextInput.Icon icon="clock-end" />}
-                left={isRTL ? <TextInput.Icon icon="clock-end" /> : ""}
-                style={{
-                  textAlign: "center",
-                  backgroundColor: theme.colors.card,
-                }}
+                left={isRTL ? <TextInput.Icon icon="clock-end" /> : null}
+                right={!isRTL ? <TextInput.Icon icon="clock-end" /> : null}
+                style={styles.timeInput}
+                outlineStyle={styles.outline}
               />
               <Text style={styles.label}>{t("add_shift.end_t")}</Text>
             </View>
           </Pressable>
         </View>
 
-        <View style={{ marginTop: 10 }}>
+        {/** Hour Rate Section - התיקון כאן */}
+        <View style={{ marginTop: 15 }}>
           <View>
             <TextInput
               mode="outlined"
-              value={String(hourRate)}
-              placeholder={String(hourRate)}
+              // מציג את מה שהמשתמש הקליד. אם ריק - מציג ריק (ואז ה-Placeholder מופיע)
+              value={hourRate === "" ? "" : String(hourRate)}
+              // מציג את תעריף ברירת המחדל כרמז ויזואלי
+              placeholder={String(defaultRate || "0")}
+              placeholderTextColor={theme.colors.outline}
               keyboardType="decimal-pad"
-              onChangeText={(val) => setHourRate(val)}
+              onChangeText={(val) => {
+                // מאפשר רק מספרים ונקודה עשרונית אחת
+                const filtered = val.replace(/[^0-9.]/g, "");
+                setHourRate(filtered);
+              }}
               contentStyle={{
-                writingDirection: "rtl",
                 textAlign: isRTL ? "right" : "left",
               }}
-              style={[styles.input, { marginBottom: 10 }]}
+              style={styles.input}
+              outlineStyle={styles.outline}
+              left={<TextInput.Icon icon="cash-multiple" />}
             />
             <Text style={styles.label}>{t("add_shift.rate_per_hour")}</Text>
           </View>
@@ -109,38 +116,48 @@ const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     formCard: {
       backgroundColor: theme.colors.surface,
-      borderRadius: 16,
-      padding: 10,
+      borderRadius: 20,
+      padding: 5,
       marginTop: 20,
       marginBottom: 20,
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
     },
     formContentWrapper: {
-      borderRadius: 16,
-      overflow: "hidden",
       padding: 10,
     },
     input: {
       backgroundColor: theme.colors.surface,
-      height: 60,
+      height: 56,
+      marginBottom: 5,
+    },
+    timeInput: {
+      backgroundColor: theme.colors.surface,
+      textAlign: "center",
     },
     timeRow: {
       flexDirection: isRTL ? "row-reverse" : "row",
       alignItems: "center",
-      justifyContent: "spcae-between",
-      marginTop: 8,
-      gap: 2,
+      justifyContent: "space-between", // תיקון שגיאת כתיב
+      marginTop: 15,
+      gap: 10, // ריווח בין שעת התחלה לסיום
     },
     flex1: {
       flex: 1,
     },
+    outline: {
+      borderRadius: 12,
+    },
     label: {
       position: "absolute",
-      top: -5,
-      left: isRTL ? "" : 20,
-      right: isRTL ? 20 : "",
-      backgroundColor: theme.colors.card,
-      paddingHorizontal: 5,
+      top: -8,
+      left: isRTL ? undefined : 15,
+      right: isRTL ? 15 : undefined,
+      backgroundColor: theme.colors.surface, // שינוי ל-surface כדי שלא יהיה "חור" בצבע אחר
+      paddingHorizontal: 6,
       fontSize: 12,
+      fontWeight: "bold",
       color: theme.colors.primary,
+      zIndex: 1,
     },
   });

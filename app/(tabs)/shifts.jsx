@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { IconButton, useTheme } from "react-native-paper";
 import AddShiftButton from "../../components/common/AddShiftButton";
@@ -123,13 +123,24 @@ export default function ShiftsScreen() {
                 renderRightAction(() => handleDelete(shift.$id))
               }
             >
-              <ShiftCard
-                dateTime={formatShiftDate(shift.start_time)}
-                dateHours={`${formatShiftTime(
-                  shift.start_time,
-                )} - ${formatShiftTime(shift.end_time)}`}
-                totalAmout={shift.total_amount}
-              />
+              <TouchableOpacity
+                onPress={() => {
+                  console.log(shift);
+
+                  router.push({
+                    pathname: "/shift-details",
+                    params: { shiftData: JSON.stringify(shift) },
+                  });
+                }}
+              >
+                <ShiftCard
+                  dateTime={formatShiftDate(shift.start_time)}
+                  dateHours={`${formatShiftTime(
+                    shift.start_time,
+                  )} - ${formatShiftTime(shift.end_time)}`}
+                  totalAmout={shift.total_amount}
+                />
+              </TouchableOpacity>
             </Swipeable>
           ))}
         </ScrollView>
