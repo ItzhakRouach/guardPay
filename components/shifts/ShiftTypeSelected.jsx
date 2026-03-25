@@ -122,6 +122,14 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             icon: "home-heart",
             showSelectedCheck: false,
           },
+          {
+            uncheckedColor: theme.colors.onSecondaryContainer,
+            value: "holiday",
+            label: t("shift_type.holiday"),
+            labelStyle: styles.labelStyle,
+            icon: "calendar-star",
+            showSelectedCheck: false,
+          },
         ]}
       />
     </>

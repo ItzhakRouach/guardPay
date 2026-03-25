@@ -131,6 +131,7 @@ export const resources = {
         night: "לילה",
         training: "יום רענון/אימון",
         vacation: "יום חופש",
+        holiday: "יום חג",
       },
       month: {
         0: "ינואר",
@@ -313,6 +314,7 @@ export const resources = {
         night: "Night",
         training: "Training",
         vacation: "Vacation",
+        holiday: "Holiday",
       },
       overview: {
         btn: "Generate Paycheck",
