@@ -18,7 +18,7 @@ export const useShift = (user, currentDate) => {
       const startOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       ).toISOString();
       const endOfMonth = new Date(
         currentDate.getFullYear(),
@@ -26,7 +26,7 @@ export const useShift = (user, currentDate) => {
         0,
         23,
         59,
-        59
+        59,
       ).toISOString();
 
       const response = await databases.listDocuments(
@@ -36,7 +36,8 @@ export const useShift = (user, currentDate) => {
           Query.equal("user_id", user.$id),
           Query.between("start_time", startOfMonth, endOfMonth),
           Query.orderAsc("start_time"),
-        ]
+          Query.limit(60),
+        ],
       );
       setShifts(response.documents || []);
     } catch (err) {
