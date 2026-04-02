@@ -111,6 +111,22 @@ export default function ShiftDetails() {
               value={shift.h200_extra_hours}
               suffix=" h"
             />
+            {/* שורות חג חדשות */}
+            <DetailRow
+              label={t("shiftDetails.h150Holiday") || "150% חג"}
+              value={shift.h150_holiday}
+              suffix=" h"
+            />
+            <DetailRow
+              label={t("shiftDetails.h175Holiday") || "175% חג"}
+              value={shift.h175_holiday}
+              suffix=" h"
+            />
+            <DetailRow
+              label={t("shiftDetails.h200Holiday") || "200% חג"}
+              value={shift.h200_holiday}
+              suffix=" h"
+            />
 
             <Divider style={styles.divider} />
 
