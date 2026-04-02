@@ -1,5 +1,5 @@
 /* global describe, test, expect */
-import { calculateSalary, calculateShiftPay } from "../lib/salaryLogic";
+const { calculateSalary, calculateShiftPay } = require("../utils/salaryLogic");
 
 describe("Shift Calculation Logic Noraml Weekday 8 Hours Tests", () => {
   //case 1
@@ -123,6 +123,20 @@ describe("Shift Calculation Logic Weekend 8 Hours - Saturday/Friday Tests", () =
     expect(result.h150_shabat).toBe(5);
     expect(result.h125_extra_hours).toBe(1);
     expect(result.total_amount).toBe(537.5);
+  });
+
+  test("Holiday Shift - Check Database Flag Output", () => {
+    const result = calculateShiftPay(
+      "2026-04-06T07:00:00",
+      "2026-04-06T15:00:00",
+      50,
+      0,
+      true,
+    );
+
+    // This ensures your frontend/database gets the flag back
+    expect(result.is_holiday).toBe(true);
+    expect(result.h150_shabat).toBe(8);
   });
 });
 
@@ -251,5 +265,36 @@ describe("Monthly Salary Calculation - Neto/Bruto Tests", () => {
     expect(result.incomeTax).toBeCloseTo(1080.5, 1); // (710 + 427 + (12500 - 10060) * 0.2 ) - 544.5
     expect(result.pensia).toBeCloseTo(865, 1); // regular pay * 0.07 + extra Pay * 0.07 + travel Pay * 0.05;
     expect(result.neto).toBeCloseTo(9693.87, 1);
+  });
+});
+
+describe("Monthly Salary Calculation with Benefits", () => {
+  test("Standard Salary - No Settlement Benefit (City like Tel Aviv)", () => {
+    // 10,000 ש"ח, 2.25 נקודות זיכוי, 0% הטבת יישוב
+    const result = calculateSalary(10000, 0, 0, 0, 0, 2.25, 0, 0);
+
+    expect(result.bruto).toBe(10000);
+    expect(result.settlementBenefitValue).toBe(0);
+    // המס צריך להיות בערך 584 ש"ח (לפי המדרגות ונקודות הזיכוי)
+    expect(result.incomeTax).toBeCloseTo(584.1, 1);
+  });
+
+  test("Settlement Benefit - Beit Shean (12%)", () => {
+    // 10,000 ש"ח בבית שאן
+    const result = calculateSalary(10000, 0, 0, 0, 0, 2.25, 12, 213240);
+
+    // זיכוי יישוב: 10,000 * 12% = 1200 ש"ח
+    expect(result.settlementBenefitValue).toBe(1200);
+    // בגלל שהזיכוי (1200) + נקודות זיכוי (544) גבוהים מהמס ברוטו (~1128), המס הסופי יהיה 0
+    expect(result.incomeTax).toBe(0);
+  });
+
+  test("High Salary - Reaching Settlement Cap", () => {
+    // שכר של 25,000 בבית שאן (מעבר לתקרה החודשית של 17,770)
+    const result = calculateSalary(25000, 0, 0, 0, 0, 2.25, 12, 213240);
+
+    const monthlyCap = 213240 / 12; // 17,770
+    expect(result.settlementBenefitValue).toBeCloseTo(monthlyCap * 0.12, 1);
+    expect(result.incomeTax).toBeGreaterThan(0); // כאן הוא כבר אמור לשלם מס
   });
 });

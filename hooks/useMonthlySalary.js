@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../hooks/auth-context"; // וודא שהנתיב נכון
 import { functions } from "../lib/appwrite";
 
 export const useMonthlySalary = (shifts) => {
+  const { user } = useAuth(); // משיכת המשתמש כדי להשתמש ב-ID שלו
   const [monthlyReport, setMonthlyReport] = useState(null);
 
   const totals = useMemo(() => {
@@ -34,12 +36,13 @@ export const useMonthlySalary = (shifts) => {
       acc.travelPay += Number(s.travel_pay_amount || 0);
 
       if (Number(s.travel_pay_amount) > 0) acc.travelCount++;
+
       if (s.is_training) {
-        acc.trainingAmount += s.total_amount || 0;
+        acc.trainingAmount += Number(s.total_amount || 0);
         acc.trainingDays++;
       }
       if (s.is_vacation) {
-        acc.vacationAmount += s.total_amount || 0;
+        acc.vacationAmount += Number(s.total_amount || 0);
         acc.vacationDays++;
       }
       return acc;
@@ -59,7 +62,7 @@ export const useMonthlySalary = (shifts) => {
 
   useEffect(() => {
     const getSalary = async () => {
-      if (shifts.length === 0) {
+      if (shifts.length === 0 || !user?.$id) {
         setMonthlyReport({ bruto: 0, neto: 0, totalDeductions: 0 });
         return;
       }
@@ -74,6 +77,7 @@ export const useMonthlySalary = (shifts) => {
               travelPay: totals.travelPay,
               vacation_pay: totals.vacationAmount,
               training_pay: totals.trainingAmount,
+              user_id: user.$id,
             },
           }),
         );
@@ -85,7 +89,7 @@ export const useMonthlySalary = (shifts) => {
     };
 
     getSalary();
-  }, [totals, shifts.length]);
+  }, [totals, shifts.length, user?.$id]); // ה-Effect ירוץ מחדש כשהנתונים או המשתמש משתנים
 
   return {
     monthlyReport,

@@ -1,11 +1,13 @@
 import * as Notifications from "expo-notifications";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import ProfileSummary from "../../components/profile/ProfileSummary";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
+import settlementsData from "../../utils/settlements.json";
+
 import {
   client,
   DATABASE_ID,
@@ -20,6 +22,39 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const { isRTL } = useLanguage();
+
+  // to search for settelment
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredSettlements = useMemo(() => {
+    if (searchQuery.length < 2) return [];
+    return settlementsData
+      .filter((s) => s.name.includes(searchQuery))
+      .slice(0, 5); // show only top 5
+  }, [searchQuery]);
+
+  const onSelectSettlement = async (settlement) => {
+    try {
+      setProfile((prev) => ({
+        ...prev,
+        settlement_name: settlement.name,
+        settlement_percent: settlement.percent,
+        settlement_annual_cap: settlement.annualCap,
+      }));
+
+      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
+        settlement_name: settlement.name,
+        settlement_percent: settlement.percent,
+        settlement_annual_cap: settlement.annualCap,
+      });
+
+      setSearchQuery("");
+      Alert.alert("הצלחה", `היישוב ${settlement.name} עודכן בהצלחה`);
+    } catch (error) {
+      console.error("Failed to update settlement:", error);
+      Alert.alert("שגיאה", "לא ניתן היה לשמור את היישוב.");
+    }
+  };
 
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
@@ -167,6 +202,10 @@ export default function Index() {
               signout={signOut}
               onUpdateReminder={onUpdateReminder}
               toggleReminder={toggleReminder}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              filteredSettlements={filteredSettlements}
+              onSelectSettlement={onSelectSettlement}
             />
           </ScrollView>
         </>

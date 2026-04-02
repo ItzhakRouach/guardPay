@@ -2,13 +2,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Keyboard,
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { ID, Permission, Role } from "react-native-appwrite";
+import { ID } from "react-native-appwrite";
 import { Button, Text, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
@@ -138,6 +139,7 @@ export default function AddShift() {
       const finalEnd = new Date(date);
       finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
 
+      // קריאה לשרת - המקור היחיד לחישוב
       const execution = await functions.createExecution(
         "697d0f3c001bba7f03d2",
         JSON.stringify({
@@ -149,6 +151,8 @@ export default function AddShift() {
             travelRate: profile.price_per_ride,
             type: value,
             user_id: user.$id,
+            // הוספת פרמטר חג אם רלוונטי
+            isHoliday: value === "holiday",
           },
         }),
         false,
@@ -157,46 +161,37 @@ export default function AddShift() {
       );
 
       if (execution.status === "failed") {
-        throw new Error("Calculation failed on server");
+        throw new Error("החישוב בשרת נכשל");
       }
 
       const docData = JSON.parse(execution.responseBody);
       docData.user_id = user.$id;
 
-      const permissions = [
-        Permission.read(Role.user(user.$id)),
-        Permission.update(Role.user(user.$id)),
-        Permission.delete(Role.user(user.$id)),
-        Permission.write(Role.user(user.$id)),
-      ];
-
+      // שמירה ל-Database רק אחרי שהשרת החזיר תוצאה
       if (isEditMode && params.shiftId) {
-        // UPDATE EXISTING
         await databases.updateDocument(
           DATABASE_ID,
           SHIFTS_HISTORY,
           params.shiftId,
           docData,
-          permissions,
         );
       } else {
-        //Create new entry
         await databases.createDocument(
           DATABASE_ID,
           SHIFTS_HISTORY,
           ID.unique(),
           docData,
-          permissions,
         );
       }
-    } catch (err) {
-      console.log(err);
-    } finally {
+
       router.back();
+    } catch (err) {
+      console.error(err);
+      Alert.alert("שגיאה", "לא ניתן היה לחשב את המשמרת. נסה שוב מאוחר יותר.");
+    } finally {
       setLoading(false);
     }
   };
-
   //function to handle the selected shit type  , and update the hours like it should be.
   const handleShiftTypeChange = (selected) => {
     setValue(selected);

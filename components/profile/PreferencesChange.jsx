@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -9,6 +8,8 @@ import {
 } from "react-native";
 import {
   Button,
+  Divider,
+  IconButton,
   Modal,
   Portal,
   Text,
@@ -19,21 +20,28 @@ import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import LoadingSpinner from "../common/LoadingSpinnner";
-export default function PreferencesChange({
-  visable,
-  hideModal,
-  setVisablePref,
-}) {
+
+export default function PreferencesChange({ visable, hideModal }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
-  const { profile, loading } = useAuth();
+  const { profile, loading, reloadProfile } = useAuth(); // הוספתי reloadProfile כדי שהשינוי ישתקף מיד
   const { t } = useTranslation();
   const styles = makeStyle(theme, isRTL);
+
   const [formData, setFormData] = useState({
-    price_per_hour: profile.price_per_hour,
-    price_per_ride: profile.price_per_ride,
+    price_per_hour: "",
+    price_per_ride: "",
   });
-  const [message, setMessage] = useState("");
+
+  // עדכון השדות במידע הקיים כשהמודאל נפתח
+  useEffect(() => {
+    if (visable && profile) {
+      setFormData({
+        price_per_hour: String(profile.price_per_hour || ""),
+        price_per_ride: String(profile.price_per_ride || ""),
+      });
+    }
+  }, [visable, profile]);
 
   const handleSaveBtn = async () => {
     if (!formData.price_per_hour || !formData.price_per_ride) return;
@@ -43,62 +51,93 @@ export default function PreferencesChange({
         price_per_hour: parseFloat(formData.price_per_hour),
         price_per_ride: parseFloat(formData.price_per_ride),
       });
-      setMessage(t("edit_pref.msg_good"));
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+
+      if (reloadProfile) await reloadProfile(); // רענון המידע באפליקציה
       hideModal();
     } catch (err) {
       console.log(err);
-      setMessage(t("edit_pref.msg_err"));
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <Portal>
-        <Modal
-          visible={visable}
-          onDismiss={hideModal}
-          contentContainerStyle={styles.modalContainer}
-        >
-          <Text style={styles.modalTitle}>{t("edit_pref.title")}</Text>
-          {loading && <LoadingSpinner />}
-          <View>
-            <TextInput
-              label={t("edit_pref.label_hour")}
-              mode="outlined"
-              keyboardType="numeric"
-              value={formData.price_per_hour}
-              placeholder={String(profile.price_per_hour)}
-              onChangeText={(val) =>
-                setFormData((prev) => ({ ...prev, price_per_hour: val }))
-              }
-              style={styles.input}
-            />
-            <TextInput
-              label={t("edit_pref.label_ride")}
-              mode="outlined"
-              keyboardType="numeric"
-              value={formData.price_per_ride}
-              placeholder={String(profile.price_per_ride)}
-              onChangeText={(val) =>
-                setFormData((prev) => ({ ...prev, price_per_ride: val }))
-              }
-              style={styles.input}
-            />
+    <Portal>
+      <Modal
+        visible={visable}
+        onDismiss={hideModal}
+        contentContainerStyle={styles.modalContainer}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            {/* Header עם כפתור סגירה */}
+            <View style={styles.header}>
+              <Text style={styles.modalTitle}>{t("edit_pref.title")}</Text>
+              <IconButton
+                icon="close"
+                size={20}
+                onPress={hideModal}
+                style={styles.closeIcon}
+              />
+            </View>
+
+            <Divider style={styles.divider} />
+
+            <View style={styles.form}>
+              <Text variant="labelMedium" style={styles.inputLabel}>
+                {t("edit_pref.label_hour")}
+              </Text>
+              <TextInput
+                mode="outlined"
+                keyboardType="decimal-pad"
+                left={<TextInput.Icon icon="cash-clock" />}
+                right={<TextInput.Affix text="₪" />}
+                value={formData.price_per_hour}
+                onChangeText={(val) =>
+                  setFormData((prev) => ({ ...prev, price_per_hour: val }))
+                }
+                style={styles.input}
+                outlineStyle={styles.inputOutline}
+              />
+
+              <Text
+                variant="labelMedium"
+                style={[styles.inputLabel, { marginTop: 10 }]}
+              >
+                {t("edit_pref.label_ride")}
+              </Text>
+              <TextInput
+                mode="outlined"
+                keyboardType="decimal-pad"
+                left={<TextInput.Icon icon="car" />}
+                right={<TextInput.Affix text="₪" />}
+                value={formData.price_per_ride}
+                onChangeText={(val) =>
+                  setFormData((prev) => ({ ...prev, price_per_ride: val }))
+                }
+                style={styles.input}
+                outlineStyle={styles.inputOutline}
+              />
+            </View>
+
+            <View style={styles.actions}>
+              <Button
+                mode="contained"
+                onPress={handleSaveBtn}
+                style={styles.saveBtn}
+                contentStyle={styles.btnContent}
+                labelStyle={styles.btnLabel}
+              >
+                {t("edit_pref.btn")}
+              </Button>
+
+              <Button mode="text" onPress={hideModal} style={styles.cancelBtn}>
+                {t("common.cancel") || "ביטול"}
+              </Button>
+            </View>
           </View>
-          <Button
-            mode="contained"
-            stye={styles.saveBtn}
-            onPress={() => handleSaveBtn()}
-          >
-            {t("edit_pref.btn")}
-          </Button>
-          {message && Alert.alert(message)}
-        </Modal>
-      </Portal>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+        {loading && <LoadingSpinner />}
+      </Modal>
+    </Portal>
   );
 }
 
@@ -106,32 +145,64 @@ const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
     modalContainer: {
       backgroundColor: theme.colors.surface,
-      padding: 25,
       margin: 20,
-      borderRadius: 30,
-      width: "90%",
-      alignSelf: "center",
+      borderRadius: 28,
+      overflow: "hidden",
+    },
+    innerContainer: {
+      padding: 24,
+    },
+    header: {
+      flexDirection: isRTL ? "row-reverse" : "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 8,
+    },
+    closeIcon: {
+      margin: 0,
     },
     modalTitle: {
-      fontSize: 22,
-      fontWeight: "700",
-      textAlign: "center",
-      marginBottom: 20,
-      color: theme.colors.primary,
+      fontSize: 24,
+      fontWeight: "bold",
+      color: theme.colors.onSurface,
+      letterSpacing: -0.5,
     },
-    message: {
-      color: "green",
-      textAlign: "center",
-      padding: 20,
-      marginTop: 10,
+    divider: {
+      marginBottom: 20,
+      opacity: 0.5,
+    },
+    form: {
+      marginBottom: 24,
+    },
+    inputLabel: {
+      marginBottom: 6,
+      color: theme.colors.secondary,
+      textAlign: isRTL ? "right" : "left",
+      paddingHorizontal: 4,
     },
     input: {
-      marginBottom: 15,
-      textAlign: isRTL ? "right" : "left",
-      writingDirection: isRTL ? "rtl" : "ltr",
+      backgroundColor: theme.colors.surface,
+      fontSize: 18,
+    },
+    inputOutline: {
+      borderRadius: 12,
+      borderWidth: 1.5,
+    },
+    actions: {
+      gap: 8,
     },
     saveBtn: {
-      marginTop: 10,
-      borderRadius: 8,
+      borderRadius: 14,
+      elevation: 0,
+    },
+    btnContent: {
+      height: 48,
+    },
+    btnLabel: {
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    cancelBtn: {
+      marginTop: 4,
     },
   });

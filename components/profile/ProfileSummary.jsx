@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Linking, StyleSheet } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet } from "react-native";
 import {
   ActivityIndicator,
   Divider,
   List,
+  Modal,
   Portal,
+  Searchbar,
   Surface,
   Switch,
   Text,
@@ -19,6 +21,8 @@ import WeeklyReminder from "../layout/WeeklyReminder";
 import SecurityLawPDF from "../legal/SecurityLawPDF";
 import PreferencesChange from "../profile/PreferencesChange";
 import LanguagesChange from "./LanguagesChange";
+// וודא שהנתיב לקובץ ה-JSON נכון
+import settlementsData from "../../utils/settlements.json";
 
 export default function ProfileSummary({
   profile,
@@ -26,11 +30,15 @@ export default function ProfileSummary({
   signout,
   onUpdateReminder,
   toggleReminder,
+  onSelectSettlement, // הפונקציה שמעדכנת את ה-DB
 }) {
   const [visable, setVisable] = useState(false);
   const [visableLang, setVisableLang] = useState(false);
   const [visablePref, setVisablePref] = useState(false);
   const [visablePDF, setVisablePDF] = useState(false);
+  const [visableSettlement, setVisableSettlement] = useState(false); // מודאל יישובים
+
+  const [searchQuery, setSearchQuery] = useState("");
   const [tempDay, setTempDay] = useState(profile?.reminder_day || 1);
   const [tempTime, setTempTime] = useState(new Date());
   const [isSwitchOn, setIsSwitchOn] = useState(
@@ -39,6 +47,14 @@ export default function ProfileSummary({
   const [loading, setLoading] = useState(false);
 
   const { t } = useTranslation();
+
+  // סינון יישובים למודאל
+  const filteredSettlements = useMemo(() => {
+    if (searchQuery.length < 2) return [];
+    return settlementsData
+      .filter((s) => s.name.includes(searchQuery))
+      .slice(0, 10);
+  }, [searchQuery]);
 
   const showModal = () => setVisable(true);
   const hideModal = () => setVisable(false);
@@ -147,6 +163,41 @@ export default function ProfileSummary({
         setVisablePref={setVisablePref}
       />
 
+      {/* מודאל בחירת יישוב */}
+      <Portal>
+        <Modal
+          visible={visableSettlement}
+          onDismiss={() => setVisableSettlement(false)}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <Text variant="headlineSmall" style={styles.modalTitle}>
+            בחירת יישוב מגורים (2026)
+          </Text>
+          <Searchbar
+            placeholder="חפש יישוב..."
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style={styles.searchBar}
+            inputStyle={{ textAlign: isRTL ? "right" : "left" }}
+          />
+          <ScrollView style={{ maxHeight: 300 }}>
+            {filteredSettlements.map((item) => (
+              <List.Item
+                key={item.name}
+                title={item.name}
+                description={`הטבה: ${item.percent}% | תקרה: ${item.annualCap.toLocaleString()} ₪`}
+                onPress={() => {
+                  onSelectSettlement(item);
+                  setVisableSettlement(false);
+                  setSearchQuery("");
+                }}
+                left={(p) => <List.Icon {...p} icon="map-marker-outline" />}
+              />
+            ))}
+          </ScrollView>
+        </Modal>
+      </Portal>
+
       <Surface style={styles.contentWrapper} elevation={0}>
         <Text style={styles.title} variant="headlineMedium">
           {t("index.general")}
@@ -174,6 +225,7 @@ export default function ProfileSummary({
           title={`${formatDates(profile?.birth_date)}`}
         />
       </Surface>
+
       {/**Preferences Section */}
       <Surface
         style={[styles.contentWrapper, styles.preferences]}
@@ -182,6 +234,35 @@ export default function ProfileSummary({
         <Text style={styles.title} variant="headlineMedium">
           {t("index.pref")}
         </Text>
+
+        {/* שדה בחירת יישוב החדש */}
+        <TouchableRipple onPress={() => setVisableSettlement(true)}>
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            title="יישוב למס הכנסה"
+            description={
+              profile?.settlement_name
+                ? `${profile.settlement_name} (${profile.settlement_percent}% זיכוי | תקרה: ${profile.settlement_annual_cap?.toLocaleString()} ₪)`
+                : "לחץ לבחירת יישוב מזכה"
+            }
+            left={(p) => (
+              <List.Icon
+                {...p}
+                icon="home-city-outline"
+                color={theme.colors.primary}
+              />
+            )}
+            right={(p) =>
+              profile?.settlement_name ? (
+                <List.Icon {...p} icon="check-decagram" color="#4CAF50" />
+              ) : null
+            }
+            descriptionStyle={styles.descStyle}
+          />
+        </TouchableRipple>
+
+        <Divider style={styles.dividerStyle} bold={false} />
 
         <List.Item
           style={styles.listItem}
@@ -222,6 +303,7 @@ export default function ProfileSummary({
           descriptionStyle={styles.descStyle}
         />
       </Surface>
+
       {/**Account Section */}
       <Surface
         style={[styles.contentWrapper, styles.preferences]}
@@ -405,5 +487,22 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       flexDirection: "row",
       alignItems: "center",
+    },
+    // סטיילים חדשים למודאל
+    modalContainer: {
+      backgroundColor: theme.colors.surface,
+      padding: 20,
+      margin: 20,
+      borderRadius: 20,
+    },
+    modalTitle: {
+      textAlign: "center",
+      marginBottom: 15,
+      fontWeight: "bold",
+    },
+    searchBar: {
+      marginBottom: 10,
+      elevation: 0,
+      backgroundColor: theme.colors.elevation.level2,
     },
   });
