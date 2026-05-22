@@ -31,19 +31,22 @@ export const useMonthlySalary = (shifts) => {
       acc.h150e += Number(s.h150_extra_hours || 0);
       acc.h175s += Number(s.h175_extra_hours || 0);
       acc.h200s += Number(s.h200_extra_hours || 0);
-      acc.regPay += Number(s.reg_pay_amount || 0);
-      acc.extraPay += Number(s.extra_pay_amount || 0);
-      acc.travelPay += Number(s.travel_pay_amount || 0);
-
-      if (Number(s.travel_pay_amount) > 0) acc.travelCount++;
 
       if (s.is_training) {
         acc.trainingAmount += Number(s.total_amount || 0);
         acc.trainingDays++;
-      }
-      if (s.is_vacation) {
+      } else if (s.is_vacation) {
         acc.vacationAmount += Number(s.total_amount || 0);
         acc.vacationDays++;
+      } else {
+        // Only count regular/extra/travel pay for non-training, non-vacation
+        // shifts. Training/vacation are sent to the cloud function under
+        // their own keys (training_pay/vacation_pay) and would otherwise be
+        // double-counted into bruto.
+        acc.regPay += Number(s.reg_pay_amount || 0);
+        acc.extraPay += Number(s.extra_pay_amount || 0);
+        acc.travelPay += Number(s.travel_pay_amount || 0);
+        if (Number(s.travel_pay_amount) > 0) acc.travelCount++;
       }
       return acc;
     }, initial);

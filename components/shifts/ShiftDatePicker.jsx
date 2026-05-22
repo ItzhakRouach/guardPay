@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
+import { normalizeDecimal } from "../../lib/utils";
 
 export default function ShiftDatePicker({
   startTime,
@@ -92,11 +93,7 @@ export default function ShiftDatePicker({
               placeholder={String(defaultRate || "0")}
               placeholderTextColor={theme.colors.outline}
               keyboardType="decimal-pad"
-              onChangeText={(val) => {
-                // מאפשר רק מספרים ונקודה עשרונית אחת
-                const filtered = val.replace(/[^0-9.]/g, "");
-                setHourRate(filtered);
-              }}
+              onChangeText={(val) => setHourRate(normalizeDecimal(val))}
               contentStyle={{
                 textAlign: isRTL ? "right" : "left",
               }}

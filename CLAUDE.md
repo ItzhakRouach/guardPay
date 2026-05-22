@@ -67,7 +67,7 @@ The salary calculator emits — and the Appwrite shifts collection, [hooks/useMo
 
 ## i18n & RTL
 
-`react-i18next` with `en`/`he`/`ar` vocabularies in [translations/vocabulary.js](translations/vocabulary.js). Selected language persists in `AsyncStorage` under `user-language` via [hooks/lang-context.js](hooks/lang-context.js).
+`react-i18next` with `en` and `he` vocabularies in [translations/vocabulary.js](translations/vocabulary.js). Selected language persists in `AsyncStorage` under `user-language` via [hooks/lang-context.js](hooks/lang-context.js). Arabic (`ar`) is listed as RTL in [hooks/lang-context.js](hooks/lang-context.js) but the vocabulary block isn't translated yet — add `ar` to the resources before exposing it in `LanguagesChange`.
 
 **Gotcha:** native RTL layout flipping is force-disabled (`I18nManager.forceRTL(false)` in `app/_layout.jsx`, plus `ExpoLocalization_supportsRTL: false` in `app.json`). Switching to Hebrew/Arabic changes copy only — layout direction stays LTR. Components should not assume the layout flips when `isRTL` is true.
 

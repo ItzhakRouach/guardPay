@@ -6,12 +6,14 @@ export default function MonthPicker({ currentDate, setCurrentDate }) {
   const styles = makeStyle(theme);
   const { t } = useTranslation();
 
-  // Logic to change months
+  // Build a new Date and call setCurrentDate with it. Mutating the existing
+  // `currentDate` via setMonth() and then passing the same reference back is
+  // unsafe under the React Compiler — identity-based skip-equality can miss
+  // the change and leave the UI stale.
   const changeMonth = (offset) => {
-    const newDate = new Date(
-      currentDate.setMonth(currentDate.getMonth() + offset),
-    );
-    setCurrentDate(new Date(newDate));
+    const newDate = new Date(currentDate);
+    newDate.setMonth(newDate.getMonth() + offset);
+    setCurrentDate(newDate);
   };
 
   const monthName = t(`month.${currentDate.getMonth()}`);
