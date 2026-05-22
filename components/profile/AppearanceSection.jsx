@@ -36,11 +36,18 @@ export default function AppearanceSection() {
   const colors = parseUserColors(profile?.shift_colors);
   const [openFor, setOpenFor] = useState(null);
 
-  const persist = async (nextColors) => {
+  // Write a colors object to Appwrite + refresh the auth-context profile.
+  // When `explicit` is true, persist the full JSON instead of the collapsed
+  // diff — used for reset so the document changes from "custom JSON" to
+  // "defaults JSON" (rather than to "{}", which Appwrite/auth-context
+  // sometimes wouldn't surface to the UI as a change).
+  const persist = async (nextColors, { explicit = false } = {}) => {
     if (!profile?.$id) return;
     try {
       await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
-        shift_colors: serialiseUserColors(nextColors),
+        shift_colors: explicit
+          ? JSON.stringify(nextColors)
+          : serialiseUserColors(nextColors),
       });
       await fetchUserProfile(user);
     } catch (err) {
@@ -59,7 +66,7 @@ export default function AppearanceSection() {
         {
           text: t("appearance.reset"),
           style: "destructive",
-          onPress: () => persist({ ...DEFAULT_COLORS }),
+          onPress: () => persist({ ...DEFAULT_COLORS }, { explicit: true }),
         },
       ],
     );
