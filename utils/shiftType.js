@@ -30,10 +30,16 @@ const toMinutes = ({ startH, startM, endH, endM }) => ({
 // Returns true when `mins` (minutes since 00:00) falls inside the
 // window. Windows that cross midnight (e.g. night 23:00 → 07:00) have
 // from > to — the contained range is [from, 24:00) ∪ [00:00, to).
+//
+// `from === to` is interpreted as a 24-hour window (the user set start
+// equal to end, presumably to mean "this type covers the whole day").
+// Returning false here would silently drop every shift into the next
+// bucket — the 24-hour interpretation is the less-surprising failure
+// mode for a degenerate user-saved window.
 const inWindow = (mins, range) => {
   if (!range) return false;
   const { from, to } = range;
-  if (from === to) return false;
+  if (from === to) return true;
   if (from < to) return mins >= from && mins < to;
   return mins >= from || mins < to;
 };

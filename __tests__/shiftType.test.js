@@ -8,6 +8,9 @@
 const { deriveShiftType } = require("../utils/shiftType");
 
 // Build a Monday at the requested HH:MM (Jan 5 2026 is a Monday).
+// Local-time Date is intentional — deriveShiftType reads getHours() in
+// local time, so both ends of the comparison stay in the same zone and
+// the test is timezone-stable on any CI runner.
 const monAt = (h, m = 0) => ({
   start_time: new Date(2026, 0, 5, h, m).toISOString(),
 });
@@ -67,5 +70,37 @@ describe("deriveShiftType — custom user windows", () => {
   });
   test("12:00 with custom morning-9→16 → morning", () => {
     expect(deriveShiftType(monAt(12, 0), prefs)).toBe("morning");
+  });
+});
+
+describe("deriveShiftType — degenerate / legacy inputs", () => {
+  test("missing start_time → morning fallback", () => {
+    expect(deriveShiftType({}, {})).toBe("morning");
+  });
+  test("invalid date string → morning fallback", () => {
+    expect(deriveShiftType({ start_time: "not-a-date" }, {})).toBe("morning");
+  });
+  test("null shift → morning fallback", () => {
+    expect(deriveShiftType(null, {})).toBe("morning");
+  });
+  test("Saturday + is_training → training (flag beats day-of-week)", () => {
+    const s = {
+      start_time: new Date(2026, 0, 10, 10, 0).toISOString(),
+      is_training: true,
+    };
+    expect(deriveShiftType(s, {})).toBe("training");
+  });
+  test("equal-start-and-end night window → covers the whole day", () => {
+    // Defensive: a user could save night = {23:00 → 23:00}. We treat
+    // that as a 24-hour window rather than silently dropping shifts
+    // into morning/evening buckets.
+    const prefs = {
+      default_shift_times: JSON.stringify({
+        night: { startH: 23, startM: 0, endH: 23, endM: 0 },
+      }),
+    };
+    expect(deriveShiftType(monAt(2, 0), prefs)).toBe("night");
+    expect(deriveShiftType(monAt(14, 0), prefs)).toBe("night");
+    expect(deriveShiftType(monAt(23, 30), prefs)).toBe("night");
   });
 });
