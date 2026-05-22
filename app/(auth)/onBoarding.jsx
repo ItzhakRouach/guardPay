@@ -45,35 +45,16 @@ export default function OnBoardingScreen() {
         }}
       >
         {/*
-          Logo lives inside a rounded-square clip mask so the shield
-          renders as a polished iOS-app-icon shape — no jagged edges,
-          no apparent background, just the brand mark inside a soft
-          22%-radius square (iOS app-icon spec).
-          Uses icon_transparent.png; resizeMode="contain" keeps the
-          shield's natural padding within the clip.
+          Shield floats directly on the page — no card backing, no
+          shadow. icon_transparent.png has transparent corners and
+          transparent margins, so it reads cleanly on the cream / navy
+          page bg without a contrasting white square behind it.
         */}
-        <View
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: 27,
-            overflow: "hidden",
-            backgroundColor: theme.colors.surface,
-            justifyContent: "center",
-            alignItems: "center",
-            shadowColor: theme.colors.ink,
-            shadowOpacity: 0.12,
-            shadowRadius: 12,
-            shadowOffset: { width: 0, height: 6 },
-            elevation: 4,
-          }}
-        >
-          <Image
-            source={require("../../assets/images/icon_transparent.png")}
-            style={{ width: "100%", height: "100%" }}
-            resizeMode="contain"
-          />
-        </View>
+        <Image
+          source={require("../../assets/images/icon_transparent.png")}
+          style={{ width: 140, height: 140 }}
+          resizeMode="contain"
+        />
         <View style={{ height: 24 }} />
         <Eyebrow color={theme.colors.accent}>{t("welcome.eyebrow")}</Eyebrow>
         <Type
