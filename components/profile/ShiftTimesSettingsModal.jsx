@@ -12,85 +12,84 @@ import {
 } from "react-native-paper";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
-import { useThemeMode } from "../../hooks/theme-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import {
-  DEFAULT_COLORS,
-  parseUserColors,
-  resolveSwatchHex,
-  serialiseUserColors,
-} from "../../lib/shiftColors";
-import ShiftColorsModal from "./ShiftColorsModal";
+  CUSTOMISABLE_TYPES,
+  DEFAULT_SHIFT_TIMES,
+  formatTimeRange,
+  parseUserShiftTimes,
+  serialiseUserShiftTimes,
+} from "../../lib/shiftTimes";
+import ShiftTimeEditModal from "./ShiftTimeEditModal";
 
-// Modal launched from the Preferences "Shift colors" row. Lists the 4
-// shift types with their current swatch dot; tapping a row opens the
-// swatch picker modal on top. A Reset row at the bottom restores
-// defaults.
-//
-// Row layout is hand-rolled (View + Icon + Text + dot) rather than
-// using Paper's List.Item — the List.Item title slot has been hiding
-// the label inside this modal across a few revisions and the manual
-// layout is predictable.
-export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
+const ICONS = {
+  morning: "weather-sunset-up",
+  evening: "weather-sunset-down",
+  night: "weather-night",
+};
+
+// Modal launched from the Preferences "Default shift times" row. Lists
+// morning / evening / night with their current time range; tapping a
+// row opens the time editor sub-modal. Reset row at the bottom
+// restores all three to app defaults.
+export default function ShiftTimesSettingsModal({ visible, onDismiss }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
   const { user, profile, fetchUserProfile } = useAuth();
-  const { scheme } = useThemeMode();
   const { t } = useTranslation();
   const styles = makeStyle(theme, isRTL);
 
-  const colors = parseUserColors(profile?.shift_colors);
+  const times = parseUserShiftTimes(profile?.default_shift_times);
   const [openFor, setOpenFor] = useState(null);
 
-  const persist = async (nextColors, { explicit = false } = {}) => {
+  const persist = async (nextTimes, { explicit = false } = {}) => {
     if (!profile?.$id) return;
     try {
       await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
-        shift_colors: explicit
-          ? JSON.stringify(nextColors)
-          : serialiseUserColors(nextColors),
+        default_shift_times: explicit
+          ? JSON.stringify(nextTimes)
+          : serialiseUserShiftTimes(nextTimes),
       });
       await fetchUserProfile(user);
     } catch (err) {
-      console.log("Failed to update shift colors:", err);
+      console.log("Failed to update default shift times:", err);
     }
   };
 
-  const updateOne = (key) => (hex) => persist({ ...colors, [key]: hex });
+  const updateOne = (type) => (next) =>
+    persist({ ...times, [type]: next });
 
   const onReset = () => {
     Alert.alert(
-      t("appearance.reset_confirm_title"),
-      t("appearance.reset_confirm_body"),
+      t("shift_times.reset_confirm_title"),
+      t("shift_times.reset_confirm_body"),
       [
         { text: t("common.cancel"), style: "cancel" },
         {
-          text: t("appearance.reset"),
+          text: t("shift_times.reset"),
           style: "destructive",
-          onPress: () => persist({ ...DEFAULT_COLORS }, { explicit: true }),
+          onPress: () =>
+            persist({ ...DEFAULT_SHIFT_TIMES }, { explicit: true }),
         },
       ],
     );
   };
 
-  const Row = ({ labelKey, colorKey, icon }) => (
-    <TouchableRipple onPress={() => setOpenFor(colorKey)}>
+  const Row = ({ type }) => (
+    <TouchableRipple onPress={() => setOpenFor(type)}>
       <View style={styles.row}>
         <IconButton
-          icon={icon}
+          icon={ICONS[type]}
           size={22}
           iconColor={theme.colors.primary}
           style={styles.rowIcon}
         />
         <Text variant="bodyLarge" style={styles.rowLabel} numberOfLines={1}>
-          {t(`appearance.${labelKey}`)}
+          {t(`shift_type.${type}`)}
         </Text>
-        <View
-          style={[
-            styles.dot,
-            { backgroundColor: resolveSwatchHex(colors[colorKey], scheme) },
-          ]}
-        />
+        <Text variant="bodyMedium" style={styles.rowValue}>
+          {formatTimeRange(times[type])}
+        </Text>
       </View>
     </TouchableRipple>
   );
@@ -105,7 +104,7 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
         <View style={styles.clipWrap}>
           <View style={styles.header}>
             <Text variant="titleLarge" style={styles.title}>
-              {t("appearance.title")}
+              {t("shift_times.title")}
             </Text>
             <IconButton
               icon="close"
@@ -115,13 +114,15 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
             />
           </View>
 
-          <Row labelKey="friday" colorKey="friday" icon="calendar-weekend-outline" />
-          <Divider style={styles.dividerStyle} bold={false} />
-          <Row labelKey="saturday" colorKey="saturday" icon="calendar-weekend" />
-          <Divider style={styles.dividerStyle} bold={false} />
-          <Row labelKey="training" colorKey="training" icon="karate" />
-          <Divider style={styles.dividerStyle} bold={false} />
-          <Row labelKey="holiday" colorKey="holiday" icon="calendar-star" />
+          {CUSTOMISABLE_TYPES.map((type, idx) => (
+            <View key={type}>
+              <Row type={type} />
+              {idx < CUSTOMISABLE_TYPES.length - 1 && (
+                <Divider style={styles.dividerStyle} bold={false} />
+              )}
+            </View>
+          ))}
+
           <Divider style={styles.dividerStyle} bold={false} />
           <TouchableRipple onPress={onReset}>
             <View style={styles.row}>
@@ -136,18 +137,18 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
                 style={[styles.rowLabel, { color: theme.colors.error }]}
                 numberOfLines={1}
               >
-                {t("appearance.reset")}
+                {t("shift_times.reset")}
               </Text>
             </View>
           </TouchableRipple>
         </View>
 
-        <ShiftColorsModal
+        <ShiftTimeEditModal
           visible={openFor !== null}
           onDismiss={() => setOpenFor(null)}
-          title={openFor ? t(`appearance.${openFor}`) : undefined}
-          currentColor={openFor ? colors[openFor] : undefined}
-          onSelect={openFor ? updateOne(openFor) : () => {}}
+          title={openFor ? t(`shift_type.${openFor}`) : undefined}
+          currentTimes={openFor ? times[openFor] : undefined}
+          onSave={openFor ? updateOne(openFor) : () => {}}
         />
       </Modal>
     </Portal>
@@ -156,9 +157,6 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
-    // Modal's contentContainerStyle is applied to a Paper Surface — keep
-    // overflow off the Surface itself (Paper warns about that) and put
-    // the clipping on an inner View instead.
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
@@ -205,12 +203,9 @@ const makeStyle = (theme, isRTL) =>
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingHorizontal: 4,
     },
-    dot: {
-      width: 26,
-      height: 26,
-      borderRadius: 13,
-      borderWidth: 1.5,
-      borderColor: theme.colors.outlineVariant,
+    rowValue: {
+      color: theme.colors.summary,
+      fontSize: 16,
       marginHorizontal: 12,
     },
   });

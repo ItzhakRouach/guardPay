@@ -25,6 +25,7 @@ import {
   databases,
   functions,
 } from "../lib/appwrite";
+import { getShiftTimes } from "../lib/shiftTimes";
 import { shiftTypeTimes } from "../lib/utils";
 
 export default function AddShift() {
@@ -199,7 +200,13 @@ export default function AddShift() {
   //function to handle the selected shit type  , and update the hours like it should be.
   const handleShiftTypeChange = (selected) => {
     setValue(selected);
-    const config = shiftTypeTimes[selected];
+    // For morning/evening/night, prefer the user's customised default
+    // (Profile → Preferences → Default shift times). Other types
+    // (training / vacation / holiday) keep the static shiftTypeTimes
+    // values since those aren't user-customisable.
+    const config =
+      getShiftTimes(selected, profile?.default_shift_times) ||
+      shiftTypeTimes[selected];
     if (!config) return;
 
     // create new Start Hour based on the selected value
