@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { StyleSheet, useColorScheme, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { resolveTint } from "../../lib/shiftColors";
@@ -16,12 +16,11 @@ export default function ShiftCard({
   userColors,
 }) {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
   const { isRTL } = useLanguage();
   const styles = makeStyle(theme, isRTL);
   const { t } = useTranslation();
 
-  const tint = shift ? resolveTint(shift, userColors, colorScheme) : null;
+  const tint = shift ? resolveTint(shift, userColors) : null;
   const hasNote = !!(shift?.comment && shift.comment.trim().length > 0);
 
   return (

@@ -196,7 +196,7 @@ export const resources = {
         subtitle: "בחר צבעים למשמרות לפי סוג",
         friday: "יום שישי",
         saturday: "יום שבת",
-        training: "יום השתלמות",
+        training: "יום אימון",
         holiday: "יום חג",
         reset: "אפס לברירת מחדל",
         reset_confirm_title: "לאפס את צבעי המשמרות?",

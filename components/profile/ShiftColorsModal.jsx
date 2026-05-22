@@ -49,11 +49,11 @@ export default function ShiftColorsModal({
           {SWATCHES.map((swatch) => {
             const isSelected =
               (selected || currentColor || "").toUpperCase() ===
-              swatch.light.toUpperCase();
+              swatch.hex.toUpperCase();
             return (
               <Pressable
                 key={swatch.name}
-                onPress={() => setSelected(swatch.light)}
+                onPress={() => setSelected(swatch.hex)}
                 accessibilityRole="button"
                 accessibilityLabel={t(`appearance.swatch.${swatch.name}`)}
                 style={[
@@ -65,7 +65,7 @@ export default function ShiftColorsModal({
                 ]}
               >
                 <View
-                  style={[styles.swatch, { backgroundColor: swatch.light }]}
+                  style={[styles.swatch, { backgroundColor: swatch.hex }]}
                 />
                 <Text variant="labelSmall" style={styles.swatchLabel}>
                   {t(`appearance.swatch.${swatch.name}`)}

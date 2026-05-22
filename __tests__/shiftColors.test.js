@@ -7,6 +7,25 @@ const {
   serialiseUserColors,
 } = require("../utils/shiftColors");
 
+describe("SWATCHES palette", () => {
+  test("each swatch exposes a name and a single hex (no per-mode variant)", () => {
+    expect(SWATCHES.length).toBe(8);
+    for (const s of SWATCHES) {
+      expect(typeof s.name).toBe("string");
+      expect(s.hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(s).not.toHaveProperty("light");
+      expect(s).not.toHaveProperty("dark");
+    }
+  });
+
+  test("default colors all resolve to a swatch in the palette", () => {
+    const palette = new Set(SWATCHES.map((s) => s.hex.toUpperCase()));
+    for (const key of Object.keys(DEFAULT_COLORS)) {
+      expect(palette.has(DEFAULT_COLORS[key].toUpperCase())).toBe(true);
+    }
+  });
+});
+
 describe("parseUserColors", () => {
   test("returns defaults for undefined/null/empty", () => {
     expect(parseUserColors(undefined)).toEqual(DEFAULT_COLORS);
@@ -35,37 +54,36 @@ describe("parseUserColors", () => {
 });
 
 describe("resolveTint priority", () => {
-  // Pick a known Friday (day 5) and Saturday (day 6) ISO date for tests.
-  const friday = "2026-05-22T08:00:00"; // Fri
-  const saturday = "2026-05-23T08:00:00"; // Sat
-  const monday = "2026-05-25T08:00:00"; // Mon
+  const friday = "2026-05-22T08:00:00";
+  const saturday = "2026-05-23T08:00:00";
+  const monday = "2026-05-25T08:00:00";
 
   test("returns null for a plain weekday shift", () => {
-    expect(resolveTint({ start_time: monday }, null, "light")).toBeNull();
+    expect(resolveTint({ start_time: monday }, null)).toBeNull();
   });
 
   test("Friday weekday returns friday tint", () => {
-    expect(resolveTint({ start_time: friday }, null, "light")).toBe(
-      DEFAULT_COLORS.friday.toUpperCase(),
+    expect(resolveTint({ start_time: friday }, null)).toBe(
+      DEFAULT_COLORS.friday,
     );
   });
 
   test("Saturday weekday returns saturday tint", () => {
-    expect(resolveTint({ start_time: saturday }, null, "light")).toBe(
-      DEFAULT_COLORS.saturday.toUpperCase(),
+    expect(resolveTint({ start_time: saturday }, null)).toBe(
+      DEFAULT_COLORS.saturday,
     );
   });
 
   test("is_holiday wins over Saturday classification", () => {
     expect(
-      resolveTint({ start_time: saturday, is_holiday: true }, null, "light"),
-    ).toBe(DEFAULT_COLORS.holiday.toUpperCase());
+      resolveTint({ start_time: saturday, is_holiday: true }, null),
+    ).toBe(DEFAULT_COLORS.holiday);
   });
 
   test("is_training wins over Friday classification", () => {
     expect(
-      resolveTint({ start_time: friday, is_training: true }, null, "light"),
-    ).toBe(DEFAULT_COLORS.training.toUpperCase());
+      resolveTint({ start_time: friday, is_training: true }, null),
+    ).toBe(DEFAULT_COLORS.training);
   });
 
   test("is_holiday wins over is_training", () => {
@@ -73,39 +91,18 @@ describe("resolveTint priority", () => {
       resolveTint(
         { start_time: friday, is_training: true, is_holiday: true },
         null,
-        "light",
       ),
-    ).toBe(DEFAULT_COLORS.holiday.toUpperCase());
+    ).toBe(DEFAULT_COLORS.holiday);
   });
-});
-
-describe("resolveTint user override + dark mode", () => {
-  const saturday = "2026-05-23T08:00:00";
 
   test("uses the user's custom color when set", () => {
-    const userColors = JSON.stringify({ saturday: "#ECFCCB" }); // sage
-    expect(resolveTint({ start_time: saturday }, userColors, "light")).toBe(
-      "#ECFCCB",
-    );
-  });
-
-  test("dark mode swaps to the paired dark hex when light hex is a known swatch", () => {
-    expect(resolveTint({ start_time: saturday }, null, "dark")).toBe(
-      // saturday default is lilac; dark counterpart from SWATCHES table
-      SWATCHES.find((s) => s.name === "lilac").dark,
-    );
-  });
-
-  test("dark mode falls back to the same hex if the user picked something off-palette", () => {
-    const userColors = JSON.stringify({ saturday: "#123456" });
-    expect(resolveTint({ start_time: saturday }, userColors, "dark")).toBe(
-      "#123456",
-    );
+    const userColors = JSON.stringify({ saturday: "#F7FEE7" }); // sage
+    expect(resolveTint({ start_time: saturday }, userColors)).toBe("#F7FEE7");
   });
 
   test("missing start_time returns null", () => {
-    expect(resolveTint({}, null, "light")).toBeNull();
-    expect(resolveTint(null, null, "light")).toBeNull();
+    expect(resolveTint({}, null)).toBeNull();
+    expect(resolveTint(null, null)).toBeNull();
   });
 });
 
@@ -122,7 +119,10 @@ describe("serialiseUserColors", () => {
   });
 
   test("case-insensitive comparison against defaults", () => {
-    const colors = { ...DEFAULT_COLORS, friday: DEFAULT_COLORS.friday.toLowerCase() };
+    const colors = {
+      ...DEFAULT_COLORS,
+      friday: DEFAULT_COLORS.friday.toLowerCase(),
+    };
     expect(serialiseUserColors(colors)).toBe("{}");
   });
 });
