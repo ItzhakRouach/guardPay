@@ -27,6 +27,9 @@ export default function ShiftsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { user, profile } = useAuth();
   const { shifts, loading, setShifts } = useShift(user, currentDate);
+  // Covers multi-step mutations (delete + re-stream) so the user
+  // doesn't see the list flash between the intermediate states.
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const theme = useTheme();
   const styles = makeStyle(theme);
@@ -117,16 +120,23 @@ export default function ShiftsScreen() {
 
   // Actual destructive delete, called only after the user confirms.
   const performDelete = async (shiftId) => {
+    const doc = shifts.find((s) => s.$id === shiftId);
+    const needsRestreak = !!doc?.is_sick;
+    // Spinner covers the whole delete (+ restream for sick days) so
+    // the user never sees the in-between state where the deleted doc
+    // is gone but neighbouring sick days still show their old percent.
+    if (needsRestreak) setIsProcessing(true);
     try {
-      const doc = shifts.find((s) => s.$id === shiftId);
       await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
       // refresh current shift list
       setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
-      if (doc?.is_sick) {
+      if (needsRestreak) {
         await restreakAfterSickDelete();
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      if (needsRestreak) setIsProcessing(false);
     }
   };
 
@@ -174,7 +184,7 @@ export default function ShiftsScreen() {
         totalHours={monthTotals.hours}
       />
 
-      {loading ? (
+      {loading || isProcessing ? (
         <LoadingSpinner />
       ) : shifts?.length === 0 ? (
         <NoShiftFound monthName={monthName} />
