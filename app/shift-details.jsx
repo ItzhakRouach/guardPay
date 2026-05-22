@@ -110,33 +110,35 @@ export default function ShiftDetails() {
               value={shift.h150_extra_hours}
               suffix=" h"
             />
-            {/* Special-pay hours (150% / 175% / 200%) share fields between
-                weekend and holiday work — pick the label from `is_holiday`. */}
             <DetailRow
-              label={
-                shift.is_holiday
-                  ? t("shiftDetails.h150Holiday") || "150% חג"
-                  : t("shiftDetails.h150Shabat")
-              }
+              label={t("shiftDetails.h150Shabat")}
               value={shift.h150_shabat}
               suffix=" h"
             />
             <DetailRow
-              label={
-                shift.is_holiday
-                  ? t("shiftDetails.h175Holiday") || "175% חג"
-                  : t("shiftDetails.h175")
-              }
+              label={t("shiftDetails.h175")}
               value={shift.h175_extra_hours}
               suffix=" h"
             />
             <DetailRow
-              label={
-                shift.is_holiday
-                  ? t("shiftDetails.h200Holiday") || "200% חג"
-                  : t("shiftDetails.h200")
-              }
+              label={t("shiftDetails.h200")}
               value={shift.h200_extra_hours}
+              suffix=" h"
+            />
+            {/* שורות חג חדשות */}
+            <DetailRow
+              label={t("shiftDetails.h150Holiday") || "150% חג"}
+              value={shift.h150_holiday}
+              suffix=" h"
+            />
+            <DetailRow
+              label={t("shiftDetails.h175Holiday") || "175% חג"}
+              value={shift.h175_holiday}
+              suffix=" h"
+            />
+            <DetailRow
+              label={t("shiftDetails.h200Holiday") || "200% חג"}
+              value={shift.h200_holiday}
               suffix=" h"
             />
 
