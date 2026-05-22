@@ -1,3 +1,22 @@
+import {
+  CormorantGaramond_400Regular,
+  CormorantGaramond_400Regular_Italic,
+  CormorantGaramond_500Medium,
+  CormorantGaramond_500Medium_Italic,
+  CormorantGaramond_600SemiBold,
+} from "@expo-google-fonts/cormorant-garamond";
+import {
+  FrankRuhlLibre_400Regular,
+  FrankRuhlLibre_500Medium,
+  FrankRuhlLibre_700Bold,
+} from "@expo-google-fonts/frank-ruhl-libre";
+import {
+  Manrope_400Regular,
+  Manrope_500Medium,
+  Manrope_600SemiBold,
+  Manrope_700Bold,
+} from "@expo-google-fonts/manrope";
+import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -10,9 +29,9 @@ import LoadingSpinner from "../components/common/LoadingSpinnner";
 import { AuthProvider, useAuth } from "../hooks/auth-context";
 import { LanguageProvider } from "../hooks/lang-context";
 import { ThemeProvider, useThemeMode } from "../hooks/theme-context";
+import { darkTokens, legacyAlias, lightTokens } from "../lib/theme";
 import "../translations/il18n";
 
-//setup the notfication behavior
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
@@ -21,84 +40,41 @@ Notifications.setNotificationHandler({
   }),
 });
 
-/** Creating colors for dark and light modes */
 const lightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    //#F8FAFC -> Main App Background
-    background: "#F4F4F4",
-
-    //Primary brand color (buttons , Titles , labels)
-    primary: "#213448",
-    onPrimary: "#fff",
-
-    //Surface of Cards and TextInputs
-    surface: "#FFFFFF",
-    onSurface: "#213448",
-    card: "#F8FAFC",
-
-    //Profile Sections colors
-    profileSection: "#213448",
-
-    //Borders and Muted lines
-    outline: "#E2E8F0",
-    outlineVariant: "#F1F5F9",
-
-    //Errors / Warning
-    error: "#B91C1C",
-
-    // Selected states for SegmentedButtons
-    secondaryContainer: "#E0E7FF",
-    onSecondaryContainer: "#213448",
-
-    //border color
-    borderOutline: "#cbd5e1",
-    dateText: "#64748B",
-    divider: "#213448",
-    summary: "#64748B",
-    editBtn: "#3b82f6",
-    delBtn: "#ef4444",
+    ...lightTokens,
+    ...legacyAlias(lightTokens),
+    background: lightTokens.bg,
+    surface: lightTokens.surface,
+    onSurface: lightTokens.ink,
+    primary: lightTokens.cta,
+    onPrimary: lightTokens.ctaInk,
+    outline: lightTokens.border,
+    outlineVariant: lightTokens.borderSoft,
+    error: lightTokens.neg,
+    secondaryContainer: lightTokens.accentSoft,
+    onSecondaryContainer: lightTokens.cta,
   },
 };
 
-// Define  Specific Dark Theme
 const darkTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    // #0F172A -> Deep Navy App Background
-    background: "#0F172A",
-    card: "#163059ff",
-
-    // Primary accent color (Sky blue for visibility in Dark Mode)
-    primary: "#38BDF8",
-    onPrimary: "#0F172A",
-
-    // Surface of Cards, TextInputs, and Modal/Pickers
-    surface: "#163059ff", // Lighter slate for depth
-    onSurface: "#F8FAFC", // Off-white text
-
-    // Borders and Muted lines
-    outline: "#334155",
-    outlineVariant: "#475569",
-
-    // Errors / Warning
-    error: "#F87171", // Lighter red for dark mode contrast
-
-    // Selected states for SegmentedButtons
-    secondaryContainer: "#3a5e91ff",
-    onSecondaryContainer: "#38BDF8",
-
-    //Profile Sections colors
-    profileSection: "#38BDF8",
-    // Custom Mapping
-    borderOutline: "#475569",
-    dateText: "#94A3B8", // Muted gray-blue
-    divider: "#38BDF8",
-    summary: "#ffffffff", // Muted label color
-    editBtn: "#60A5FA", // Lighter blue
-    delBtn: "#F87171", // Lighter red
+    ...darkTokens,
+    ...legacyAlias(darkTokens),
+    background: darkTokens.bg,
+    surface: darkTokens.surface,
+    onSurface: darkTokens.ink,
+    primary: darkTokens.cta,
+    onPrimary: darkTokens.ctaInk,
+    outline: darkTokens.border,
+    outlineVariant: darkTokens.borderSoft,
+    error: darkTokens.neg,
+    secondaryContainer: darkTokens.accentSoft,
+    onSecondaryContainer: darkTokens.accent,
   },
 };
 
@@ -108,7 +84,6 @@ function RouteGuard({ children }) {
   const segments = useSegments();
 
   useEffect(() => {
-    //first check if user is still in loading phase
     if (isLoadingUser) return;
 
     const inAuthGroup = segments[0] === "(auth)";
@@ -117,12 +92,10 @@ function RouteGuard({ children }) {
       if (!inAuthGroup) {
         router.replace("/onBoarding");
       }
-      // if the user dosent allready set his profile
     } else if (user && !profile) {
       if (!inSetupScreen) {
         router.replace("/setupPrefs");
       }
-      //if the use is logged in and allready set his profile then redirect to the app.
     } else if (user && inAuthGroup && profile) {
       router.replace("/(tabs)");
     }
@@ -144,9 +117,6 @@ try {
   console.log(e);
 }
 
-// Inner shell — needs to live inside ThemeProvider so useThemeMode() works.
-// Resolves the final palette from the user's stored mode (auto / light /
-// dark) instead of going straight to the system setting.
 function ThemedApp() {
   const { scheme } = useThemeMode();
   const isDark = scheme === "dark";
@@ -159,21 +129,21 @@ function ThemedApp() {
           <GestureHandlerRootView style={{ flex: 1 }}>
             <Stack
               screenOptions={{
-                headerShown: true,
+                headerShown: false,
                 contentStyle: {
-                  backgroundColor: isDark ? "#0F172A" : "#F4F4F4",
+                  backgroundColor: theme.colors.bg,
                 },
               }}
             >
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
               <Stack.Screen
                 name="add-shift"
-                options={{
-                  headerShown: false,
-                  presentation: "modal",
-                  headerTitle: "Add New Shift",
-                }}
+                options={{ presentation: "modal" }}
+              />
+              <Stack.Screen
+                name="paycheck"
+                options={{ presentation: "modal" }}
               />
             </Stack>
           </GestureHandlerRootView>
@@ -184,6 +154,25 @@ function ThemedApp() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    CormorantGaramond_400Regular,
+    CormorantGaramond_400Regular_Italic,
+    CormorantGaramond_500Medium,
+    CormorantGaramond_500Medium_Italic,
+    CormorantGaramond_600SemiBold,
+    FrankRuhlLibre_400Regular,
+    FrankRuhlLibre_500Medium,
+    FrankRuhlLibre_700Bold,
+    Manrope_400Regular,
+    Manrope_500Medium,
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <LanguageProvider>
       <ThemeProvider>

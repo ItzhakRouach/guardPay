@@ -1,101 +1,143 @@
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { router } from "expo-router";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { IconButton, useTheme } from "react-native-paper";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import { Query } from "react-native-appwrite";
-import AddShiftButton from "../../components/common/AddShiftButton";
-import LoadingSpinner from "../../components/common/LoadingSpinnner";
-import MonthPicker from "../../components/layout/MonthPicker";
-import NoShiftFound from "../../components/layout/NoShiftsFound";
-import MonthTotalCard from "../../components/shifts/MonthTotalCard";
-import ShiftCard from "../../components/shifts/ShiftCard";
+import { Swipeable } from "react-native-gesture-handler";
+import { ActivityIndicator, useTheme } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Eyebrow from "../../components/common/Eyebrow";
+import HeroCard from "../../components/common/HeroCard";
+import Icon from "../../components/common/Icon";
+import MonthHeader from "../../components/common/MonthHeader";
+import Type from "../../components/common/Type";
+import ShiftRow from "../../components/shifts/ShiftRow";
 import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
+import { useMonthlySalary } from "../../hooks/useMonthlySalary";
+import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
-import { formatShiftDate, formatShiftTime } from "../../lib/utils";
 import { restreakSickUpdates } from "../../utils/sickDays";
 
-export default function ShiftsScreen() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const { user, profile } = useAuth();
-  const { shifts, loading, setShifts } = useShift(user, currentDate);
-  // Covers multi-step mutations (delete + re-stream) so the user
-  // doesn't see the list flash between the intermediate states.
-  const [isProcessing, setIsProcessing] = useState(false);
+function groupByWeek(shifts) {
+  const groups = {};
+  shifts.forEach((s) => {
+    const d = new Date(s.start_time);
+    if (Number.isNaN(d.getTime())) return;
+    const wk = Math.min(5, Math.floor((d.getDate() - 1) / 7) + 1);
+    if (!groups[wk]) groups[wk] = [];
+    groups[wk].push(s);
+  });
+  return Object.entries(groups)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([wk, rows]) => ({ wk: Number(wk), rows }));
+}
 
+function EmptyState() {
   const theme = useTheme();
-  const styles = makeStyle(theme);
-  const monthName = currentDate.getMonth();
-  const router = useRouter();
+  const { t } = useTranslation();
+  return (
+    <View
+      style={{
+        alignItems: "center",
+        paddingVertical: 60,
+        paddingHorizontal: 24,
+      }}
+    >
+      <Icon name="calendar" size={48} color={theme.colors.muted} stroke={1.4} />
+      <Type
+        variant="sectionTitle"
+        color={theme.colors.ink}
+        style={{ marginTop: 16, textAlign: "center" }}
+      >
+        {t("shifts.empty.title")}
+      </Type>
+      <Type
+        variant="body"
+        color={theme.colors.muted}
+        align="center"
+        style={{ marginTop: 6, maxWidth: 260 }}
+      >
+        {t("shifts.empty.body")}
+      </Type>
+    </View>
+  );
+}
+
+function FAB({ onPress, isRTL }) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={10}
+      style={({ pressed }) => ({
+        position: "absolute",
+        bottom: 24,
+        [isRTL ? "left" : "right"]: 20,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: theme.colors.cta,
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: theme.colors.ink,
+        shadowOpacity: 0.18,
+        shadowRadius: 14,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 6,
+        transform: [{ scale: pressed ? 0.94 : 1 }],
+      })}
+    >
+      <Icon name="plus" size={28} color={theme.colors.ctaInk} stroke={2.2} />
+    </Pressable>
+  );
+}
+
+function SwipeAction({ label, color, icon }) {
+  return (
+    <View
+      style={{
+        backgroundColor: color,
+        justifyContent: "center",
+        alignItems: "center",
+        width: 84,
+        marginVertical: 0,
+      }}
+    >
+      <Icon name={icon} size={22} color="#FFFFFF" />
+      <Type
+        variant="small"
+        color="#FFFFFF"
+        style={{ marginTop: 4, fontFamily: "Manrope_600SemiBold" }}
+      >
+        {label}
+      </Type>
+    </View>
+  );
+}
+
+export default function ShiftsScreen() {
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const { user, profile } = useAuth();
+  const { currentDate, prev, next } = useMonthNav();
+  const { shifts, loading, setShifts } = useShift(user, currentDate);
+  const { totals, monthlyReport } = useMonthlySalary(shifts);
+  const { isRTL } = useLanguage();
   const { t } = useTranslation();
 
-  // function that run only when data change (shift added ) and calculate total hours and amount the user earn
-  const monthTotals = useMemo(() => {
-    return shifts.reduce(
-      (acc, shift) => {
-        acc.amount += Number(shift.total_amount || 0);
-        acc.hours +=
-          Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
-        return acc;
-      },
-      { amount: 0, hours: 0 },
-    );
-  }, [shifts]);
+  // Spans multi-step mutations (delete + re-stream of surrounding sick docs)
+  // so the user doesn't see the list flash between the intermediate states.
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // handle Delete action (Sliding to the right)
-  const renderRightAction = (onDelete) => (
-    <View style={styles.deleteAction}>
-      <IconButton
-        icon="delete"
-        iconColor="white"
-        size={40}
-        style={{
-          backgroundColor: theme.colors.delBtn,
-          justifyContent: "center",
-          width: 70,
-          borderRadius: 12,
-          marginVertical: 15,
-        }}
-        onPress={onDelete}
-      />
-    </View>
-  );
-  // handle Edit Action (sliding to the left)
-  const renderLeftAction = (onEdit) => (
-    <View style={styles.editAction}>
-      <IconButton
-        icon="pencil"
-        iconColor="white"
-        size={40}
-        style={{
-          backgroundColor: theme.colors.editBtn,
-          justifyContent: "center",
-          width: 70,
-          borderRadius: 12,
-          marginVertical: 15,
-        }}
-        onPress={onEdit}
-      />
-    </View>
-  );
+  const groups = useMemo(() => groupByWeek(shifts || []), [shifts]);
 
-  // After a sick doc is deleted, the surrounding sick docs in the same
-  // streak need their positions (and therefore sick_percent/total_amount)
-  // recomputed. Queries ALL of the user's remaining sick docs, runs them
-  // through the diff helper, and only writes the ones that actually need
-  // an update. Streaks in other months keep their values unchanged.
-  //
-  // Each doc's total_amount is derived from its own `base_rate × 8` (the
-  // wage at the time of logging), so this also works when `profile` is
-  // momentarily unloaded.
+  // After a sick doc is deleted, surrounding sick docs in the same streak
+  // need their positions (and therefore sick_percent/total_amount)
+  // recomputed. Each doc's total_amount is derived from its own base_rate
+  // × 8 (the wage at the time of logging), so this works even when
+  // profile is momentarily unloaded.
   const restreakAfterSickDelete = async () => {
     const fallbackDailyPay = (Number(profile?.price_per_hour) || 0) * 8;
     const res = await databases.listDocuments(DATABASE_ID, SHIFTS_HISTORY, [
@@ -112,140 +154,244 @@ export default function ShiftsScreen() {
         }),
       ),
     );
-    // Reflect updates in the visible month's shift list immediately.
     setShifts((prev) =>
       prev.map((s) => {
         const u = updates.find((x) => x.$id === s.$id);
-        return u ? { ...s, sick_percent: u.sick_percent, total_amount: u.total_amount } : s;
+        return u
+          ? { ...s, sick_percent: u.sick_percent, total_amount: u.total_amount }
+          : s;
       }),
     );
   };
 
-  // Actual destructive delete, called only after the user confirms.
   const performDelete = async (shiftId) => {
     const doc = shifts.find((s) => s.$id === shiftId);
     const needsRestreak = !!doc?.is_sick;
-    // Spinner covers the whole delete (+ restream for sick days) so
-    // the user never sees the in-between state where the deleted doc
-    // is gone but neighbouring sick days still show their old percent.
     if (needsRestreak) setIsProcessing(true);
     try {
       await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
-      // refresh current shift list
       setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
       if (needsRestreak) {
         await restreakAfterSickDelete();
       }
     } catch (err) {
-      console.log(err);
+      console.error("ShiftsScreen: delete failed", err);
+      Alert.alert(t("shifts.delete_confirm_title"), String(err?.message || err));
     } finally {
       if (needsRestreak) setIsProcessing(false);
     }
   };
 
-  // Swipe-to-delete entry point — guard with a confirm so a stray
-  // swipe-and-tap can't silently wipe a shift the user just spent
-  // minutes logging.
-  const handleDelete = (shiftId) => {
-    Alert.alert(
-      t("shifts.delete_confirm_title"),
-      t("shifts.delete_confirm_body"),
-      [
-        { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("common.delete"),
-          style: "destructive",
-          onPress: () => performDelete(shiftId),
-        },
-      ],
-    );
+  // Tracks each shift's Swipeable ref so we can close the row when the
+  // user cancels the delete confirm — otherwise the row stays open
+  // behind the dismissed Alert.
+  const swipeableRefs = useRef({});
+  const closeRow = (shiftId) => {
+    swipeableRefs.current[shiftId]?.close?.();
   };
-  // handle the edit functionality
+
   const handleEdit = (shift) => {
     // Editing a sick day in the standard add-shift form would clobber
     // its date-range / streak-percent contract. Until a dedicated sick
-    // edit flow exists, force the user to delete + re-create instead.
+    // edit flow exists, force the user to delete + re-create.
     if (shift.is_sick) {
       Alert.alert(
         t("shifts.sick_edit_blocked_title"),
         t("shifts.sick_edit_blocked_body"),
+        [{ text: "OK", onPress: () => closeRow(shift.$id) }],
       );
       return;
     }
+    closeRow(shift.$id);
     router.push({
       pathname: "/add-shift",
       params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
     });
   };
 
-  return (
-    <View style={styles.container}>
-      <MonthPicker currentDate={currentDate} setCurrentDate={setCurrentDate} />
-      {/** Month summary Section */}
-      <MonthTotalCard
-        totalAmount={monthTotals.amount}
-        totalHours={monthTotals.hours}
-      />
+  const handleDelete = (shiftId) => {
+    Alert.alert(
+      t("shifts.delete_confirm_title"),
+      t("shifts.delete_confirm_body"),
+      [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+          onPress: () => closeRow(shiftId),
+        },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: () => performDelete(shiftId),
+        },
+      ],
+      { onDismiss: () => closeRow(shiftId) },
+    );
+  };
 
-      {loading || isProcessing ? (
-        <LoadingSpinner />
-      ) : shifts?.length === 0 ? (
-        <NoShiftFound monthName={monthName} />
-      ) : (
-        <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: 300 }]}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={100}
-          decelerationRate="fast"
-        >
-          {/** Card to present shift with date , hours , and total money made this day */}
-          {shifts.map((shift, index) => (
-            <Swipeable
-              key={shift.$id || `shift-${index}`}
-              renderLeftActions={() =>
-                renderLeftAction(() => handleEdit(shift))
-              }
-              renderRightActions={() =>
-                renderRightAction(() => handleDelete(shift.$id))
-              }
-            >
-              <TouchableOpacity
-                onPress={() => {
-                  router.push({
-                    pathname: "/shift-details",
-                    params: { shiftData: JSON.stringify(shift) },
-                  });
+  const openDetails = (shift) => {
+    router.push({
+      pathname: "/shift-details",
+      params: { shiftData: JSON.stringify(shift) },
+    });
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingTop: insets.top + 8,
+          paddingBottom: 140,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <MonthHeader
+          eyebrow={`${shifts.length} ${t("shifts.count")} · ${(
+            totals.totalHours || 0
+          ).toFixed(1)} ${t("shifts.hoursUnit")}`}
+          currentDate={currentDate}
+          onPrev={prev}
+          onNext={next}
+        />
+        <View style={{ height: 18 }} />
+
+        <HeroCard>
+          <View
+            style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              padding: 22,
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Eyebrow color={theme.colors.muted}>
+                {t("shifts.anchor.monthly")}
+              </Eyebrow>
+              <Type
+                variant="sectionTitle"
+                color={theme.colors.ink}
+                style={{ marginTop: 6 }}
+              >
+                {`${Math.round(monthlyReport?.bruto || 0).toLocaleString(
+                  "en-US",
+                )} ₪`}
+              </Type>
+              <Type
+                variant="small"
+                color={theme.colors.muted}
+                style={{ marginTop: 2 }}
+              >
+                {`+${Math.round(totals.travelPay || 0).toLocaleString(
+                  "en-US",
+                )} ₪ ${t("shifts.anchor.travel")}`}
+              </Type>
+            </View>
+            <View
+              style={{
+                width: 1,
+                backgroundColor: theme.colors.borderSoft,
+                marginHorizontal: 16,
+              }}
+            />
+            <View style={{ flex: 1 }}>
+              <Eyebrow color={theme.colors.muted}>
+                {t("shifts.anchor.hours")}
+              </Eyebrow>
+              <Type
+                variant="sectionTitle"
+                color={theme.colors.ink}
+                style={{ marginTop: 6 }}
+              >
+                {`${(totals.totalHours || 0).toFixed(1)}h`}
+              </Type>
+              <Type
+                variant="small"
+                color={theme.colors.muted}
+                style={{ marginTop: 2 }}
+              >
+                {`${totals.totalShifts || 0} ${t("shifts.anchor.shifts")}`}
+              </Type>
+            </View>
+          </View>
+        </HeroCard>
+
+        {loading || isProcessing ? (
+          <View style={{ paddingVertical: 60, alignItems: "center" }}>
+            <ActivityIndicator color={theme.colors.accent} size="large" />
+          </View>
+        ) : shifts.length === 0 ? (
+          <EmptyState />
+        ) : (
+          groups.map(({ wk, rows }) => (
+            <View key={wk} style={{ marginTop: 22 }}>
+              <Eyebrow color={theme.colors.muted}>
+                {`${t("shifts.week")} ${wk}`}
+              </Eyebrow>
+              <View
+                style={{
+                  marginTop: 10,
+                  borderRadius: 18,
+                  backgroundColor: theme.colors.surface,
+                  borderWidth: 1,
+                  borderColor: theme.colors.border,
+                  overflow: "hidden",
                 }}
               >
-                <ShiftCard
-                  dateTime={formatShiftDate(shift.start_time)}
-                  dateHours={`${formatShiftTime(
-                    shift.start_time,
-                  )} - ${formatShiftTime(shift.end_time)}`}
-                  totalAmout={shift.total_amount}
-                  shift={shift}
-                  userColors={profile?.shift_colors}
-                />
-              </TouchableOpacity>
-            </Swipeable>
-          ))}
-        </ScrollView>
-      )}
-      <AddShiftButton />
+                {rows.map((shift, i) => {
+                  // In RTL the user's natural "swipe inward" direction is
+                  // visually right-to-left, so the destructive (delete)
+                  // gesture must live on the trailing edge — which is
+                  // `renderLeftActions` when the locale is RTL.
+                  const editAction = (
+                    <SwipeAction
+                      label={t("common.edit")}
+                      color={theme.colors.accent}
+                      icon="edit"
+                    />
+                  );
+                  const deleteAction = (
+                    <SwipeAction
+                      label={t("common.delete")}
+                      color={theme.colors.neg}
+                      icon="trash"
+                    />
+                  );
+                  return (
+                    <Swipeable
+                      key={shift.$id || `s-${i}`}
+                      ref={(r) => {
+                        if (r) swipeableRefs.current[shift.$id] = r;
+                        else delete swipeableRefs.current[shift.$id];
+                      }}
+                      renderLeftActions={() =>
+                        isRTL ? deleteAction : editAction
+                      }
+                      renderRightActions={() =>
+                        isRTL ? editAction : deleteAction
+                      }
+                      onSwipeableLeftOpen={() =>
+                        isRTL ? handleDelete(shift.$id) : handleEdit(shift)
+                      }
+                      onSwipeableRightOpen={() =>
+                        isRTL ? handleEdit(shift) : handleDelete(shift.$id)
+                      }
+                    >
+                      <Pressable onPress={() => openDetails(shift)}>
+                        <ShiftRow
+                          shift={shift}
+                          profile={profile}
+                          isLast={i === rows.length - 1}
+                        />
+                      </Pressable>
+                    </Swipeable>
+                  );
+                })}
+              </View>
+            </View>
+          ))
+        )}
+      </ScrollView>
+      <FAB onPress={() => router.push("/add-shift")} isRTL={isRTL} />
     </View>
   );
 }
-
-const makeStyle = (theme) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      paddingVertical: 50,
-      paddingHorizontal: 10,
-    },
-    scrollContent: {
-      padding: 10,
-      paddingHorizontal: 0,
-    },
-  });
