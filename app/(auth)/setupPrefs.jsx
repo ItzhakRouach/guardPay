@@ -40,8 +40,11 @@ export default function SetupProfileScreen() {
   const [formData, setFormData] = useState({
     age: "",
     birth_date: undefined,
-    price_per_hour: 0,
-    price_per_ride: 0,
+    // Start empty so the "0" sits as a placeholder hint instead of
+    // pre-filling the input — saves the user from having to delete
+    // the zero before typing their actual rate.
+    price_per_hour: "",
+    price_per_ride: "",
   });
 
   const [error, setError] = useState(null);
