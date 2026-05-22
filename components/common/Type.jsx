@@ -42,23 +42,44 @@ const VARIANTS = {
   small: { serif: false, size: 12, weight: "500" },
 };
 
+const ARABIC_RANGE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+
 // Pick the font family based on:
-// - serif vs sans variant
-// - italic
-// - presence of Hebrew runes in the content (forces Frank Ruhl Libre)
+//   - serif vs sans variant
+//   - presence of Hebrew runes (forces Frank Ruhl Libre — has full
+//     Hebrew + Latin coverage)
+//   - presence of Arabic runes (no Arabic serif is bundled — fall back
+//     to Manrope, which iOS / Android substitute with a system Arabic
+//     face when the string contains Arabic codepoints)
+//   - italic
+//
+// IMPORTANT: Frank Ruhl Libre is Hebrew-only — routing Arabic strings
+// through it produces empty boxes on some devices. Likewise, numeric
+// strings (`13,091`) must stay on Cormorant Garamond so the hero number
+// renders even when the active language is Arabic.
 const pickFamily = (variant, lang, text) => {
   const v = VARIANTS[variant] || VARIANTS.body;
+  const hasHebrew = typeof text === "string" && HEBREW_RANGE.test(text);
+  const hasArabic = typeof text === "string" && ARABIC_RANGE.test(text);
+
   if (!v.serif) {
     if (v.weight === "700") return "Manrope_700Bold";
     if (v.weight === "600") return "Manrope_600SemiBold";
     if (v.weight === "500") return "Manrope_500Medium";
     return "Manrope_400Regular";
   }
-  const hasHebrew = typeof text === "string" && HEBREW_RANGE.test(text);
-  if (hasHebrew || lang === "he" || lang === "ar") {
+  if (hasHebrew || (lang === "he" && !hasArabic)) {
     if (v.weight === "700") return "FrankRuhlLibre_700Bold";
     if (v.weight === "500") return "FrankRuhlLibre_500Medium";
     return "FrankRuhlLibre_400Regular";
+  }
+  if (hasArabic) {
+    // No Arabic serif loaded — let Manrope's Arabic system fallback
+    // render the glyphs. Slightly heavier weight to keep visual parity
+    // with the Hebrew serif.
+    if (v.weight === "700") return "Manrope_700Bold";
+    if (v.weight === "500") return "Manrope_600SemiBold";
+    return "Manrope_500Medium";
   }
   if (v.italic) {
     return v.weight === "500"
