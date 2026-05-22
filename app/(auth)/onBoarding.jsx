@@ -45,16 +45,27 @@ export default function OnBoardingScreen() {
         }}
       >
         {/*
-          Shield floats directly on the page — no card backing, no
-          shadow. icon_transparent.png has transparent corners and
-          transparent margins, so it reads cleanly on the cream / navy
-          page bg without a contrasting white square behind it.
+          icon_transparent.png has a thin horizontal edge artifact above
+          the shield (left over from the design export). Clip it off
+          by rendering the Image taller than the container and nudging
+          it up — the shield's tip stays comfortably inside the clip
+          while the stray line lands outside.
         */}
-        <Image
-          source={require("../../assets/images/icon_transparent.png")}
-          style={{ width: 140, height: 140 }}
-          resizeMode="contain"
-        />
+        <View
+          style={{
+            width: 140,
+            height: 130,
+            overflow: "hidden",
+            alignItems: "center",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Image
+            source={require("../../assets/images/icon_transparent.png")}
+            style={{ width: 140, height: 144, marginTop: -14 }}
+            resizeMode="contain"
+          />
+        </View>
         <View style={{ height: 24 }} />
         <Eyebrow color={theme.colors.accent}>{t("welcome.eyebrow")}</Eyebrow>
         <Type
