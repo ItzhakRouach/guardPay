@@ -142,18 +142,11 @@ export default function ShiftsScreen() {
           {shifts.map((shift, index) => (
             <Swipeable
               key={shift.$id || `shift-${index}`}
-              // Make the gesture less twitchy:
-              //   - friction 2 (default 1) doubles the drag distance needed
-              //   - thresholds at 60dp mean a partial swipe snaps back closed
-              //     instead of opening, so a tap-with-a-bit-of-jitter no
-              //     longer accidentally reveals an action.
-              friction={2}
-              leftThreshold={60}
-              rightThreshold={60}
-              // A full swipe-right (left actions revealed past threshold)
-              // is interpreted as "open edit directly" — no need to tap
-              // the revealed pencil. Swipe-left still requires tapping
-              // the delete icon (which then shows a confirm).
+              // A full swipe-right (left actions revealed past the default
+              // threshold) is interpreted as "open edit directly" — no
+              // need to tap the revealed pencil. Swipe-left still
+              // requires tapping the delete icon (which then shows a
+              // confirm), since destructive actions deserve more friction.
               onSwipeableOpen={(direction, swipeable) => {
                 if (direction === "left") {
                   swipeable?.close?.();
@@ -162,12 +155,11 @@ export default function ShiftsScreen() {
               }}
             >
               <TouchableOpacity
-                // Tiny activeOpacity tweak so the press feedback isn't so
-                // aggressive it competes with the swipe gesture. delayPressIn
-                // gives the gesture handler a chance to claim the touch
-                // before the tap fires.
-                activeOpacity={0.7}
-                delayPressIn={80}
+                // delayPressIn lets the gesture handler classify a touch
+                // as a swipe before the tap fires — fixes the issue
+                // where starting a swipe accidentally opened shift
+                // details.
+                delayPressIn={120}
                 onPress={() => {
                   router.push({
                     pathname: "/shift-details",
