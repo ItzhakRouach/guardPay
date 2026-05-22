@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Text } from "react-native";
 import { useTheme } from "react-native-paper";
 
@@ -82,11 +83,24 @@ export default function Type({
   ...rest
 }) {
   const theme = useTheme();
+  const { i18n } = useTranslation();
   const v = VARIANTS[variant] || VARIANTS.body;
+  const effectiveLang = lang || i18n.language;
+  const text = typeof children === "string" ? children : "";
   const family = useMemo(
-    () => pickFamily(variant, lang, typeof children === "string" ? children : ""),
-    [variant, lang, children],
+    () => pickFamily(variant, effectiveLang, text),
+    [variant, effectiveLang, text],
   );
+
+  const isNumeric =
+    numeric || /value|amount|hero|netPay|rowDate|numeric/.test(variant);
+  // Hebrew content or RTL language → set writingDirection so the text
+  // engine ships Hebrew runes RTL inside the string. Numeric variants
+  // stay LTR so currency and totals don't get mirrored.
+  const hasHebrew = HEBREW_RANGE.test(text);
+  const isRtl =
+    !isNumeric &&
+    (hasHebrew || effectiveLang === "he" || effectiveLang === "ar");
 
   const computed = {
     fontFamily: family,
@@ -94,10 +108,9 @@ export default function Type({
     letterSpacing: v.ls,
     lineHeight: v.lh,
     color: color || theme.colors.ink,
-    textAlign: align,
-    fontVariant: numeric || /value|amount|hero|netPay|rowDate/.test(variant)
-      ? ["tabular-nums"]
-      : undefined,
+    textAlign: align ?? (isRtl ? "right" : undefined),
+    writingDirection: isRtl ? "rtl" : undefined,
+    fontVariant: isNumeric ? ["tabular-nums"] : undefined,
     textTransform: upper ?? v.upper ? "uppercase" : "none",
   };
 
