@@ -188,7 +188,7 @@ export default function ShiftsScreen() {
         <View style={{ height: 18 }} />
 
         <AnchorCard>
-          <View style={{ flexDirection: "row", padding: 22, paddingRight: 32 }}>
+          <View style={{ flexDirection: "row", padding: 22 }}>
             <View style={{ flex: 1 }}>
               <Eyebrow color={theme.colors.anchorMuted}>
                 {t("shifts.anchor.monthly")}
