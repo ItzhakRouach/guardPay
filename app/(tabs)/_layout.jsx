@@ -16,7 +16,7 @@ export default function TabsLayout() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="overview">
         <Label>{t("tabs.overview")}</Label>
-        <Icon sf="chart.bar.xaxis.ascending" />
+        <Icon sf="chart.bar.xaxis" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

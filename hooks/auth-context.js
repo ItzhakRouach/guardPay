@@ -142,7 +142,16 @@ export function AuthProvider({ children }) {
       console.log("Logged in natively!");
       return true;
     } catch (e) {
-      console.error(e);
+      // User-cancelled FaceID, network failure, or the cloud function
+      // returning an error all land here. Return false so the caller can
+      // distinguish "user dismissed prompt" from "session created" — they
+      // were previously swallowed and the UI thought sign-in succeeded.
+      if (e?.code === "ERR_REQUEST_CANCELED") {
+        console.log("Apple Sign-In cancelled by user");
+      } else {
+        console.error("Apple Sign-In error:", e);
+      }
+      return false;
     }
   };
 
