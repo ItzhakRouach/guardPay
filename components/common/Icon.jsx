@@ -167,6 +167,24 @@ const PATHS = {
       <Path d="M10 21a2 2 0 0 0 4 0" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" />
     </>
   ),
+  star: ({ s, c }) => (
+    <Path
+      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinejoin="round"
+    />
+  ),
+  gift: ({ s, c }) => (
+    <>
+      <Rect x={3} y={9} width={18} height={12} rx={1.5} stroke={c} strokeWidth={s} fill="none" />
+      <Line x1={3} y1={13} x2={21} y2={13} stroke={c} strokeWidth={s} />
+      <Line x1={12} y1={9} x2={12} y2={21} stroke={c} strokeWidth={s} />
+      <Path d="M12 9c-2 0-3.5-1-3.5-2.5C8.5 5 9.5 4 11 4c1 0 1.5 1 1 5" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
+      <Path d="M12 9c2 0 3.5-1 3.5-2.5C15.5 5 14.5 4 13 4c-1 0-1.5 1-1 5" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
+    </>
+  ),
   sparkle: ({ s, c }) => (
     <Path
       d="M12 3l1.8 4.5L18 9l-4.2 1.5L12 15l-1.8-4.5L6 9l4.2-1.5z M19 14l.9 2.2L22 17l-2.1.8L19 20l-.9-2.2L16 17l2.1-.8z"
