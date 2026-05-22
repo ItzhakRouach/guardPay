@@ -121,6 +121,8 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
           <Divider style={styles.dividerStyle} bold={false} />
           <Row labelKey="training" colorKey="training" icon="karate" />
           <Divider style={styles.dividerStyle} bold={false} />
+          <Row labelKey="sick" colorKey="sick" icon="emoticon-sick-outline" />
+          <Divider style={styles.dividerStyle} bold={false} />
           <Row labelKey="holiday" colorKey="holiday" icon="calendar-star" />
           <Divider style={styles.dividerStyle} bold={false} />
           <TouchableRipple onPress={onReset}>

@@ -10,17 +10,20 @@ const calculateSalary = (
   creditPoints = 2.25, // ברירת מחדל לגבר בישראל
   settlementPercent = 0, // מגיע מה-Profile (למשל 12)
   settlementAnnualCap = 0, // מגיע מה-Profile (למשל 213240)
+  sickPay = 0, // דמי מחלה — חושב בצד הלקוח לפי חוק דמי מחלה
 ) => {
   const bruto =
     Number(regularPay) +
     Number(extraPay) +
     Number(travelPay) +
     Number(trainingPay) +
-    Number(vacationPay);
+    Number(vacationPay) +
+    Number(sickPay);
 
-  // 1. חישוב פנסיה (7% מהשכר ו-5% מהנסיעות)
+  // 1. חישוב פנסיה (7% מהשכר הרגיל והנוסף, 7% מדמי המחלה, 5% מהנסיעות)
   const pensia =
-    (Number(regularPay) + Number(extraPay)) * 0.07 + Number(travelPay) * 0.05;
+    (Number(regularPay) + Number(extraPay) + Number(sickPay)) * 0.07 +
+    Number(travelPay) * 0.05;
 
   // 2. ביטוח לאומי ובריאות (מדרגות מעודכנות)
   const thresholdBL = 7522;

@@ -298,3 +298,25 @@ describe("Monthly Salary Calculation with Benefits", () => {
     expect(result.incomeTax).toBeGreaterThan(0); // כאן הוא כבר אמור לשלם מס
   });
 });
+
+describe("Monthly Salary Calculation with Sick Pay", () => {
+  test("Sick pay is added to bruto", () => {
+    // 10,000 רגיל + 1,000 דמי מחלה → ברוטו 11,000
+    const result = calculateSalary(10000, 0, 0, 0, 0, 2.25, 0, 0, 1000);
+    expect(result.bruto).toBe(11000);
+  });
+
+  test("Sick pay contributes 7% to pension (like regular pay)", () => {
+    const withoutSick = calculateSalary(10000, 0, 0);
+    const withSick = calculateSalary(10000, 0, 0, 0, 0, 2.25, 0, 0, 1000);
+    // pension delta should be exactly 1000 * 0.07 = 70
+    expect(withSick.pensia - withoutSick.pensia).toBeCloseTo(70, 2);
+  });
+
+  test("Default sickPay = 0 — backward compatibility", () => {
+    const before = calculateSalary(10000, 2000, 500);
+    const after = calculateSalary(10000, 2000, 500, 0, 0, 2.25, 0, 0, 0);
+    expect(after.bruto).toBe(before.bruto);
+    expect(after.neto).toBe(before.neto);
+  });
+});

@@ -92,16 +92,9 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
         onValueChange={handleShiftTypeChange}
         theme={{
           colors: {
-            // Background of the SELECTED button
             secondaryContainer: theme.colors.secondaryContainer,
-
-            // Text/Icon color of the SELECTED button
             onSecondaryContainer: theme.colors.primary,
-
-            // Background of UNSELECTED buttons
             surface: theme.colors.surface,
-
-            // Border color
             outline: theme.colors.borderOutline,
           },
         }}
@@ -120,6 +113,29 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             label: t("shift_type.vacation"),
             labelStyle: styles.labelStyle,
             icon: "home-heart",
+            showSelectedCheck: false,
+          },
+        ]}
+      />
+      <SegmentedButtons
+        value={value}
+        style={styles.segmentedTwo}
+        onValueChange={handleShiftTypeChange}
+        theme={{
+          colors: {
+            secondaryContainer: theme.colors.secondaryContainer,
+            onSecondaryContainer: theme.colors.primary,
+            surface: theme.colors.surface,
+            outline: theme.colors.borderOutline,
+          },
+        }}
+        buttons={[
+          {
+            uncheckedColor: theme.colors.onSecondaryContainer,
+            value: "sick",
+            label: t("shift_type.sick"),
+            labelStyle: styles.labelStyle,
+            icon: "emoticon-sick-outline",
             showSelectedCheck: false,
           },
           {

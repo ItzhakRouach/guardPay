@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { IconButton, useTheme } from "react-native-paper";
+import { Query } from "react-native-appwrite";
 import AddShiftButton from "../../components/common/AddShiftButton";
 import LoadingSpinner from "../../components/common/LoadingSpinnner";
 import MonthPicker from "../../components/layout/MonthPicker";
@@ -20,11 +21,15 @@ import { useAuth } from "../../hooks/auth-context";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { formatShiftDate, formatShiftTime } from "../../lib/utils";
+import { restreakSickUpdates } from "../../utils/sickDays";
 
 export default function ShiftsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { user, profile } = useAuth();
   const { shifts, loading, setShifts } = useShift(user, currentDate);
+  // Covers multi-step mutations (delete + re-stream) so the user
+  // doesn't see the list flash between the intermediate states.
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const theme = useTheme();
   const styles = makeStyle(theme);
@@ -82,14 +87,59 @@ export default function ShiftsScreen() {
     </View>
   );
 
+  // After a sick doc is deleted, the surrounding sick docs in the same
+  // streak need their positions (and therefore sick_percent/total_amount)
+  // recomputed. Queries ALL of the user's remaining sick docs, runs them
+  // through the diff helper, and only writes the ones that actually need
+  // an update. Streaks in other months keep their values unchanged.
+  //
+  // Each doc's total_amount is derived from its own `base_rate × 8` (the
+  // wage at the time of logging), so this also works when `profile` is
+  // momentarily unloaded.
+  const restreakAfterSickDelete = async () => {
+    const fallbackDailyPay = (Number(profile?.price_per_hour) || 0) * 8;
+    const res = await databases.listDocuments(DATABASE_ID, SHIFTS_HISTORY, [
+      Query.equal("user_id", user.$id),
+      Query.equal("is_sick", true),
+      Query.limit(500),
+    ]);
+    const updates = restreakSickUpdates(res.documents, fallbackDailyPay);
+    await Promise.all(
+      updates.map((u) =>
+        databases.updateDocument(DATABASE_ID, SHIFTS_HISTORY, u.$id, {
+          sick_percent: u.sick_percent,
+          total_amount: u.total_amount,
+        }),
+      ),
+    );
+    // Reflect updates in the visible month's shift list immediately.
+    setShifts((prev) =>
+      prev.map((s) => {
+        const u = updates.find((x) => x.$id === s.$id);
+        return u ? { ...s, sick_percent: u.sick_percent, total_amount: u.total_amount } : s;
+      }),
+    );
+  };
+
   // Actual destructive delete, called only after the user confirms.
   const performDelete = async (shiftId) => {
+    const doc = shifts.find((s) => s.$id === shiftId);
+    const needsRestreak = !!doc?.is_sick;
+    // Spinner covers the whole delete (+ restream for sick days) so
+    // the user never sees the in-between state where the deleted doc
+    // is gone but neighbouring sick days still show their old percent.
+    if (needsRestreak) setIsProcessing(true);
     try {
       await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
       // refresh current shift list
       setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
+      if (needsRestreak) {
+        await restreakAfterSickDelete();
+      }
     } catch (err) {
       console.log(err);
+    } finally {
+      if (needsRestreak) setIsProcessing(false);
     }
   };
 
@@ -112,6 +162,16 @@ export default function ShiftsScreen() {
   };
   // handle the edit functionality
   const handleEdit = (shift) => {
+    // Editing a sick day in the standard add-shift form would clobber
+    // its date-range / streak-percent contract. Until a dedicated sick
+    // edit flow exists, force the user to delete + re-create instead.
+    if (shift.is_sick) {
+      Alert.alert(
+        t("shifts.sick_edit_blocked_title"),
+        t("shifts.sick_edit_blocked_body"),
+      );
+      return;
+    }
     router.push({
       pathname: "/add-shift",
       params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
@@ -127,7 +187,7 @@ export default function ShiftsScreen() {
         totalHours={monthTotals.hours}
       />
 
-      {loading ? (
+      {loading || isProcessing ? (
         <LoadingSpinner />
       ) : shifts?.length === 0 ? (
         <NoShiftFound monthName={monthName} />
