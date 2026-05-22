@@ -337,6 +337,9 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       backgroundColor: theme.colors.background,
       padding: 20,
+      width: "100%",
+      maxWidth: 600,
+      alignSelf: "center",
     },
     title: {
       color: theme.colors.onSurface,

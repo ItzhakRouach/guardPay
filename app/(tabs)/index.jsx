@@ -29,6 +29,7 @@ import {
   USERS_PREFS,
 } from "../../lib/appwrite";
 import { scheduleWeeklyReminder } from "../../lib/notfication";
+import { screenContentLayout } from "../../lib/responsive";
 
 function SettingsRow({ icon, label, value, onPress, right, last, isRTL, tall }) {
   const theme = useTheme();
@@ -293,6 +294,7 @@ export default function ProfileScreen() {
       ) : (
         <ScrollView
           contentContainerStyle={{
+            ...screenContentLayout,
             paddingHorizontal: 24,
             paddingTop: insets.top + 8,
             paddingBottom: 140,

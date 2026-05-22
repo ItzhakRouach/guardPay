@@ -272,6 +272,9 @@ const makeStyle = (theme, isRTL) =>
       justifyContent: "center",
       backgroundColor: theme.colors.background,
       gap: 10,
+      width: "100%",
+      maxWidth: 600,
+      alignSelf: "center",
     },
     signOutBtn: {
       position: "absolute",

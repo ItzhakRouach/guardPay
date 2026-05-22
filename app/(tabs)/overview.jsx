@@ -17,6 +17,7 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
 import { useShift } from "../../hooks/useShift";
+import { screenContentLayout } from "../../lib/responsive";
 import { localeFromLang } from "../../lib/utils";
 
 const fmtCurrency = (n) =>
@@ -452,6 +453,7 @@ export default function OverviewScreen() {
       ) : (
         <ScrollView
           contentContainerStyle={{
+            ...screenContentLayout,
             paddingHorizontal: 24,
             paddingTop: insets.top + 8,
             paddingBottom: 120,

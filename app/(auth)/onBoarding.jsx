@@ -8,6 +8,7 @@ import Eyebrow from "../../components/common/Eyebrow";
 import Pill from "../../components/common/Pill";
 import Type from "../../components/common/Type";
 import { useLanguage } from "../../hooks/lang-context";
+import { screenContentLayout } from "../../lib/responsive";
 
 export default function OnBoardingScreen() {
   const { t } = useTranslation();
@@ -16,18 +17,27 @@ export default function OnBoardingScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      <View style={{ flexDirection: "row", justifyContent: "flex-end", padding: 24 }}>
+      <View
+        style={{
+          ...screenContentLayout,
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          padding: 24,
+        }}
+      >
         <Pill
           value={lang}
           options={[
             { label: "EN", value: "en" },
             { label: "HE", value: "he" },
+            { label: "AR", value: "ar" },
           ]}
           onChange={changeLanguage}
         />
       </View>
       <View
         style={{
+          ...screenContentLayout,
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
@@ -47,7 +57,7 @@ export default function OnBoardingScreen() {
           align="center"
           style={{ marginTop: 8, lineHeight: 64 }}
         >
-          GuardPay.
+          GuardPay
         </Type>
         <Type
           variant="welcomeSub"
@@ -66,7 +76,14 @@ export default function OnBoardingScreen() {
           {t("welcome.pitch")}
         </Type>
       </View>
-      <View style={{ paddingHorizontal: 24, paddingBottom: 40, gap: 12 }}>
+      <View
+        style={{
+          ...screenContentLayout,
+          paddingHorizontal: 24,
+          paddingBottom: 40,
+          gap: 12,
+        }}
+      >
         <PrimaryButton
           label={t("landing.signin")}
           onPress={() => router.push("/signIn")}

@@ -15,6 +15,7 @@ import { useMonthlySalary } from "../hooks/useMonthlySalary";
 import { useShift } from "../hooks/useShift";
 import { handleGeneratePDF } from "../lib/GeneratePaycheck";
 import { buildPaycheckModel } from "../lib/paycheckData";
+import { screenContentLayout } from "../lib/responsive";
 import { localeFromLang } from "../lib/utils";
 
 const fmt = (n) =>
@@ -355,6 +356,7 @@ export default function PaycheckScreen() {
       ) : (
         <ScrollView
           contentContainerStyle={{
+            ...screenContentLayout,
             paddingHorizontal: 24,
             paddingTop: 20,
             paddingBottom: insets.bottom + 24,

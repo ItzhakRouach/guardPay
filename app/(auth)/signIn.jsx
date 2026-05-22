@@ -117,6 +117,9 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       backgroundColor: theme.colors.background,
       padding: 10,
+      width: "100%",
+      maxWidth: 600,
+      alignSelf: "center",
     },
 
     logoIcon: {

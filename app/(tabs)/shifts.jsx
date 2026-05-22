@@ -18,6 +18,7 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
+import { screenContentLayout, useContentInset } from "../../lib/responsive";
 import { restreakSickUpdates } from "../../utils/sickDays";
 
 function groupByWeek(shifts) {
@@ -67,6 +68,10 @@ function EmptyState() {
 
 function FAB({ onPress, isRTL }) {
   const theme = useTheme();
+  // Anchor the FAB to the centered content edge on iPad so it doesn't
+  // drift across an empty gutter. On phones the inset is 0 and the
+  // FAB sits at the screen edge as before.
+  const inset = useContentInset();
   return (
     <Pressable
       onPress={onPress}
@@ -74,7 +79,7 @@ function FAB({ onPress, isRTL }) {
       style={({ pressed }) => ({
         position: "absolute",
         bottom: 24,
-        [isRTL ? "left" : "right"]: 20,
+        [isRTL ? "left" : "right"]: inset + 20,
         width: 60,
         height: 60,
         borderRadius: 30,
@@ -240,6 +245,7 @@ export default function ShiftsScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <ScrollView
         contentContainerStyle={{
+          ...screenContentLayout,
           paddingHorizontal: 24,
           paddingTop: insets.top + 8,
           paddingBottom: 140,
