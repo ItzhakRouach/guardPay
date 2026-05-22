@@ -16,7 +16,7 @@ import { formatShiftDate, formatShiftTime } from "../../lib/utils";
 
 export default function ShiftsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { shifts, loading, setShifts } = useShift(user, currentDate);
 
   const theme = useTheme();
@@ -139,6 +139,8 @@ export default function ShiftsScreen() {
                     shift.start_time,
                   )} - ${formatShiftTime(shift.end_time)}`}
                   totalAmout={shift.total_amount}
+                  shift={shift}
+                  userColors={profile?.shift_colors}
                 />
               </TouchableOpacity>
             </Swipeable>
