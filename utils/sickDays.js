@@ -99,14 +99,15 @@ const buildSickDocs = ({ startDate, endDate, dailyPay, userId, baseRate }) => {
  * Input may be unsorted. Docs are grouped into runs of consecutive calendar
  * days; within each run, position 1 = first day of the run.
  *
- * `dailyPay` is the current daily wage (price_per_hour × 8). We deliberately
- * recompute total_amount using `dailyPay` rather than per-doc `base_rate`
- * so re-streaking after a rate change uses the latest rate.
+ * `dailyPay` is a fallback used only for docs missing their own `base_rate`.
+ * Each doc's amount is normally recomputed as `doc.base_rate * 8 * percent`
+ * so the historical pay rate at the time of sickness is preserved (and so
+ * the result doesn't depend on the user's currently-loaded profile state).
  *
  * Caller is responsible for diffing the result against the inputs and
  * issuing updateDocument calls only for docs whose percent or amount changed.
  */
-const restreakSickDocs = (docs, dailyPay) => {
+const restreakSickDocs = (docs, dailyPay = 0) => {
   if (!Array.isArray(docs) || docs.length === 0) return [];
 
   const sorted = [...docs].sort(
@@ -126,10 +127,13 @@ const restreakSickDocs = (docs, dailyPay) => {
     prev = date;
 
     const percent = sickDayPercent(position);
+    const docDailyPay = Number(doc.base_rate) > 0
+      ? Number(doc.base_rate) * 8
+      : Number(dailyPay) || 0;
     return {
       ...doc,
       sick_percent: percent,
-      total_amount: Number((dailyPay * percent).toFixed(2)),
+      total_amount: Number((docDailyPay * percent).toFixed(2)),
     };
   });
 };

@@ -92,15 +92,18 @@ export default function ShiftsScreen() {
   // recomputed. Queries ALL of the user's remaining sick docs, runs them
   // through the diff helper, and only writes the ones that actually need
   // an update. Streaks in other months keep their values unchanged.
+  //
+  // Each doc's total_amount is derived from its own `base_rate × 8` (the
+  // wage at the time of logging), so this also works when `profile` is
+  // momentarily unloaded.
   const restreakAfterSickDelete = async () => {
-    const dailyPay = (Number(profile?.price_per_hour) || 0) * 8;
-    if (dailyPay <= 0) return;
+    const fallbackDailyPay = (Number(profile?.price_per_hour) || 0) * 8;
     const res = await databases.listDocuments(DATABASE_ID, SHIFTS_HISTORY, [
       Query.equal("user_id", user.$id),
       Query.equal("is_sick", true),
       Query.limit(500),
     ]);
-    const updates = restreakSickUpdates(res.documents, dailyPay);
+    const updates = restreakSickUpdates(res.documents, fallbackDailyPay);
     await Promise.all(
       updates.map((u) =>
         databases.updateDocument(DATABASE_ID, SHIFTS_HISTORY, u.$id, {

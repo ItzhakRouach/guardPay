@@ -169,6 +169,37 @@ describe("restreakSickDocs", () => {
     expect(out.comment).toBe("flu");
   });
 
+  test("uses doc.base_rate × 8 when available (per-doc historical rate)", () => {
+    // Two docs in a 2-day streak with different base rates — sick pay
+    // should reflect each doc's own rate at the time of sickness.
+    const docs = [
+      { ...mkDoc("2026-03-02"), base_rate: 50 }, // pos 1 → 0%
+      { ...mkDoc("2026-03-03"), base_rate: 60 }, // pos 2 → 50% × (60×8)
+    ];
+    const out = restreakSickDocs(docs, 999); // fallback should be ignored
+    expect(out[0].total_amount).toBe(0);
+    expect(out[1].total_amount).toBe(60 * 8 * 0.5);
+  });
+
+  test("falls back to passed dailyPay when base_rate is missing", () => {
+    const docs = [
+      mkDoc("2026-03-02"),
+      mkDoc("2026-03-03"),
+    ];
+    const out = restreakSickDocs(docs, 400); // fallback dailyPay
+    expect(out[0].total_amount).toBe(0);
+    expect(out[1].total_amount).toBe(400 * 0.5);
+  });
+
+  test("works with no fallback when every doc has base_rate", () => {
+    const docs = [
+      { ...mkDoc("2026-03-02"), base_rate: 50 },
+      { ...mkDoc("2026-03-03"), base_rate: 50 },
+    ];
+    const out = restreakSickDocs(docs); // no dailyPay passed at all
+    expect(out[1].total_amount).toBe(50 * 8 * 0.5);
+  });
+
   test("non-contiguous runs each restart at position 1", () => {
     // Two separate streaks: 03-02..03-04, then 03-10..03-13
     const docs = [
