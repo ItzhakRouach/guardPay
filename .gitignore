@@ -49,3 +49,6 @@ featuresToAdd.txt
 ThingsToFix.txt
 ThingsToAdd.txt
 
+# Local git worktrees
+.worktrees/
+
