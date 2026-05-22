@@ -104,6 +104,7 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
         onDismiss={onDismiss}
         contentContainerStyle={styles.modalContainer}
       >
+        <View style={styles.clipWrap}>
         <View style={styles.header}>
           <Text variant="titleLarge" style={styles.title}>
             {t("appearance.title")}
@@ -135,6 +136,7 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
           />
         </TouchableRipple>
 
+        </View>
         <ShiftColorsModal
           visible={openFor !== null}
           onDismiss={() => setOpenFor(null)}
@@ -149,13 +151,19 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
+    // Modal's contentContainerStyle is applied to a Paper Surface — keep
+    // overflow off the Surface itself (Paper warns about that) and put
+    // the clipping on an inner View instead. See `clipWrap` below.
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
       borderRadius: 28,
+    },
+    clipWrap: {
+      borderRadius: 28,
+      overflow: "hidden",
       paddingTop: 8,
       paddingBottom: 12,
-      overflow: "hidden",
     },
     header: {
       flexDirection: isRTL ? "row-reverse" : "row",
@@ -180,6 +188,11 @@ const makeStyle = (theme, isRTL) =>
       paddingVertical: 12,
     },
     listTitle: {
+      // Explicitly set the on-surface colour — without it the title
+      // sometimes inherited a colour that matched the modal background
+      // (especially in dark mode), making the row look like a dot with
+      // no label.
+      color: theme.colors.onSurface,
       textAlign: isRTL ? "right" : "left",
       writingDirection: isRTL ? "rtl" : "ltr",
       fontSize: 18,
