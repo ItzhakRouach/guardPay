@@ -480,18 +480,14 @@ export default function ProfileScreen() {
           hideModal={() => setLangOpen(false)}
         />
       ) : null}
-      {colorsOpen ? (
-        <ShiftColorsSettingsModal
-          visable={colorsOpen}
-          hideModal={() => setColorsOpen(false)}
-        />
-      ) : null}
-      {timesOpen ? (
-        <ShiftTimesSettingsModal
-          visable={timesOpen}
-          hideModal={() => setTimesOpen(false)}
-        />
-      ) : null}
+      <ShiftColorsSettingsModal
+        visible={colorsOpen}
+        onDismiss={() => setColorsOpen(false)}
+      />
+      <ShiftTimesSettingsModal
+        visible={timesOpen}
+        onDismiss={() => setTimesOpen(false)}
+      />
       {pdfOpen ? (
         <SecurityLawPDF
           visable={pdfOpen}
