@@ -1,15 +1,18 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { withAlpha } from "../../lib/theme";
 
-// Dark anchor card — used for the net-pay block on the Paycheck modal
-// where the deep navy is the focal point of the document.
+// Dark anchor card. Soft accent glow in the top-end corner — same
+// treatment as HeroCard so the gold blends in.
 //
-// The gold glow is intentionally large and low-alpha so it eases into
-// the navy rather than reading as a patched-on stripe. Two stacked
-// gradients of decreasing opacity smooth the falloff.
+// Uses withAlpha() to construct gradient stops as rgba(...) instead of
+// hex-with-alpha; the latter (`#RRGGBB + "33"` → 8-char hex) is
+// unreliable on older Android RN.
 export default function AnchorCard({ children, radius = 18, style }) {
   const theme = useTheme();
+  const glow = withAlpha(theme.colors.accent, 0.33);
+  const transparent = withAlpha(theme.colors.accent, 0);
   return (
     <View
       style={[
@@ -22,28 +25,15 @@ export default function AnchorCard({ children, radius = 18, style }) {
       ]}
     >
       <LinearGradient
-        colors={[theme.colors.accent + "30", "transparent"]}
+        colors={[glow, transparent]}
         start={{ x: 1, y: 0 }}
-        end={{ x: 0.1, y: 0.9 }}
+        end={{ x: 0.35, y: 0.7 }}
         style={{
           position: "absolute",
           top: 0,
           right: 0,
-          width: 280,
-          height: 220,
-        }}
-        pointerEvents="none"
-      />
-      <LinearGradient
-        colors={[theme.colors.accent + "18", "transparent"]}
-        start={{ x: 1, y: 0.05 }}
-        end={{ x: 0.3, y: 0.55 }}
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: 180,
-          height: 140,
+          width: 200,
+          height: 180,
         }}
         pointerEvents="none"
       />

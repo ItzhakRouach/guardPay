@@ -1,12 +1,14 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { withAlpha } from "../../lib/theme";
 
 // Surface card with a soft accent glow in the top-end corner.
-// One subtle linear gradient does the job — two stacked layers were
-// too punchy. `overflow: hidden` keeps the glow inside the rounded corner.
+// One gradient is enough — two layers were too punchy.
 export default function HeroCard({ children, radius = 24, style }) {
   const theme = useTheme();
+  const glow = withAlpha(theme.colors.accent, 0.22);
+  const transparent = withAlpha(theme.colors.accent, 0);
   return (
     <View
       style={[
@@ -21,7 +23,7 @@ export default function HeroCard({ children, radius = 24, style }) {
       ]}
     >
       <LinearGradient
-        colors={[theme.colors.accent + "22", "transparent"]}
+        colors={[glow, transparent]}
         start={{ x: 1, y: 0 }}
         end={{ x: 0.35, y: 0.7 }}
         style={{

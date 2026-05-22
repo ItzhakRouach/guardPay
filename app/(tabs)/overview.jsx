@@ -35,7 +35,12 @@ function bucketByWeek(shifts) {
 function HeroSection({ neto, trendPct, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const animated = useRef(new Animated.Value(0)).current;
+  // Single Animated.Value drives 0→1 progress. `display` is derived from
+  // the current `neto` × progress synchronously inside the listener, so
+  // there's no stale-closure window if neto changes mid-animation
+  // (previous version had two effects that could overlap).
+  const progress = useRef(new Animated.Value(1)).current;
+  const animationRef = useRef(null);
   const [reduceMotion, setReduceMotion] = useState(false);
   const [display, setDisplay] = useState(neto);
 
@@ -46,25 +51,30 @@ function HeroSection({ neto, trendPct, isRTL }) {
   }, []);
 
   useEffect(() => {
+    // Stop any in-flight animation before starting a new one so the
+    // old timing's tick can't keep firing on the new neto.
+    animationRef.current?.stop();
     if (reduceMotion) {
-      animated.setValue(1);
+      progress.setValue(1);
       setDisplay(neto);
-      return;
+      return undefined;
     }
-    animated.setValue(0);
-    Animated.timing(animated, {
+    progress.setValue(0);
+    setDisplay(0);
+    const id = progress.addListener(({ value }) => {
+      setDisplay(Math.round(value * neto));
+    });
+    animationRef.current = Animated.timing(progress, {
       toValue: 1,
       duration: 700,
       useNativeDriver: false,
-    }).start();
-  }, [neto, reduceMotion, animated]);
-
-  useEffect(() => {
-    const id = animated.addListener(({ value }) => {
-      setDisplay(Math.round(value * neto));
     });
-    return () => animated.removeListener(id);
-  }, [animated, neto]);
+    animationRef.current.start();
+    return () => {
+      progress.removeListener(id);
+      animationRef.current?.stop();
+    };
+  }, [neto, reduceMotion, progress]);
 
   const trendColor =
     trendPct == null

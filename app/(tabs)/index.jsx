@@ -165,7 +165,7 @@ export default function ProfileScreen() {
       setProfile(doc);
       if (doc?.reminder_day) setTempDay(doc.reminder_day);
     } catch (err) {
-      console.log(err);
+      console.error("ProfileScreen: fetch profile failed", err);
     } finally {
       setLoading(false);
     }
@@ -206,8 +206,9 @@ export default function ProfileScreen() {
         await scheduleWeeklyReminder(profile.reminder_day, h, m);
       }
     } catch (err) {
-      console.log(err);
+      console.error("ProfileScreen: toggle reminder failed", err);
       setProfile((p) => ({ ...p, reminder_enable: !value }));
+      Alert.alert(t("edit_pref.msg_err"));
     }
   };
 
@@ -233,7 +234,8 @@ export default function ProfileScreen() {
       await scheduleWeeklyReminder(tempDay, h, m);
       setReminderOpen(false);
     } catch (err) {
-      console.log(err);
+      console.error("ProfileScreen: save reminder failed", err);
+      Alert.alert(t("edit_pref.msg_err"));
     }
   };
 
@@ -254,12 +256,12 @@ export default function ProfileScreen() {
             );
             Alert.alert(t("settings.deleted"), t("settings.success"));
           } catch (e) {
-            console.log(e);
+            console.error("ProfileScreen: delete account failed", e);
           }
           try {
             signOut();
           } catch (err) {
-            console.log(err);
+            console.error("ProfileScreen: sign out after delete failed", err);
           }
         },
       },

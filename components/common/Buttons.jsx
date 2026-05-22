@@ -10,6 +10,11 @@ const baseRow = (gap) => ({
   gap,
 });
 
+// `label` doubles as the default accessibilityLabel. Icon-only buttons
+// (IconBtn / GhostButton without label) should always be given an
+// explicit accessibilityLabel by the caller — VoiceOver/TalkBack have
+// nothing else to read otherwise.
+
 export function PrimaryButton({
   label,
   icon,
@@ -18,6 +23,8 @@ export function PrimaryButton({
   fullWidth = true,
   size = "lg",
   style,
+  accessibilityLabel,
+  accessibilityHint,
 }) {
   const theme = useTheme();
   const pad = size === "lg" ? 20 : 14;
@@ -25,6 +32,10 @@ export function PrimaryButton({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         {
           backgroundColor: theme.colors.cta,
@@ -55,6 +66,8 @@ export function OutlinedButton({
   fullWidth = true,
   tone = "ink",
   style,
+  accessibilityLabel,
+  accessibilityHint,
 }) {
   const theme = useTheme();
   const color = tone === "neg" ? theme.colors.neg : theme.colors.ink;
@@ -62,6 +75,10 @@ export function OutlinedButton({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         {
           backgroundColor: theme.colors.surface,
@@ -86,13 +103,28 @@ export function OutlinedButton({
   );
 }
 
-export function GhostButton({ label, icon, onPress, color, style }) {
+export function GhostButton({
+  label,
+  icon,
+  onPress,
+  color,
+  style,
+  accessibilityLabel,
+  accessibilityHint,
+}) {
   const theme = useTheme();
   const c = color || theme.colors.ink;
+  // Falls back to the icon name for the screen-reader label when there's
+  // no visible label text — it's not a great announcement, but it's
+  // better than the empty string.
+  const a11yLabel = accessibilityLabel || label || icon;
   return (
     <Pressable
       onPress={onPress}
       hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel={a11yLabel}
+      accessibilityHint={accessibilityHint}
       style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }, style]}
     >
       <View style={baseRow(6)}>
@@ -107,12 +139,23 @@ export function GhostButton({ label, icon, onPress, color, style }) {
   );
 }
 
-export function IconBtn({ name, onPress, color, size = 22, style }) {
+export function IconBtn({
+  name,
+  onPress,
+  color,
+  size = 22,
+  style,
+  accessibilityLabel,
+  accessibilityHint,
+}) {
   const theme = useTheme();
   return (
     <Pressable
       onPress={onPress}
       hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || name}
+      accessibilityHint={accessibilityHint}
       style={({ pressed }) => [
         {
           width: 38,

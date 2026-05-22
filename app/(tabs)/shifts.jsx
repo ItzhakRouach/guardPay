@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { Query } from "react-native-appwrite";
@@ -175,10 +175,19 @@ export default function ShiftsScreen() {
         await restreakAfterSickDelete();
       }
     } catch (err) {
-      console.log(err);
+      console.error("ShiftsScreen: delete failed", err);
+      Alert.alert(t("shifts.delete_confirm_title"), String(err?.message || err));
     } finally {
       if (needsRestreak) setIsProcessing(false);
     }
+  };
+
+  // Tracks each shift's Swipeable ref so we can close the row when the
+  // user cancels the delete confirm — otherwise the row stays open
+  // behind the dismissed Alert.
+  const swipeableRefs = useRef({});
+  const closeRow = (shiftId) => {
+    swipeableRefs.current[shiftId]?.close?.();
   };
 
   const handleEdit = (shift) => {
@@ -189,9 +198,11 @@ export default function ShiftsScreen() {
       Alert.alert(
         t("shifts.sick_edit_blocked_title"),
         t("shifts.sick_edit_blocked_body"),
+        [{ text: "OK", onPress: () => closeRow(shift.$id) }],
       );
       return;
     }
+    closeRow(shift.$id);
     router.push({
       pathname: "/add-shift",
       params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
@@ -203,13 +214,18 @@ export default function ShiftsScreen() {
       t("shifts.delete_confirm_title"),
       t("shifts.delete_confirm_body"),
       [
-        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+          onPress: () => closeRow(shiftId),
+        },
         {
           text: t("common.delete"),
           style: "destructive",
           onPress: () => performDelete(shiftId),
         },
       ],
+      { onDismiss: () => closeRow(shiftId) },
     );
   };
 
@@ -343,6 +359,10 @@ export default function ShiftsScreen() {
                   return (
                     <Swipeable
                       key={shift.$id || `s-${i}`}
+                      ref={(r) => {
+                        if (r) swipeableRefs.current[shift.$id] = r;
+                        else delete swipeableRefs.current[shift.$id];
+                      }}
                       renderLeftActions={() =>
                         isRTL ? deleteAction : editAction
                       }
