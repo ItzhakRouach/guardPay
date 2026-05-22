@@ -420,8 +420,15 @@ export default function ProfileScreen() {
             <SettingsRow
               isRTL={isRTL}
               tall
-              icon="moon"
-              label={t("profile.darkMode")}
+              // Label + icon describe the CURRENT mode (not the action),
+              // so the row reads naturally regardless of where the
+              // switch sits. Sun for light, moon for dark.
+              icon={scheme === "dark" ? "moon" : "sun"}
+              label={
+                scheme === "dark"
+                  ? t("profile.darkMode")
+                  : t("profile.lightMode")
+              }
               right={
                 <Switch
                   value={scheme === "dark"}
