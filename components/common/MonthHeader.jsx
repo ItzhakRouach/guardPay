@@ -7,8 +7,10 @@ import Eyebrow from "./Eyebrow";
 import { IconBtn } from "./Buttons";
 import Type from "./Type";
 
-// Eyebrow + serif month / italic year on the left, chevrons on the right.
-// Used by Overview, Shifts and (statically) the Paycheck modal.
+// Header row: eyebrow + serif month / italic year on the leading edge,
+// chevrons on the trailing edge. Container flex-direction flips for RTL
+// so Hebrew users see the title on the right and the chevrons on the
+// left, with arrows pointing in the natural Hebrew reading direction.
 export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
@@ -16,24 +18,30 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
   const locale = i18n.language === "he" ? "he-IL" : "en-US";
   const { month, year } = formatMonth(currentDate, locale);
 
-  // Chevron meanings flip for RTL so the visual direction matches reading
-  // order. Layout itself stays LTR (force-disabled in app/_layout.jsx).
-  const leftIcon = isRTL ? "chev-right" : "chev-left";
-  const rightIcon = isRTL ? "chev-left" : "chev-right";
-  const leftPress = isRTL ? onNext : onPrev;
-  const rightPress = isRTL ? onPrev : onNext;
+  // In LTR: prev = ‹, next = › on the right.
+  // In RTL: visually-left chevron means "next month" (reading direction),
+  // visually-right chevron means "previous month".
+  const prevIcon = isRTL ? "chev-right" : "chev-left";
+  const nextIcon = isRTL ? "chev-left" : "chev-right";
 
   return (
     <View
       style={{
-        flexDirection: "row",
+        flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "flex-end",
         justifyContent: "space-between",
       }}
     >
-      <View>
+      <View style={{ alignItems: isRTL ? "flex-end" : "flex-start" }}>
         {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-        <View style={{ flexDirection: "row", alignItems: "baseline", gap: 8, marginTop: 4 }}>
+        <View
+          style={{
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "baseline",
+            gap: 8,
+            marginTop: 4,
+          }}
+        >
           <Type variant="h1" color={theme.colors.ink}>
             {month}
           </Type>
@@ -42,9 +50,9 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
           </Type>
         </View>
       </View>
-      <View style={{ flexDirection: "row", gap: 4 }}>
-        <IconBtn name={leftIcon} onPress={leftPress} color={theme.colors.inkSoft} />
-        <IconBtn name={rightIcon} onPress={rightPress} color={theme.colors.inkSoft} />
+      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 4 }}>
+        <IconBtn name={prevIcon} onPress={onPrev} color={theme.colors.inkSoft} />
+        <IconBtn name={nextIcon} onPress={onNext} color={theme.colors.inkSoft} />
       </View>
     </View>
   );

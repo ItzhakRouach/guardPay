@@ -188,7 +188,12 @@ export default function ShiftsScreen() {
         <View style={{ height: 18 }} />
 
         <HeroCard>
-          <View style={{ flexDirection: "row", padding: 22 }}>
+          <View
+            style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              padding: 22,
+            }}
+          >
             <View style={{ flex: 1 }}>
               <Eyebrow color={theme.colors.muted}>
                 {t("shifts.anchor.monthly")}

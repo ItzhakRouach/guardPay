@@ -12,6 +12,7 @@ import Icon from "../../components/common/Icon";
 import MonthHeader from "../../components/common/MonthHeader";
 import Type from "../../components/common/Type";
 import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
 import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
@@ -31,7 +32,7 @@ function bucketByWeek(shifts) {
   return buckets;
 }
 
-function HeroSection({ neto, trendPct }) {
+function HeroSection({ neto, trendPct, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const animated = useRef(new Animated.Value(0)).current;
@@ -79,7 +80,7 @@ function HeroSection({ neto, trendPct }) {
       <Eyebrow color={theme.colors.muted}>{t("overview.heroLabel")}</Eyebrow>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "baseline",
           marginTop: 14,
         }}
@@ -94,7 +95,7 @@ function HeroSection({ neto, trendPct }) {
         <Type
           variant="sectionTitle"
           color={theme.colors.muted}
-          style={{ marginLeft: 6 }}
+          style={isRTL ? { marginRight: 6 } : { marginLeft: 6 }}
         >
           ₪
         </Type>
@@ -102,11 +103,11 @@ function HeroSection({ neto, trendPct }) {
       {trendPct != null ? (
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: isRTL ? "row-reverse" : "row",
             alignItems: "center",
             gap: 5,
             marginTop: 12,
-            alignSelf: "flex-start",
+            alignSelf: isRTL ? "flex-end" : "flex-start",
             paddingHorizontal: 10,
             paddingVertical: 5,
             borderRadius: 999,
@@ -127,14 +128,14 @@ function HeroSection({ neto, trendPct }) {
   );
 }
 
-function StatTile({ label, value, suffix }) {
+function StatTile({ label, value, suffix, isRTL }) {
   const theme = useTheme();
   return (
     <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 18 }}>
       <Eyebrow color={theme.colors.muted}>{label}</Eyebrow>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "baseline",
           gap: 4,
           marginTop: 6,
@@ -153,9 +154,10 @@ function StatTile({ label, value, suffix }) {
   );
 }
 
-function StatsGrid({ bruto, totalHours, totalShifts, deductions }) {
+function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const dir = isRTL ? "row-reverse" : "row";
   return (
     <View
       style={{
@@ -167,30 +169,34 @@ function StatsGrid({ bruto, totalHours, totalShifts, deductions }) {
         overflow: "hidden",
       }}
     >
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: dir }}>
         <StatTile
           label={t("overview.stats.bruto")}
           value={fmtCurrency(bruto)}
           suffix="₪"
+          isRTL={isRTL}
         />
         <Hairline vertical />
         <StatTile
           label={t("overview.stats.hours")}
           value={Number(totalHours || 0).toFixed(1)}
           suffix="h"
+          isRTL={isRTL}
         />
       </View>
       <Hairline />
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: dir }}>
         <StatTile
           label={t("overview.stats.shifts")}
           value={String(totalShifts || 0)}
+          isRTL={isRTL}
         />
         <Hairline vertical />
         <StatTile
           label={t("overview.stats.deductions")}
           value={fmtCurrency(deductions)}
           suffix="₪"
+          isRTL={isRTL}
         />
       </View>
     </View>
@@ -289,7 +295,7 @@ function WeeklyChart({ buckets }) {
   );
 }
 
-function InsightsCard({ shiftsCount, avgShift, bestDay, projected }) {
+function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
   if (!shiftsCount) return null;
@@ -324,14 +330,18 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected }) {
         <View key={r.label}>
           <View
             style={{
-              flexDirection: "row",
+              flexDirection: isRTL ? "row-reverse" : "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 16,
             }}
           >
             <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              style={{
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 10,
+              }}
             >
               <Icon name="sparkle" size={16} color={theme.colors.accent} />
               <Type variant="body" color={theme.colors.inkSoft}>
@@ -353,6 +363,7 @@ export default function OverviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
   const { shifts } = useShift(user, currentDate);
   const { monthlyReport, totals } = useMonthlySalary(shifts);
@@ -430,12 +441,14 @@ export default function OverviewScreen() {
           <HeroSection
             neto={monthlyReport?.neto || 0}
             trendPct={trendPct}
+            isRTL={isRTL}
           />
           <StatsGrid
             bruto={monthlyReport?.bruto || 0}
             totalHours={totals.totalHours || 0}
             totalShifts={totals.totalShifts || 0}
             deductions={monthlyReport?.totalDeductions || 0}
+            isRTL={isRTL}
           />
           <WeeklyChart buckets={weeklyBuckets} />
           <InsightsCard
@@ -443,6 +456,7 @@ export default function OverviewScreen() {
             avgShift={avgShift}
             bestDay={bestDay}
             projected={projected}
+            isRTL={isRTL}
           />
           <View style={{ height: 24 }} />
           <PrimaryButton

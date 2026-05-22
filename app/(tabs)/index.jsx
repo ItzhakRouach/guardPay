@@ -30,49 +30,59 @@ import {
 } from "../../lib/appwrite";
 import { scheduleWeeklyReminder } from "../../lib/notfication";
 
-function SettingsRow({ icon, label, value, onPress, right, last }) {
+function SettingsRow({ icon, label, value, onPress, right, last, isRTL, tall }) {
   const theme = useTheme();
+  const chevName = isRTL ? "chev-left" : "chev-right";
+  const iconSpacing = isRTL ? { marginLeft: 12 } : { marginRight: 12 };
+  const labelAlign = isRTL ? "right" : "left";
   const body = (
     <View
       style={{
-        flexDirection: "row",
+        flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "center",
-        paddingVertical: 14,
+        paddingVertical: tall ? 18 : 14,
         paddingHorizontal: 18,
       }}
     >
       {icon ? (
         <View
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 11,
-            backgroundColor: theme.colors.accentSoft,
-            justifyContent: "center",
-            alignItems: "center",
-            marginRight: 12,
-          }}
+          style={[
+            {
+              width: 36,
+              height: 36,
+              borderRadius: 11,
+              backgroundColor: theme.colors.accentSoft,
+              justifyContent: "center",
+              alignItems: "center",
+            },
+            iconSpacing,
+          ]}
         >
           <Icon name={icon} size={18} color={theme.colors.accent} />
         </View>
       ) : null}
       <View style={{ flex: 1 }}>
-        <Type variant="body" color={theme.colors.ink}>
+        <Type
+          variant="body"
+          color={theme.colors.ink}
+          style={{ textAlign: labelAlign }}
+        >
           {label}
         </Type>
         {value ? (
           <Type
             variant="small"
             color={theme.colors.muted}
-            style={{ marginTop: 2 }}
+            style={{ marginTop: 2, textAlign: labelAlign }}
           >
             {value}
           </Type>
         ) : null}
       </View>
-      {right || (
-        onPress ? <Icon name="chev-right" size={18} color={theme.colors.muted} /> : null
-      )}
+      {right ||
+        (onPress ? (
+          <Icon name={chevName} size={18} color={theme.colors.muted} />
+        ) : null)}
     </View>
   );
   return (
@@ -95,10 +105,17 @@ function SettingsRow({ icon, label, value, onPress, right, last }) {
   );
 }
 
-function StatsTile({ label, value }) {
+function StatsTile({ label, value, align = "left" }) {
   const theme = useTheme();
   return (
-    <View style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 18 }}>
+    <View
+      style={{
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingVertical: 18,
+        alignItems: align === "right" ? "flex-end" : "flex-start",
+      }}
+    >
       <Eyebrow color={theme.colors.muted}>{label}</Eyebrow>
       <Type
         variant="statValue"
@@ -118,7 +135,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const { lang, changeLanguage } = useLanguage();
+  const { lang, changeLanguage, isRTL } = useLanguage();
   const { scheme, toggle } = useThemeMode();
 
   const [profile, setProfile] = useState(null);
@@ -308,17 +325,19 @@ export default function ProfileScreen() {
               borderWidth: 1,
               borderColor: theme.colors.border,
               overflow: "hidden",
-              flexDirection: "row",
+              flexDirection: isRTL ? "row-reverse" : "row",
             }}
           >
             <StatsTile
-              label={t("profile.activeMonths")}
-              value={activeMonths == null ? "—" : String(activeMonths)}
+              label={t("profile.totalShifts")}
+              value={totalShifts == null ? "—" : String(totalShifts)}
+              align={isRTL ? "right" : "left"}
             />
             <Hairline vertical />
             <StatsTile
-              label={t("profile.totalShifts")}
-              value={totalShifts == null ? "—" : String(totalShifts)}
+              label={t("profile.activeMonths")}
+              value={activeMonths == null ? "—" : String(activeMonths)}
+              align={isRTL ? "right" : "left"}
             />
           </View>
 
@@ -336,23 +355,27 @@ export default function ProfileScreen() {
             }}
           >
             <SettingsRow
+              isRTL={isRTL}
               icon="tag"
               label={t("index.hour_rate")}
               value={`${profile?.price_per_hour ?? "—"} ₪/h`}
               onPress={() => setPrefsOpen(true)}
             />
             <SettingsRow
+              isRTL={isRTL}
               icon="tag"
               label={t("index.ride_rate")}
               value={`${profile?.price_per_ride ?? "—"} ₪`}
               onPress={() => setPrefsOpen(true)}
             />
             <SettingsRow
+              isRTL={isRTL}
               icon="sun"
               label={t("index.shift_colors")}
               onPress={() => setColorsOpen(true)}
             />
             <SettingsRow
+              isRTL={isRTL}
               icon="clock"
               label={t("index.shift_times")}
               onPress={() => setTimesOpen(true)}
@@ -374,6 +397,8 @@ export default function ProfileScreen() {
             }}
           >
             <SettingsRow
+              isRTL={isRTL}
+              tall
               icon="bell"
               label={t("index.weekly_r")}
               value={reminderValue}
@@ -391,6 +416,8 @@ export default function ProfileScreen() {
               }
             />
             <SettingsRow
+              isRTL={isRTL}
+              tall
               icon="moon"
               label={t("profile.darkMode")}
               right={
@@ -406,6 +433,8 @@ export default function ProfileScreen() {
               }
             />
             <SettingsRow
+              isRTL={isRTL}
+              tall
               icon="user"
               label={t("profile.language")}
               right={
@@ -436,12 +465,14 @@ export default function ProfileScreen() {
             }}
           >
             <SettingsRow
+              isRTL={isRTL}
               icon="shield"
               label={t("index.security_law")}
               value={t("index.security_law_desc")}
               onPress={() => setPdfOpen(true)}
             />
             <SettingsRow
+              isRTL={isRTL}
               icon="lock"
               label={t("index.privacy")}
               onPress={() =>
@@ -451,6 +482,7 @@ export default function ProfileScreen() {
               }
             />
             <SettingsRow
+              isRTL={isRTL}
               icon="trash"
               label={t("index.delete_account")}
               onPress={handleDeleteAccount}

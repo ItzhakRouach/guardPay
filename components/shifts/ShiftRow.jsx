@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
 import { resolveTint } from "../../lib/shiftColors";
 import { deriveShiftType, TYPE_ICON } from "../../lib/shiftType";
@@ -19,9 +20,14 @@ const fmtTime = (iso) => {
   return `${hh}:${mm}`;
 };
 
+// Shift row. In LTR the order is [date | type+meta | amount].
+// In RTL we reverse so date sits on the right (leading edge) and the
+// amount on the left (trailing edge) — matching the user's mental model
+// of reading the row in Hebrew.
 export default function ShiftRow({ shift, profile, isLast }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
+  const { isRTL } = useLanguage();
   const { scheme } = useThemeMode();
   const locale = i18n.language === "he" ? "he-IL" : "en-US";
   const start = new Date(shift.start_time);
@@ -32,15 +38,13 @@ export default function ShiftRow({ shift, profile, isLast }) {
     Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
   const rate = Number(shift.base_rate || profile?.price_per_hour || 0);
 
-  // Per-shift tint from user prefs (friday/saturday/training/holiday).
-  // Null when it's a regular weekday shift — we keep the surface plain.
   const tint = resolveTint(shift, profile?.shift_colors, scheme);
 
   return (
     <View style={{ backgroundColor: tint || "transparent" }}>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           paddingVertical: 16,
           paddingHorizontal: 18,
           alignItems: "center",
@@ -67,7 +71,13 @@ export default function ShiftRow({ shift, profile, isLast }) {
           }}
         />
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <View
+            style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
             <Icon
               name={TYPE_ICON[type] || "clock"}
               size={16}
@@ -85,7 +95,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
             {`${fmtTime(shift.start_time)}–${fmtTime(shift.end_time)} · ${totalHours.toFixed(1)}h · ₪${rate}`}
           </Type>
         </View>
-        <View style={{ alignItems: "flex-end" }}>
+        <View style={{ alignItems: isRTL ? "flex-start" : "flex-end" }}>
           <Type variant="rowAmount" color={theme.colors.ink}>
             {Math.round(Number(shift.total_amount || 0)).toLocaleString(
               "en-US",
