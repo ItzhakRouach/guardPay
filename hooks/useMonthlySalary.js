@@ -22,6 +22,8 @@ export const useMonthlySalary = (shifts) => {
       trainingDays: 0,
       vacationAmount: 0,
       vacationDays: 0,
+      sickAmount: 0,
+      sickDays: 0,
     };
 
     return shifts.reduce((acc, s) => {
@@ -38,6 +40,13 @@ export const useMonthlySalary = (shifts) => {
       } else if (s.is_vacation) {
         acc.vacationAmount += Number(s.total_amount || 0);
         acc.vacationDays++;
+      } else if (s.is_sick) {
+        // Sick-day pay is precomputed client-side by buildSickDocs /
+        // restreakSickDocs (utils/sickDays.js) using Israeli sick-leave
+        // law (0% / 50% / 50% / 100%+). Sent to the cloud function as
+        // sick_pay so bruto and pensia are correct.
+        acc.sickAmount += Number(s.total_amount || 0);
+        acc.sickDays++;
       } else {
         // Only count regular/extra/travel pay for non-training, non-vacation
         // shifts. Training/vacation are sent to the cloud function under
@@ -61,7 +70,7 @@ export const useMonthlySalary = (shifts) => {
     totals.h200s;
   const totalReg = totals.h100 + totals.h150s;
   const totalExtra = totals.h125e + totals.h150e + totals.h175s + totals.h200s;
-  const totalShifts = shifts.length - totals.vacationDays;
+  const totalShifts = shifts.length - totals.vacationDays - totals.sickDays;
 
   useEffect(() => {
     const getSalary = async () => {
@@ -80,6 +89,7 @@ export const useMonthlySalary = (shifts) => {
               travelPay: totals.travelPay,
               vacation_pay: totals.vacationAmount,
               training_pay: totals.trainingAmount,
+              sick_pay: totals.sickAmount,
               user_id: user.$id,
             },
           }),

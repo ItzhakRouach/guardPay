@@ -289,7 +289,7 @@ export default function PaycheckScreen() {
     () => (monthIso ? new Date(String(monthIso)) : new Date()),
     [monthIso],
   );
-  const { shifts } = useShift(user, currentDate);
+  const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
   const { monthlyReport, totals } = useMonthlySalary(shifts);
 
   const model = useMemo(
@@ -345,7 +345,7 @@ export default function PaycheckScreen() {
         <GhostButton icon="share" onPress={onExport} />
       </View>
 
-      {!model ? (
+      {!model || shiftsLoading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >

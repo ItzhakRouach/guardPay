@@ -477,7 +477,7 @@ export default function ProfileScreen() {
               label={t("index.privacy")}
               onPress={() =>
                 Linking.openURL(
-                  "https://guardpay.example.com/privacy",
+                  "https://gistcdn.githack.com/ItzhakRouach/8544fa6efc006e2b1275e6921edf098a/raw/policy.html",
                 ).catch(() => {})
               }
             />

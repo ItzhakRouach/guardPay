@@ -365,7 +365,7 @@ export default function OverviewScreen() {
   const { user } = useAuth();
   const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
-  const { shifts } = useShift(user, currentDate);
+  const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
   const { monthlyReport, totals } = useMonthlySalary(shifts);
   const prevBruto = usePrevMonthBruto(user, currentDate);
   const { t, i18n } = useTranslation();
@@ -432,7 +432,7 @@ export default function OverviewScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      {monthlyReport == null ? (
+      {monthlyReport == null || shiftsLoading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >

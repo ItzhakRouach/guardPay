@@ -1,9 +1,10 @@
 import { router } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Query } from "react-native-appwrite";
 import { Swipeable } from "react-native-gesture-handler";
-import { useTheme } from "react-native-paper";
+import { ActivityIndicator, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Eyebrow from "../../components/common/Eyebrow";
 import HeroCard from "../../components/common/HeroCard";
@@ -17,6 +18,7 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
+import { restreakSickUpdates } from "../../utils/sickDays";
 
 function groupByWeek(shifts) {
   const groups = {};
@@ -120,14 +122,76 @@ export default function ShiftsScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
   const { currentDate, prev, next } = useMonthNav();
-  const { shifts, setShifts } = useShift(user, currentDate);
+  const { shifts, loading, setShifts } = useShift(user, currentDate);
   const { totals, monthlyReport } = useMonthlySalary(shifts);
   const { isRTL } = useLanguage();
   const { t } = useTranslation();
 
+  // Spans multi-step mutations (delete + re-stream of surrounding sick docs)
+  // so the user doesn't see the list flash between the intermediate states.
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const groups = useMemo(() => groupByWeek(shifts || []), [shifts]);
 
+  // After a sick doc is deleted, surrounding sick docs in the same streak
+  // need their positions (and therefore sick_percent/total_amount)
+  // recomputed. Each doc's total_amount is derived from its own base_rate
+  // × 8 (the wage at the time of logging), so this works even when
+  // profile is momentarily unloaded.
+  const restreakAfterSickDelete = async () => {
+    const fallbackDailyPay = (Number(profile?.price_per_hour) || 0) * 8;
+    const res = await databases.listDocuments(DATABASE_ID, SHIFTS_HISTORY, [
+      Query.equal("user_id", user.$id),
+      Query.equal("is_sick", true),
+      Query.limit(500),
+    ]);
+    const updates = restreakSickUpdates(res.documents, fallbackDailyPay);
+    await Promise.all(
+      updates.map((u) =>
+        databases.updateDocument(DATABASE_ID, SHIFTS_HISTORY, u.$id, {
+          sick_percent: u.sick_percent,
+          total_amount: u.total_amount,
+        }),
+      ),
+    );
+    setShifts((prev) =>
+      prev.map((s) => {
+        const u = updates.find((x) => x.$id === s.$id);
+        return u
+          ? { ...s, sick_percent: u.sick_percent, total_amount: u.total_amount }
+          : s;
+      }),
+    );
+  };
+
+  const performDelete = async (shiftId) => {
+    const doc = shifts.find((s) => s.$id === shiftId);
+    const needsRestreak = !!doc?.is_sick;
+    if (needsRestreak) setIsProcessing(true);
+    try {
+      await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
+      setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
+      if (needsRestreak) {
+        await restreakAfterSickDelete();
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      if (needsRestreak) setIsProcessing(false);
+    }
+  };
+
   const handleEdit = (shift) => {
+    // Editing a sick day in the standard add-shift form would clobber
+    // its date-range / streak-percent contract. Until a dedicated sick
+    // edit flow exists, force the user to delete + re-create.
+    if (shift.is_sick) {
+      Alert.alert(
+        t("shifts.sick_edit_blocked_title"),
+        t("shifts.sick_edit_blocked_body"),
+      );
+      return;
+    }
     router.push({
       pathname: "/add-shift",
       params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
@@ -143,18 +207,7 @@ export default function ShiftsScreen() {
         {
           text: t("common.delete"),
           style: "destructive",
-          onPress: async () => {
-            try {
-              await databases.deleteDocument(
-                DATABASE_ID,
-                SHIFTS_HISTORY,
-                shiftId,
-              );
-              setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
-            } catch (err) {
-              console.log(err);
-            }
-          },
+          onPress: () => performDelete(shiftId),
         },
       ],
     );
@@ -246,7 +299,11 @@ export default function ShiftsScreen() {
           </View>
         </HeroCard>
 
-        {shifts.length === 0 ? (
+        {loading || isProcessing ? (
+          <View style={{ paddingVertical: 60, alignItems: "center" }}>
+            <ActivityIndicator color={theme.colors.accent} size="large" />
+          </View>
+        ) : shifts.length === 0 ? (
           <EmptyState />
         ) : (
           groups.map(({ wk, rows }) => (
@@ -264,35 +321,51 @@ export default function ShiftsScreen() {
                   overflow: "hidden",
                 }}
               >
-                {rows.map((shift, i) => (
-                  <Swipeable
-                    key={shift.$id || `s-${i}`}
-                    renderLeftActions={() => (
-                      <SwipeAction
-                        label={t("common.edit") || "Edit"}
-                        color={theme.colors.accent}
-                        icon="edit"
-                      />
-                    )}
-                    renderRightActions={() => (
-                      <SwipeAction
-                        label={t("common.delete")}
-                        color={theme.colors.neg}
-                        icon="trash"
-                      />
-                    )}
-                    onSwipeableLeftOpen={() => handleEdit(shift)}
-                    onSwipeableRightOpen={() => handleDelete(shift.$id)}
-                  >
-                    <Pressable onPress={() => openDetails(shift)}>
-                      <ShiftRow
-                        shift={shift}
-                        profile={profile}
-                        isLast={i === rows.length - 1}
-                      />
-                    </Pressable>
-                  </Swipeable>
-                ))}
+                {rows.map((shift, i) => {
+                  // In RTL the user's natural "swipe inward" direction is
+                  // visually right-to-left, so the destructive (delete)
+                  // gesture must live on the trailing edge — which is
+                  // `renderLeftActions` when the locale is RTL.
+                  const editAction = (
+                    <SwipeAction
+                      label={t("common.edit")}
+                      color={theme.colors.accent}
+                      icon="edit"
+                    />
+                  );
+                  const deleteAction = (
+                    <SwipeAction
+                      label={t("common.delete")}
+                      color={theme.colors.neg}
+                      icon="trash"
+                    />
+                  );
+                  return (
+                    <Swipeable
+                      key={shift.$id || `s-${i}`}
+                      renderLeftActions={() =>
+                        isRTL ? deleteAction : editAction
+                      }
+                      renderRightActions={() =>
+                        isRTL ? editAction : deleteAction
+                      }
+                      onSwipeableLeftOpen={() =>
+                        isRTL ? handleDelete(shift.$id) : handleEdit(shift)
+                      }
+                      onSwipeableRightOpen={() =>
+                        isRTL ? handleEdit(shift) : handleDelete(shift.$id)
+                      }
+                    >
+                      <Pressable onPress={() => openDetails(shift)}>
+                        <ShiftRow
+                          shift={shift}
+                          profile={profile}
+                          isLast={i === rows.length - 1}
+                        />
+                      </Pressable>
+                    </Swipeable>
+                  );
+                })}
               </View>
             </View>
           ))

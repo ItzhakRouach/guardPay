@@ -111,7 +111,7 @@ export default function Type({
     textAlign: align ?? (isRtl ? "right" : undefined),
     writingDirection: isRtl ? "rtl" : undefined,
     fontVariant: isNumeric ? ["tabular-nums"] : undefined,
-    textTransform: upper ?? v.upper ? "uppercase" : "none",
+    textTransform: (upper ?? v.upper) ? "uppercase" : "none",
   };
 
   return (
