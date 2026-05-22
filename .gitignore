@@ -52,3 +52,6 @@ ThingsToAdd.txt
 # Local git worktrees
 .worktrees/
 
+# Local Claude Code permission settings (per-developer)
+.claude/settings.local.json
+
