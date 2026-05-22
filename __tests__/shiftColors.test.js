@@ -1,28 +1,56 @@
 /* global describe, test, expect */
 const {
   SWATCHES,
+  DARK_MODE_LOOKUP,
   DEFAULT_COLORS,
   parseUserColors,
   resolveTint,
+  resolveSwatchHex,
   serialiseUserColors,
 } = require("../utils/shiftColors");
 
 describe("SWATCHES palette", () => {
-  test("each swatch exposes a name and a single hex (no per-mode variant)", () => {
+  test("each swatch has a name plus paired light/dark hex values", () => {
     expect(SWATCHES.length).toBe(8);
     for (const s of SWATCHES) {
       expect(typeof s.name).toBe("string");
-      expect(s.hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
-      expect(s).not.toHaveProperty("light");
-      expect(s).not.toHaveProperty("dark");
+      expect(s.light).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(s.dark).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(s.light.toUpperCase()).not.toBe(s.dark.toUpperCase());
     }
   });
 
-  test("default colors all resolve to a swatch in the palette", () => {
-    const palette = new Set(SWATCHES.map((s) => s.hex.toUpperCase()));
+  test("default colors all resolve to a swatch's light hex", () => {
+    const lightPalette = new Set(SWATCHES.map((s) => s.light.toUpperCase()));
     for (const key of Object.keys(DEFAULT_COLORS)) {
-      expect(palette.has(DEFAULT_COLORS[key].toUpperCase())).toBe(true);
+      expect(lightPalette.has(DEFAULT_COLORS[key].toUpperCase())).toBe(true);
     }
+  });
+
+  test("DARK_MODE_LOOKUP maps every light hex to the paired dark hex", () => {
+    for (const s of SWATCHES) {
+      expect(DARK_MODE_LOOKUP[s.light.toUpperCase()]).toBe(s.dark);
+    }
+  });
+});
+
+describe("resolveSwatchHex", () => {
+  test("returns the input unchanged in light mode", () => {
+    expect(resolveSwatchHex("#F0F9FF", "light")).toBe("#F0F9FF");
+  });
+
+  test("returns the paired dark hex when scheme is dark", () => {
+    const sky = SWATCHES.find((s) => s.name === "sky");
+    expect(resolveSwatchHex(sky.light, "dark")).toBe(sky.dark);
+  });
+
+  test("falls back to the input hex when off-palette in dark mode", () => {
+    expect(resolveSwatchHex("#123456", "dark")).toBe("#123456");
+  });
+
+  test("passes through null/undefined", () => {
+    expect(resolveSwatchHex(null, "dark")).toBeNull();
+    expect(resolveSwatchHex(undefined, "dark")).toBeUndefined();
   });
 });
 
@@ -59,30 +87,35 @@ describe("resolveTint priority", () => {
   const monday = "2026-05-25T08:00:00";
 
   test("returns null for a plain weekday shift", () => {
-    expect(resolveTint({ start_time: monday }, null)).toBeNull();
+    expect(resolveTint({ start_time: monday }, null, "light")).toBeNull();
   });
 
-  test("Friday weekday returns friday tint", () => {
-    expect(resolveTint({ start_time: friday }, null)).toBe(
+  test("Friday weekday returns friday tint (light)", () => {
+    expect(resolveTint({ start_time: friday }, null, "light")).toBe(
       DEFAULT_COLORS.friday,
     );
   });
 
-  test("Saturday weekday returns saturday tint", () => {
-    expect(resolveTint({ start_time: saturday }, null)).toBe(
+  test("Saturday weekday returns saturday tint (light)", () => {
+    expect(resolveTint({ start_time: saturday }, null, "light")).toBe(
       DEFAULT_COLORS.saturday,
     );
   });
 
+  test("dark mode swaps to the dark counterpart", () => {
+    const sky = SWATCHES.find((s) => s.name === "sky");
+    expect(resolveTint({ start_time: friday }, null, "dark")).toBe(sky.dark);
+  });
+
   test("is_holiday wins over Saturday classification", () => {
     expect(
-      resolveTint({ start_time: saturday, is_holiday: true }, null),
+      resolveTint({ start_time: saturday, is_holiday: true }, null, "light"),
     ).toBe(DEFAULT_COLORS.holiday);
   });
 
   test("is_training wins over Friday classification", () => {
     expect(
-      resolveTint({ start_time: friday, is_training: true }, null),
+      resolveTint({ start_time: friday, is_training: true }, null, "light"),
     ).toBe(DEFAULT_COLORS.training);
   });
 
@@ -91,18 +124,29 @@ describe("resolveTint priority", () => {
       resolveTint(
         { start_time: friday, is_training: true, is_holiday: true },
         null,
+        "light",
       ),
     ).toBe(DEFAULT_COLORS.holiday);
   });
 
   test("uses the user's custom color when set", () => {
     const userColors = JSON.stringify({ saturday: "#F7FEE7" }); // sage
-    expect(resolveTint({ start_time: saturday }, userColors)).toBe("#F7FEE7");
+    expect(resolveTint({ start_time: saturday }, userColors, "light")).toBe(
+      "#F7FEE7",
+    );
+  });
+
+  test("custom color is swapped to its dark counterpart in dark mode", () => {
+    const sage = SWATCHES.find((s) => s.name === "sage");
+    const userColors = JSON.stringify({ saturday: sage.light });
+    expect(resolveTint({ start_time: saturday }, userColors, "dark")).toBe(
+      sage.dark,
+    );
   });
 
   test("missing start_time returns null", () => {
-    expect(resolveTint({}, null)).toBeNull();
-    expect(resolveTint(null, null)).toBeNull();
+    expect(resolveTint({}, null, "light")).toBeNull();
+    expect(resolveTint(null, null, "light")).toBeNull();
   });
 });
 

@@ -11,10 +11,12 @@ import {
 } from "react-native-paper";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
+import { useThemeMode } from "../../hooks/theme-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import {
   DEFAULT_COLORS,
   parseUserColors,
+  resolveSwatchHex,
   serialiseUserColors,
 } from "../../lib/shiftColors";
 import ShiftColorsModal from "./ShiftColorsModal";
@@ -27,6 +29,7 @@ export default function AppearanceSection() {
   const theme = useTheme();
   const { isRTL } = useLanguage();
   const { user, profile, fetchUserProfile } = useAuth();
+  const { scheme } = useThemeMode();
   const { t } = useTranslation();
   const styles = makeStyle(theme, isRTL);
 
@@ -74,7 +77,12 @@ export default function AppearanceSection() {
         right={() => (
           <View style={styles.dotWrap}>
             <View
-              style={[styles.dot, { backgroundColor: colors[colorKey] }]}
+              style={[
+                styles.dot,
+                {
+                  backgroundColor: resolveSwatchHex(colors[colorKey], scheme),
+                },
+              ]}
             />
           </View>
         )}

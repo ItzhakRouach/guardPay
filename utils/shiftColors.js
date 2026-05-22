@@ -5,25 +5,48 @@
 // utils/salaryLogic.js. App code imports from lib/shiftColors.js, which is
 // a one-line ESM re-export of this module.
 
-// Eight Tailwind-50 level swatches. The SAME hex is used in light and
-// dark mode — Friday is always "Sky" regardless of system theme. Pale
-// enough to sit comfortably on either a white or dark card surface.
+// Each swatch has a single identity (`name`) but two rendered values:
+// `light` for white-card surfaces and `dark` for the dark theme's card
+// surface (#163059ff). Light values sit at Tailwind-50 for a barely-there
+// wash; dark values are muted tints — close to the surface lightness so
+// they don't fight the white text but with enough hue to read as the
+// same swatch family.
+//
+// Storage in users_prefs.shift_colors uses the LIGHT hex as the
+// canonical identifier. The dark counterpart is looked up at render time
+// via DARK_MODE_LOOKUP. If a stored hex isn't in the palette (e.g. a
+// future palette change), the light hex is returned unchanged.
 const SWATCHES = [
-  { name: "sky",   hex: "#F0F9FF" },
-  { name: "mint",  hex: "#F0FDF4" },
-  { name: "peach", hex: "#FFF7ED" },
-  { name: "lilac", hex: "#F5F3FF" },
-  { name: "sand",  hex: "#FEFCE8" },
-  { name: "blush", hex: "#FDF2F8" },
-  { name: "sage",  hex: "#F7FEE7" },
-  { name: "stone", hex: "#F3F4F6" },
+  { name: "sky",   light: "#F0F9FF", dark: "#243345" },
+  { name: "mint",  light: "#F0FDF4", dark: "#243A2F" },
+  { name: "peach", light: "#FFF7ED", dark: "#3A2D22" },
+  { name: "lilac", light: "#F5F3FF", dark: "#2D2A40" },
+  { name: "sand",  light: "#FEFCE8", dark: "#3A3322" },
+  { name: "blush", light: "#FDF2F8", dark: "#3D2632" },
+  { name: "sage",  light: "#F7FEE7", dark: "#2D3A22" },
+  { name: "stone", light: "#F3F4F6", dark: "#2A2D34" },
 ];
+
+const DARK_MODE_LOOKUP = SWATCHES.reduce((acc, s) => {
+  acc[s.light.toUpperCase()] = s.dark;
+  return acc;
+}, {});
 
 const DEFAULT_COLORS = {
   friday: "#F0F9FF",   // sky
   saturday: "#F5F3FF", // lilac
   training: "#F0FDF4", // mint
   holiday: "#FFF7ED",  // peach
+};
+
+// Resolve a stored (light) hex to the colour we should actually paint.
+// `scheme` is "light" or "dark"; in dark mode we swap to the swatch's
+// dark counterpart. Off-palette colours (e.g. legacy stored values)
+// pass through unchanged.
+const resolveSwatchHex = (lightHex, scheme) => {
+  if (!lightHex) return lightHex;
+  if (scheme !== "dark") return lightHex;
+  return DARK_MODE_LOOKUP[lightHex.toUpperCase()] || lightHex;
 };
 
 // Safe parse: returns a complete `{friday, saturday, training, holiday}`
@@ -43,6 +66,8 @@ const parseUserColors = (raw) => {
 };
 
 // Pick the tint hex for a single shift, or null if no tint applies.
+// `scheme` should be "light" or "dark" (the user's resolved theme); the
+// returned hex is the per-scheme value, not the stored canonical one.
 //
 // Priority (first match wins):
 //   1. is_holiday → holiday tint
@@ -50,7 +75,7 @@ const parseUserColors = (raw) => {
 //   3. start_time falls on Saturday (local) → saturday tint
 //   4. start_time falls on Friday (local) → friday tint
 //   5. otherwise → null (caller falls back to theme.colors.surface)
-const resolveTint = (shift, userColors) => {
+const resolveTint = (shift, userColors, scheme) => {
   if (!shift) return null;
   const colors = parseUserColors(userColors);
   let key = null;
@@ -66,7 +91,7 @@ const resolveTint = (shift, userColors) => {
   }
 
   if (!key) return null;
-  return colors[key] || DEFAULT_COLORS[key];
+  return resolveSwatchHex(colors[key] || DEFAULT_COLORS[key], scheme);
 };
 
 // Serialise a colors object back to the JSON string we store in Appwrite.
@@ -88,8 +113,10 @@ const serialiseUserColors = (colors) => {
 
 module.exports = {
   SWATCHES,
+  DARK_MODE_LOOKUP,
   DEFAULT_COLORS,
   parseUserColors,
   resolveTint,
+  resolveSwatchHex,
   serialiseUserColors,
 };

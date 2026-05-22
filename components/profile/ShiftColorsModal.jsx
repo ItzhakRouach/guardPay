@@ -9,7 +9,8 @@ import {
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
-import { SWATCHES } from "../../lib/shiftColors";
+import { useThemeMode } from "../../hooks/theme-context";
+import { resolveSwatchHex, SWATCHES } from "../../lib/shiftColors";
 
 // Picker modal: shows the 8 swatches in a grid. Caller controls visibility
 // via `visible` and gets the chosen hex back via `onSelect(hex)`.
@@ -22,6 +23,7 @@ export default function ShiftColorsModal({
 }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
+  const { scheme } = useThemeMode();
   const { t } = useTranslation();
   const styles = makeStyle(theme, isRTL);
 
@@ -49,11 +51,14 @@ export default function ShiftColorsModal({
           {SWATCHES.map((swatch) => {
             const isSelected =
               (selected || currentColor || "").toUpperCase() ===
-              swatch.hex.toUpperCase();
+              swatch.light.toUpperCase();
+            // Render the per-mode preview so the dot looks the same as
+            // the eventual tint on a shift card in this theme.
+            const previewHex = resolveSwatchHex(swatch.light, scheme);
             return (
               <Pressable
                 key={swatch.name}
-                onPress={() => setSelected(swatch.hex)}
+                onPress={() => setSelected(swatch.light)}
                 accessibilityRole="button"
                 accessibilityLabel={t(`appearance.swatch.${swatch.name}`)}
                 style={[
@@ -65,7 +70,7 @@ export default function ShiftColorsModal({
                 ]}
               >
                 <View
-                  style={[styles.swatch, { backgroundColor: swatch.hex }]}
+                  style={[styles.swatch, { backgroundColor: previewHex }]}
                 />
                 <Text variant="labelSmall" style={styles.swatchLabel}>
                   {t(`appearance.swatch.${swatch.name}`)}

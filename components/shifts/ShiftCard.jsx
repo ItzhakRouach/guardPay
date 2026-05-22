@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
+import { useThemeMode } from "../../hooks/theme-context";
 import { resolveTint } from "../../lib/shiftColors";
 import { formattedAmount } from "../../lib/utils";
 
@@ -17,10 +18,11 @@ export default function ShiftCard({
 }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
+  const { scheme } = useThemeMode();
   const styles = makeStyle(theme, isRTL);
   const { t } = useTranslation();
 
-  const tint = shift ? resolveTint(shift, userColors) : null;
+  const tint = shift ? resolveTint(shift, userColors, scheme) : null;
   const hasNote = !!(shift?.comment && shift.comment.trim().length > 0);
 
   return (
