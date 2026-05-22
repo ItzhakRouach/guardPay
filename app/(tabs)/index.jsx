@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
 import { ActivityIndicator, IconButton, Text, useTheme } from "react-native-paper";
-import AppearanceSection from "../../components/profile/AppearanceSection";
 import ProfileSummary from "../../components/profile/ProfileSummary";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
@@ -220,7 +219,6 @@ export default function Index() {
               filteredSettlements={filteredSettlements}
               onSelectSettlement={onSelectSettlement}
             />
-            <AppearanceSection />
           </ScrollView>
         </>
       )}

@@ -19,6 +19,7 @@ import { functions } from "../../lib/appwrite";
 import { formatDates } from "../../lib/utils";
 import WeeklyReminder from "../layout/WeeklyReminder";
 import SecurityLawPDF from "../legal/SecurityLawPDF";
+import AppearanceSection from "../profile/AppearanceSection";
 import PreferencesChange from "../profile/PreferencesChange";
 import LanguagesChange from "./LanguagesChange";
 // וודא שהנתיב לקובץ ה-JSON נכון
@@ -225,6 +226,9 @@ export default function ProfileSummary({
           title={`${formatDates(profile?.birth_date)}`}
         />
       </Surface>
+
+      {/** Colors Section (sits between General and Preferences) */}
+      <AppearanceSection />
 
       {/**Preferences Section */}
       <Surface
