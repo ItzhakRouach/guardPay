@@ -92,9 +92,9 @@ export default function AppearanceSection() {
       <Divider style={styles.dividerStyle} bold={false} />
       <Row labelKey="saturday" colorKey="saturday" icon="calendar-weekend" />
       <Divider style={styles.dividerStyle} bold={false} />
-      <Row labelKey="training" colorKey="training" icon="school-outline" />
+      <Row labelKey="training" colorKey="training" icon="karate" />
       <Divider style={styles.dividerStyle} bold={false} />
-      <Row labelKey="holiday" colorKey="holiday" icon="party-popper" />
+      <Row labelKey="holiday" colorKey="holiday" icon="calendar-star" />
       <Divider style={styles.dividerStyle} bold={false} />
       <TouchableRipple onPress={onReset}>
         <List.Item
