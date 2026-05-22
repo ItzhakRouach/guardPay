@@ -142,22 +142,16 @@ export default function ShiftsScreen() {
           {shifts.map((shift, index) => (
             <ReanimatedSwipeable
               key={shift.$id || `shift-${index}`}
-              // A full swipe-right (left actions revealed past the default
-              // threshold) is interpreted as "open edit directly" — no
-              // need to tap the revealed pencil. Swipe-left still
-              // requires tapping the delete icon (which then shows a
-              // confirm), since destructive actions deserve more friction.
-              onSwipeableOpen={(direction, swipeable) => {
-                if (direction === "left") {
-                  swipeable?.close?.();
-                  handleEdit(shift);
-                }
-              }}
+              // Swipe-right reveals delete (red), swipe-left reveals edit
+              // (blue). User must tap the revealed icon to commit — no
+              // auto-open, because the previous auto-open behaviour
+              // raced with the card's onPress and chained edit→details
+              // navigations.
               renderLeftActions={() =>
-                renderLeftAction(() => handleEdit(shift))
+                renderRightAction(() => handleDelete(shift.$id))
               }
               renderRightActions={() =>
-                renderRightAction(() => handleDelete(shift.$id))
+                renderLeftAction(() => handleEdit(shift))
               }
             >
               <TouchableOpacity
