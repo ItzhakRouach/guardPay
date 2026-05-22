@@ -2,10 +2,11 @@ import * as Notifications from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
-import { ActivityIndicator, Text, useTheme } from "react-native-paper";
+import { ActivityIndicator, IconButton, Text, useTheme } from "react-native-paper";
 import ProfileSummary from "../../components/profile/ProfileSummary";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
+import { useThemeMode } from "../../hooks/theme-context";
 import settlementsData from "../../utils/settlements.json";
 
 import {
@@ -22,6 +23,7 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const { isRTL } = useLanguage();
+  const { scheme, toggle } = useThemeMode();
 
   // to search for settelment
   const [searchQuery, setSearchQuery] = useState("");
@@ -186,6 +188,16 @@ export default function Index() {
             <Text variant="headlineLarge" style={styles.userName}>
               {profile?.user_name}
             </Text>
+            <IconButton
+              icon={scheme === "dark" ? "white-balance-sunny" : "weather-night"}
+              size={26}
+              onPress={toggle}
+              iconColor={theme.colors.primary}
+              accessibilityLabel={
+                scheme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+              }
+              style={styles.themeToggle}
+            />
           </View>
           <ScrollView
             snapToInterval={100}
@@ -230,15 +242,23 @@ const makeStyle = (theme, isRTL) =>
     },
     headerWrapper: {
       marginTop: 50,
+      flexDirection: isRTL ? "row-reverse" : "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 15,
     },
     userName: {
       color: theme.colors.primary,
       fontWeight: 500,
       letterSpacing: -1,
       marginTop: 15,
+      flex: 1,
       textAlign: isRTL ? "right" : "left",
-      paddingEnd: isRTL ? 30 : 0,
-      paddingStart: isRTL ? 0 : 30,
+      paddingEnd: isRTL ? 15 : 0,
+      paddingStart: isRTL ? 0 : 15,
+    },
+    themeToggle: {
+      marginTop: 15,
     },
     scrollContent: { padding: 10, paddingHorizontal: 0 },
   });

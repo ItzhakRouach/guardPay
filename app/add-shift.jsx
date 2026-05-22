@@ -13,6 +13,7 @@ import { ID } from "react-native-appwrite";
 import { Button, Text, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
+import ShiftCommentField from "../components/shifts/ShiftCommentField";
 import ShiftDatePicker from "../components/shifts/ShiftDatePicker";
 import ShiftSummary from "../components/shifts/ShiftSummary";
 import ShiftTypeSelected from "../components/shifts/ShiftTypeSelected";
@@ -24,6 +25,7 @@ import {
   databases,
   functions,
 } from "../lib/appwrite";
+import { getShiftTimes } from "../lib/shiftTimes";
 import { shiftTypeTimes } from "../lib/utils";
 
 export default function AddShift() {
@@ -35,6 +37,7 @@ export default function AddShift() {
   const [activeField, setActiveField] = useState(null);
 
   const [hourRate, setHourRate] = useState("");
+  const [comment, setComment] = useState("");
 
   const [loading, setLoading] = useState(true);
 
@@ -93,6 +96,7 @@ export default function AddShift() {
         setStartTime(new Date(shiftData.start_time));
         setEndTime(new Date(shiftData.end_time));
         setHourRate(shiftData.base_rate);
+        setComment(shiftData.comment ?? "");
       } catch (err) {
         console.log("Error parsing shift data:", err);
       }
@@ -166,6 +170,7 @@ export default function AddShift() {
 
       const docData = JSON.parse(execution.responseBody);
       docData.user_id = user.$id;
+      docData.comment = comment.trim();
 
       // שמירה ל-Database רק אחרי שהשרת החזיר תוצאה
       if (isEditMode && params.shiftId) {
@@ -195,7 +200,13 @@ export default function AddShift() {
   //function to handle the selected shit type  , and update the hours like it should be.
   const handleShiftTypeChange = (selected) => {
     setValue(selected);
-    const config = shiftTypeTimes[selected];
+    // For morning/evening/night, prefer the user's customised default
+    // (Profile → Preferences → Default shift times). Other types
+    // (training / vacation / holiday) keep the static shiftTypeTimes
+    // values since those aren't user-customisable.
+    const config =
+      getShiftTimes(selected, profile?.default_shift_times) ||
+      shiftTypeTimes[selected];
     if (!config) return;
 
     // create new Start Hour based on the selected value
@@ -241,6 +252,9 @@ export default function AddShift() {
             handleShiftTypeChange={handleShiftTypeChange}
           />
         </View>
+
+        {/** Optional per-shift note */}
+        <ShiftCommentField value={comment} onChangeText={setComment} />
 
         {/** Summmary Box */}
         <ShiftSummary shiftSummary={shiftSummary} />

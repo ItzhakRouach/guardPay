@@ -1,7 +1,17 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
-import { Card, Divider, IconButton, Text, useTheme } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Button,
+  Card,
+  Divider,
+  IconButton,
+  Text,
+  useTheme,
+} from "react-native-paper";
+import ShiftNoteModal from "../components/shifts/ShiftNoteModal";
 import { useLanguage } from "../hooks/lang-context";
 import { formatShiftDate, formatShiftTime } from "../lib/utils";
 
@@ -12,7 +22,11 @@ export default function ShiftDetails() {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
 
-  const shift = shiftData ? JSON.parse(shiftData) : null;
+  const initialShift = shiftData ? JSON.parse(shiftData) : null;
+  // Local copy so saving a note updates the view without round-tripping
+  // through the realtime subscription.
+  const [shift, setShift] = useState(initialShift);
+  const [noteModalVisible, setNoteModalVisible] = useState(false);
   const styles = makeStyle(theme, isRTL);
 
   if (!shift) return null;
@@ -155,6 +169,38 @@ export default function ShiftDetails() {
               </View>
             )}
 
+            {/* Note section */}
+            <Divider style={styles.divider} />
+            <Text variant="labelMedium" style={styles.sectionLabel}>
+              {t("shiftDetails.note_section")}
+            </Text>
+            {shift.comment && shift.comment.trim().length > 0 ? (
+              <View style={styles.noteRow}>
+                <Text
+                  variant="bodyLarge"
+                  style={styles.noteText}
+                  selectable
+                >
+                  {shift.comment}
+                </Text>
+                <IconButton
+                  icon="pencil-outline"
+                  size={20}
+                  onPress={() => setNoteModalVisible(true)}
+                  accessibilityLabel={t("shiftDetails.editNote")}
+                />
+              </View>
+            ) : (
+              <Button
+                icon="note-plus-outline"
+                mode="text"
+                onPress={() => setNoteModalVisible(true)}
+                style={styles.addNoteBtn}
+              >
+                {t("shiftDetails.addNote")}
+              </Button>
+            )}
+
             {/* שורה תחתונה - סה"כ ברוטו */}
             <View style={styles.totalContainer}>
               <Text variant="headlineSmall" style={styles.totalLabel}>
@@ -167,6 +213,13 @@ export default function ShiftDetails() {
           </Card.Content>
         </Card>
       </ScrollView>
+
+      <ShiftNoteModal
+        visible={noteModalVisible}
+        onDismiss={() => setNoteModalVisible(false)}
+        shift={shift}
+        onSaved={(comment) => setShift((prev) => ({ ...prev, comment }))}
+      />
     </SafeAreaView>
   );
 }
@@ -263,4 +316,20 @@ const makeStyle = (theme, isRTL) =>
       alignItems: "center",
     },
     trainingText: { color: theme.colors.error, fontWeight: "bold" },
+    noteRow: {
+      flexDirection: isRTL ? "row-reverse" : "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      backgroundColor: theme.colors.outlineVariant + "55",
+      borderRadius: 12,
+      padding: 12,
+    },
+    noteText: {
+      flex: 1,
+      color: theme.colors.onSurface,
+      textAlign: isRTL ? "right" : "left",
+    },
+    addNoteBtn: {
+      alignSelf: isRTL ? "flex-end" : "flex-start",
+    },
   });
