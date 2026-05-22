@@ -2,13 +2,14 @@ import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { I18nManager, useColorScheme } from "react-native";
+import { I18nManager } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import { AuthProvider, useAuth } from "../hooks/auth-context";
 import { LanguageProvider } from "../hooks/lang-context";
+import { ThemeProvider, useThemeMode } from "../hooks/theme-context";
 import "../translations/il18n";
 
 //setup the notfication behavior
@@ -143,50 +144,53 @@ try {
   console.log(e);
 }
 
+// Inner shell — needs to live inside ThemeProvider so useThemeMode() works.
+// Resolves the final palette from the user's stored mode (auto / light /
+// dark) instead of going straight to the system setting.
+function ThemedApp() {
+  const { scheme } = useThemeMode();
+  const isDark = scheme === "dark";
+  const theme = isDark ? darkTheme : lightTheme;
+  return (
+    <PaperProvider theme={theme}>
+      <SafeAreaProvider>
+        <StatusBar style={isDark ? "light" : "dark"} />
+        <RouteGuard>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <Stack
+              screenOptions={{
+                headerShown: true,
+                contentStyle: {
+                  backgroundColor: isDark ? "#0F172A" : "#F4F4F4",
+                },
+              }}
+            >
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="add-shift"
+                options={{
+                  headerShown: false,
+                  presentation: "modal",
+                  headerTitle: "Add New Shift",
+                }}
+              />
+            </Stack>
+          </GestureHandlerRootView>
+        </RouteGuard>
+      </SafeAreaProvider>
+    </PaperProvider>
+  );
+}
+
 export default function RootLayout() {
-  // detect system theme
-  const colorScheme = useColorScheme();
-  // apply theme based on the system theme Dark / Light
-  const theme = colorScheme === "dark" ? darkTheme : lightTheme;
   return (
     <LanguageProvider>
-      <AuthProvider>
-        <PaperProvider theme={theme}>
-          <SafeAreaProvider>
-            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <RouteGuard>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <Stack
-                  screenOptions={{
-                    headerShown: true,
-                    contentStyle: {
-                      backgroundColor:
-                        colorScheme === "dark" ? "#0F172A" : "#F4F4F4",
-                    },
-                  }}
-                >
-                  <Stack.Screen
-                    name="(auth)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="add-shift"
-                    options={{
-                      headerShown: false,
-                      presentation: "modal",
-                      headerTitle: "Add New Shift",
-                    }}
-                  />
-                </Stack>
-              </GestureHandlerRootView>
-            </RouteGuard>
-          </SafeAreaProvider>
-        </PaperProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ThemedApp />
+        </AuthProvider>
+      </ThemeProvider>
     </LanguageProvider>
   );
 }
