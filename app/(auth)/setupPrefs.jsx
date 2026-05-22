@@ -26,7 +26,12 @@ import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
+// The DatePickerModal below uses locale="en-GB" (for DD/MM/YYYY date
+// order) but react-native-paper-dates doesn't ship a separate en-GB
+// translation. Reuse the en strings under the en-GB key so the picker
+// stops logging "locale not registered" warnings on every open.
 registerTranslation("en", en);
+registerTranslation("en-GB", en);
 
 export default function SetupProfileScreen() {
   //create state to manage the pages
@@ -184,7 +189,8 @@ export default function SetupProfileScreen() {
           <View style={styles.stepsContainer}>
             <View style={styles.inputWrapper}>
               <TextInput
-                placeholder={t("setupP.hour")}
+                label={t("setupP.hour")}
+                placeholder="0"
                 contentStyle={styles.contentStyle}
                 mode="outlined"
                 value={String(formData.price_per_hour ?? "")}
@@ -198,7 +204,8 @@ export default function SetupProfileScreen() {
                 keyboardType="decimal-pad"
               />
               <TextInput
-                placeholder={t("setupP.ride")}
+                label={t("setupP.ride")}
+                placeholder="0"
                 contentStyle={styles.contentStyle}
                 mode="outlined"
                 value={String(formData.price_per_ride ?? "")}

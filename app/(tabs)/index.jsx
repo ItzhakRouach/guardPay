@@ -1,4 +1,5 @@
 import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Linking, Pressable, ScrollView, Switch, View } from "react-native";
@@ -149,6 +150,7 @@ export default function ProfileScreen() {
   const [colorsOpen, setColorsOpen] = useState(false);
   const [timesOpen, setTimesOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const [tempDay, setTempDay] = useState(1);
   const [tempTime, setTempTime] = useState(new Date());
@@ -247,6 +249,10 @@ export default function ProfileScreen() {
         text: t("common.delete"),
         style: "destructive",
         onPress: async () => {
+          // Spinner overlay covers the multi-step delete + sign-out so
+          // the user doesn't see a frozen Profile screen while the
+          // cloud function runs.
+          setDeletingAccount(true);
           try {
             await functions.createExecution(
               "697d0f3c001bba7f03d2",
@@ -255,15 +261,21 @@ export default function ProfileScreen() {
               "/",
               "POST",
             );
-            Alert.alert(t("settings.deleted"), t("settings.success"));
           } catch (e) {
             console.error("ProfileScreen: delete account failed", e);
+            setDeletingAccount(false);
+            Alert.alert(t("edit_pref.msg_err"));
+            return;
           }
           try {
-            signOut();
+            await signOut();
           } catch (err) {
             console.error("ProfileScreen: sign out after delete failed", err);
           }
+          // Land on onBoarding directly. The RouteGuard would route us
+          // there once `user` clears, but doing it explicitly avoids
+          // a flash of the (tabs) shell during the auth-state update.
+          router.replace("/onBoarding");
         },
       },
     ]);
@@ -548,6 +560,37 @@ export default function ProfileScreen() {
           setTempDay={setTempDay}
           handleSaveReminder={onSaveReminder}
         />
+      ) : null}
+
+      {/*
+        Full-screen scrim + spinner during account deletion. Stays
+        mounted across the cloud-function call + sign-out + router
+        replace so the user never sees a frozen Profile screen.
+      */}
+      {deletingAccount ? (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.55)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+          pointerEvents="auto"
+        >
+          <ActivityIndicator color={theme.colors.accent} size="large" />
+          <Type
+            variant="body"
+            color="#FFFFFF"
+            style={{ marginTop: 16 }}
+          >
+            {t("settings.delete_title")}
+          </Type>
+        </View>
       ) : null}
     </View>
   );
