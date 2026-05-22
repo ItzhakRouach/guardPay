@@ -1,101 +1,115 @@
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { router } from "expo-router";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { IconButton, useTheme } from "react-native-paper";
-import AddShiftButton from "../../components/common/AddShiftButton";
-import LoadingSpinner from "../../components/common/LoadingSpinnner";
-import MonthPicker from "../../components/layout/MonthPicker";
-import NoShiftFound from "../../components/layout/NoShiftsFound";
-import MonthTotalCard from "../../components/shifts/MonthTotalCard";
-import ShiftCard from "../../components/shifts/ShiftCard";
+import { Alert, Pressable, ScrollView, View } from "react-native";
+import { useTheme } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AnchorCard from "../../components/common/AnchorCard";
+import Eyebrow from "../../components/common/Eyebrow";
+import Icon from "../../components/common/Icon";
+import MonthHeader from "../../components/common/MonthHeader";
+import Type from "../../components/common/Type";
+import ShiftRow from "../../components/shifts/ShiftRow";
 import { useAuth } from "../../hooks/auth-context";
+import { useLanguage } from "../../hooks/lang-context";
+import { useMonthlySalary } from "../../hooks/useMonthlySalary";
+import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
-import { formatShiftDate, formatShiftTime } from "../../lib/utils";
+
+function groupByWeek(shifts) {
+  const groups = {};
+  shifts.forEach((s) => {
+    const d = new Date(s.start_time);
+    if (Number.isNaN(d.getTime())) return;
+    const wk = Math.min(5, Math.floor((d.getDate() - 1) / 7) + 1);
+    if (!groups[wk]) groups[wk] = [];
+    groups[wk].push(s);
+  });
+  return Object.entries(groups)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([wk, rows]) => ({ wk: Number(wk), rows }));
+}
+
+function EmptyState() {
+  const theme = useTheme();
+  const { t } = useTranslation();
+  return (
+    <View
+      style={{
+        alignItems: "center",
+        paddingVertical: 60,
+        paddingHorizontal: 24,
+      }}
+    >
+      <Icon name="calendar" size={48} color={theme.colors.muted} stroke={1.4} />
+      <Type
+        variant="sectionTitle"
+        color={theme.colors.ink}
+        style={{ marginTop: 16, textAlign: "center" }}
+      >
+        {t("shifts.empty.title")}
+      </Type>
+      <Type
+        variant="body"
+        color={theme.colors.muted}
+        align="center"
+        style={{ marginTop: 6, maxWidth: 260 }}
+      >
+        {t("shifts.empty.body")}
+      </Type>
+    </View>
+  );
+}
+
+function FAB({ onPress, isRTL }) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={10}
+      style={({ pressed }) => ({
+        position: "absolute",
+        bottom: 24,
+        [isRTL ? "left" : "right"]: 20,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: theme.colors.cta,
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: theme.colors.ink,
+        shadowOpacity: 0.18,
+        shadowRadius: 14,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 6,
+        transform: [{ scale: pressed ? 0.94 : 1 }],
+      })}
+    >
+      <Icon name="plus" size={28} color={theme.colors.ctaInk} stroke={2.2} />
+    </Pressable>
+  );
+}
 
 export default function ShiftsScreen() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const { user, profile } = useAuth();
-  const { shifts, loading, setShifts } = useShift(user, currentDate);
-
   const theme = useTheme();
-  const styles = makeStyle(theme);
-  const monthName = currentDate.getMonth();
-  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { user, profile } = useAuth();
+  const { currentDate, prev, next } = useMonthNav();
+  const { shifts, setShifts } = useShift(user, currentDate);
+  const { totals, monthlyReport } = useMonthlySalary(shifts);
+  const { isRTL } = useLanguage();
   const { t } = useTranslation();
 
-  // function that run only when data change (shift added ) and calculate total hours and amount the user earn
-  const monthTotals = useMemo(() => {
-    return shifts.reduce(
-      (acc, shift) => {
-        acc.amount += Number(shift.total_amount || 0);
-        acc.hours +=
-          Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
-        return acc;
-      },
-      { amount: 0, hours: 0 },
-    );
-  }, [shifts]);
+  const groups = useMemo(() => groupByWeek(shifts || []), [shifts]);
 
-  // handle Delete action (Sliding to the right)
-  const renderRightAction = (onDelete) => (
-    <View style={styles.deleteAction}>
-      <IconButton
-        icon="delete"
-        iconColor="white"
-        size={40}
-        style={{
-          backgroundColor: theme.colors.delBtn,
-          justifyContent: "center",
-          width: 70,
-          borderRadius: 12,
-          marginVertical: 15,
-        }}
-        onPress={onDelete}
-      />
-    </View>
-  );
-  // handle Edit Action (sliding to the left)
-  const renderLeftAction = (onEdit) => (
-    <View style={styles.editAction}>
-      <IconButton
-        icon="pencil"
-        iconColor="white"
-        size={40}
-        style={{
-          backgroundColor: theme.colors.editBtn,
-          justifyContent: "center",
-          width: 70,
-          borderRadius: 12,
-          marginVertical: 15,
-        }}
-        onPress={onEdit}
-      />
-    </View>
-  );
-
-  // Actual destructive delete, called only after the user confirms.
-  const performDelete = async (shiftId) => {
-    try {
-      await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
-      // refresh current shift list
-      setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
-    } catch (err) {
-      console.log(err);
-    }
+  const handleEdit = (shift) => {
+    router.push({
+      pathname: "/add-shift",
+      params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
+    });
   };
 
-  // Swipe-to-delete entry point — guard with a confirm so a stray
-  // swipe-and-tap can't silently wipe a shift the user just spent
-  // minutes logging.
   const handleDelete = (shiftId) => {
     Alert.alert(
       t("shifts.delete_confirm_title"),
@@ -105,87 +119,139 @@ export default function ShiftsScreen() {
         {
           text: t("common.delete"),
           style: "destructive",
-          onPress: () => performDelete(shiftId),
+          onPress: async () => {
+            try {
+              await databases.deleteDocument(
+                DATABASE_ID,
+                SHIFTS_HISTORY,
+                shiftId,
+              );
+              setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
+            } catch (err) {
+              console.log(err);
+            }
+          },
         },
       ],
     );
   };
-  // handle the edit functionality
-  const handleEdit = (shift) => {
-    router.push({
-      pathname: "/add-shift",
-      params: { shiftId: shift.$id, existingData: JSON.stringify(shift) },
-    });
-  };
 
   return (
-    <View style={styles.container}>
-      <MonthPicker currentDate={currentDate} setCurrentDate={setCurrentDate} />
-      {/** Month summary Section */}
-      <MonthTotalCard
-        totalAmount={monthTotals.amount}
-        totalHours={monthTotals.hours}
-      />
+    <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingTop: insets.top + 8,
+          paddingBottom: 140,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <MonthHeader
+          eyebrow={`${shifts.length} ${t("shifts.count")} · ${(
+            totals.totalHours || 0
+          ).toFixed(1)} ${t("shifts.hoursUnit")}`}
+          currentDate={currentDate}
+          onPrev={prev}
+          onNext={next}
+        />
+        <View style={{ height: 18 }} />
 
-      {loading ? (
-        <LoadingSpinner />
-      ) : shifts?.length === 0 ? (
-        <NoShiftFound monthName={monthName} />
-      ) : (
-        <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: 300 }]}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={100}
-          decelerationRate="fast"
-        >
-          {/** Card to present shift with date , hours , and total money made this day */}
-          {shifts.map((shift, index) => (
-            <Swipeable
-              key={shift.$id || `shift-${index}`}
-              renderLeftActions={() =>
-                renderLeftAction(() => handleEdit(shift))
-              }
-              renderRightActions={() =>
-                renderRightAction(() => handleDelete(shift.$id))
-              }
-            >
-              <TouchableOpacity
-                onPress={() => {
-                  router.push({
-                    pathname: "/shift-details",
-                    params: { shiftData: JSON.stringify(shift) },
-                  });
+        <AnchorCard>
+          <View style={{ flexDirection: "row", padding: 22 }}>
+            <View style={{ flex: 1 }}>
+              <Eyebrow color={theme.colors.anchorMuted}>
+                {t("shifts.anchor.monthly")}
+              </Eyebrow>
+              <Type
+                variant="sectionTitle"
+                color={theme.colors.anchorInk}
+                style={{ marginTop: 6 }}
+              >
+                {`${Math.round(monthlyReport?.bruto || 0).toLocaleString(
+                  "en-US",
+                )} ₪`}
+              </Type>
+              <Type
+                variant="small"
+                color={theme.colors.anchorMuted}
+                style={{ marginTop: 2 }}
+              >
+                {`+${Math.round(totals.travelPay || 0).toLocaleString(
+                  "en-US",
+                )} ₪ ${t("shifts.anchor.travel")}`}
+              </Type>
+            </View>
+            <View
+              style={{
+                width: 1,
+                backgroundColor: "rgba(255,255,255,0.18)",
+                marginHorizontal: 16,
+              }}
+            />
+            <View style={{ flex: 1 }}>
+              <Eyebrow color={theme.colors.anchorMuted}>
+                {t("shifts.anchor.hours")}
+              </Eyebrow>
+              <Type
+                variant="sectionTitle"
+                color={theme.colors.anchorInk}
+                style={{ marginTop: 6 }}
+              >
+                {`${(totals.totalHours || 0).toFixed(1)}h`}
+              </Type>
+              <Type
+                variant="small"
+                color={theme.colors.anchorMuted}
+                style={{ marginTop: 2 }}
+              >
+                {`${totals.totalShifts || 0} ${t("shifts.anchor.shifts")}`}
+              </Type>
+            </View>
+          </View>
+        </AnchorCard>
+
+        {shifts.length === 0 ? (
+          <EmptyState />
+        ) : (
+          groups.map(({ wk, rows }) => (
+            <View key={wk} style={{ marginTop: 22 }}>
+              <Eyebrow color={theme.colors.muted}>
+                {`${t("shifts.week")} ${wk}`}
+              </Eyebrow>
+              <View
+                style={{
+                  marginTop: 10,
+                  borderRadius: 18,
+                  backgroundColor: theme.colors.surface,
+                  borderWidth: 1,
+                  borderColor: theme.colors.border,
+                  overflow: "hidden",
                 }}
               >
-                <ShiftCard
-                  dateTime={formatShiftDate(shift.start_time)}
-                  dateHours={`${formatShiftTime(
-                    shift.start_time,
-                  )} - ${formatShiftTime(shift.end_time)}`}
-                  totalAmout={shift.total_amount}
-                  shift={shift}
-                  userColors={profile?.shift_colors}
-                />
-              </TouchableOpacity>
-            </Swipeable>
-          ))}
-        </ScrollView>
-      )}
-      <AddShiftButton />
+                {rows.map((shift, i) => (
+                  <Pressable
+                    key={shift.$id || `s-${i}`}
+                    onLongPress={() => handleDelete(shift.$id)}
+                    onPress={() => handleEdit(shift)}
+                    style={({ pressed }) => ({
+                      backgroundColor: pressed
+                        ? theme.colors.surfaceAlt
+                        : "transparent",
+                    })}
+                  >
+                    <ShiftRow
+                      shift={shift}
+                      profile={profile}
+                      isLast={i === rows.length - 1}
+                    />
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ))
+        )}
+      </ScrollView>
+      <FAB onPress={() => router.push("/add-shift")} isRTL={isRTL} />
     </View>
   );
 }
-
-const makeStyle = (theme) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      paddingVertical: 50,
-      paddingHorizontal: 10,
-    },
-    scrollContent: {
-      padding: 10,
-      paddingHorizontal: 0,
-    },
-  });
