@@ -5,8 +5,8 @@ import { Alert, Pressable, ScrollView, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AnchorCard from "../../components/common/AnchorCard";
 import Eyebrow from "../../components/common/Eyebrow";
+import HeroCard from "../../components/common/HeroCard";
 import Icon from "../../components/common/Icon";
 import MonthHeader from "../../components/common/MonthHeader";
 import Type from "../../components/common/Type";
@@ -187,15 +187,15 @@ export default function ShiftsScreen() {
         />
         <View style={{ height: 18 }} />
 
-        <AnchorCard>
+        <HeroCard>
           <View style={{ flexDirection: "row", padding: 22 }}>
             <View style={{ flex: 1 }}>
-              <Eyebrow color={theme.colors.anchorMuted}>
+              <Eyebrow color={theme.colors.muted}>
                 {t("shifts.anchor.monthly")}
               </Eyebrow>
               <Type
                 variant="sectionTitle"
-                color={theme.colors.anchorInk}
+                color={theme.colors.ink}
                 style={{ marginTop: 6 }}
               >
                 {`${Math.round(monthlyReport?.bruto || 0).toLocaleString(
@@ -204,7 +204,7 @@ export default function ShiftsScreen() {
               </Type>
               <Type
                 variant="small"
-                color={theme.colors.anchorMuted}
+                color={theme.colors.muted}
                 style={{ marginTop: 2 }}
               >
                 {`+${Math.round(totals.travelPay || 0).toLocaleString(
@@ -215,31 +215,31 @@ export default function ShiftsScreen() {
             <View
               style={{
                 width: 1,
-                backgroundColor: "rgba(255,255,255,0.18)",
+                backgroundColor: theme.colors.borderSoft,
                 marginHorizontal: 16,
               }}
             />
             <View style={{ flex: 1 }}>
-              <Eyebrow color={theme.colors.anchorMuted}>
+              <Eyebrow color={theme.colors.muted}>
                 {t("shifts.anchor.hours")}
               </Eyebrow>
               <Type
                 variant="sectionTitle"
-                color={theme.colors.anchorInk}
+                color={theme.colors.ink}
                 style={{ marginTop: 6 }}
               >
                 {`${(totals.totalHours || 0).toFixed(1)}h`}
               </Type>
               <Type
                 variant="small"
-                color={theme.colors.anchorMuted}
+                color={theme.colors.muted}
                 style={{ marginTop: 2 }}
               >
                 {`${totals.totalShifts || 0} ${t("shifts.anchor.shifts")}`}
               </Type>
             </View>
           </View>
-        </AnchorCard>
+        </HeroCard>
 
         {shifts.length === 0 ? (
           <EmptyState />
