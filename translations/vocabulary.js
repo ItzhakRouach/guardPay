@@ -4,6 +4,7 @@ export const resources = {
       common: {
         cancel: "ביטול",
         delete: "מחק",
+        edit: "ערוך",
         on: "פעיל",
         off: "כבוי",
         privacy_aggrement: "בשימוש באפליקציית GuardPay , הנך מאשר/ת כי קראת את",
@@ -136,7 +137,9 @@ export const resources = {
           morning: "בוקר",
           evening: "צהריים",
           night: "לילה",
+          friday: "יום שישי",
           shabbat: "שבת",
+          holiday: "חג",
           training: "אימון",
           vacation: "חופשה",
         },
@@ -314,6 +317,7 @@ export const resources = {
       common: {
         cancel: "Cancel",
         delete: "Delete",
+        edit: "Edit",
         on: "On",
         off: "Off",
         privacy_aggrement:
@@ -461,7 +465,9 @@ export const resources = {
           morning: "Morning",
           evening: "Evening",
           night: "Night",
+          friday: "Friday",
           shabbat: "Shabbat",
+          holiday: "Holiday",
           training: "Training",
           vacation: "Vacation",
         },

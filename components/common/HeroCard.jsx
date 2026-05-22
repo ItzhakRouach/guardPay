@@ -2,9 +2,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
 
-// Surface card with a faked radial gradient in the top-end corner.
-// RN has no native radial gradient — we stack two diagonal linear gradients
-// to approximate the warm glow specified in the design.
+// Surface card with a soft accent glow in the top-end corner.
+// One subtle linear gradient does the job — two stacked layers were
+// too punchy. `overflow: hidden` keeps the glow inside the rounded corner.
 export default function HeroCard({ children, radius = 24, style }) {
   const theme = useTheme();
   return (
@@ -21,28 +21,15 @@ export default function HeroCard({ children, radius = 24, style }) {
       ]}
     >
       <LinearGradient
-        colors={[theme.colors.accent + "38", "transparent"]}
+        colors={[theme.colors.accent + "22", "transparent"]}
         start={{ x: 1, y: 0 }}
-        end={{ x: 0.4, y: 0.65 }}
+        end={{ x: 0.35, y: 0.7 }}
         style={{
           position: "absolute",
           top: 0,
           right: 0,
-          width: 220,
-          height: 200,
-        }}
-        pointerEvents="none"
-      />
-      <LinearGradient
-        colors={[theme.colors.accent + "20", "transparent"]}
-        start={{ x: 0.95, y: 0.05 }}
-        end={{ x: 0.55, y: 0.45 }}
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: 160,
-          height: 140,
+          width: 180,
+          height: 160,
         }}
         pointerEvents="none"
       />

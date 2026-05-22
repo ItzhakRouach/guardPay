@@ -31,12 +31,12 @@ function bucketByWeek(shifts) {
   return buckets;
 }
 
-function HeroSection({ neto, trendPct, profileName }) {
+function HeroSection({ neto, trendPct }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const animated = useRef(new Animated.Value(0)).current;
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState(neto);
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled?.()
@@ -47,6 +47,7 @@ function HeroSection({ neto, trendPct, profileName }) {
   useEffect(() => {
     if (reduceMotion) {
       animated.setValue(1);
+      setDisplay(neto);
       return;
     }
     animated.setValue(0);
@@ -74,33 +75,26 @@ function HeroSection({ neto, trendPct, profileName }) {
     trendPct == null ? null : trendPct >= 0 ? "arrow-up" : "arrow-down";
 
   return (
-    <HeroCard style={{ padding: 28 }}>
+    <HeroCard style={{ padding: 26 }}>
       <Eyebrow color={theme.colors.muted}>{t("overview.heroLabel")}</Eyebrow>
-      {profileName ? (
-        <Type
-          variant="body"
-          color={theme.colors.inkSoft}
-          style={{ marginTop: 2 }}
-        >
-          {profileName}
-        </Type>
-      ) : null}
       <View
         style={{
           flexDirection: "row",
           alignItems: "baseline",
-          marginTop: 12,
-          gap: 8,
-          flexWrap: "wrap",
+          marginTop: 14,
         }}
       >
-        <Type variant="hero" color={theme.colors.ink}>
+        <Type
+          variant="hero"
+          color={theme.colors.ink}
+          style={{ lineHeight: 60 }}
+        >
           {fmtCurrency(display)}
         </Type>
         <Type
           variant="sectionTitle"
           color={theme.colors.muted}
-          style={{ marginBottom: 6 }}
+          style={{ marginLeft: 6 }}
         >
           ₪
         </Type>
@@ -110,8 +104,8 @@ function HeroSection({ neto, trendPct, profileName }) {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: 6,
-            marginTop: 10,
+            gap: 5,
+            marginTop: 12,
             alignSelf: "flex-start",
             paddingHorizontal: 10,
             paddingVertical: 5,
@@ -120,7 +114,7 @@ function HeroSection({ neto, trendPct, profileName }) {
           }}
         >
           {trendIcon ? (
-            <Icon name={trendIcon} size={14} color={trendColor} />
+            <Icon name={trendIcon} size={13} color={trendColor} />
           ) : null}
           <Type variant="small" color={trendColor}>
             {`${trendPct >= 0 ? "+" : ""}${trendPct.toFixed(1)}% ${t(
@@ -246,15 +240,16 @@ function WeeklyChart({ buckets }) {
           flexDirection: "row",
           alignItems: "flex-end",
           justifyContent: "space-between",
-          marginTop: 16,
-          height: 120,
+          marginTop: 28,
+          paddingHorizontal: 4,
+          height: 100,
         }}
       >
         {buckets.map((v, i) => {
           const ratio = v / max;
           const h = anim.interpolate({
             inputRange: [0, 1],
-            outputRange: [4, Math.max(4, 120 * ratio)],
+            outputRange: [4, Math.max(4, 90 * ratio)],
           });
           const isPeak = i === peakIdx && v > 0;
           return (
@@ -357,7 +352,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected }) {
 export default function OverviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { currentDate, prev, next } = useMonthNav();
   const { shifts } = useShift(user, currentDate);
   const { monthlyReport, totals } = useMonthlySalary(shifts);
@@ -435,7 +430,6 @@ export default function OverviewScreen() {
           <HeroSection
             neto={monthlyReport?.neto || 0}
             trendPct={trendPct}
-            profileName={profile?.user_name}
           />
           <StatsGrid
             bruto={monthlyReport?.bruto || 0}

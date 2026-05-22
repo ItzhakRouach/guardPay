@@ -1,10 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { useThemeMode } from "../../hooks/theme-context";
+import { resolveTint } from "../../lib/shiftColors";
+import { deriveShiftType, TYPE_ICON } from "../../lib/shiftType";
 import Hairline from "../common/Hairline";
 import Icon from "../common/Icon";
 import Type from "../common/Type";
-import { deriveShiftType, TYPE_ICON } from "../../lib/shiftType";
 
 const weekday = (date, locale) =>
   date.toLocaleDateString(locale, { weekday: "short" });
@@ -20,6 +22,7 @@ const fmtTime = (iso) => {
 export default function ShiftRow({ shift, profile, isLast }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
+  const { scheme } = useThemeMode();
   const locale = i18n.language === "he" ? "he-IL" : "en-US";
   const start = new Date(shift.start_time);
   const type = deriveShiftType(shift, profile);
@@ -29,8 +32,12 @@ export default function ShiftRow({ shift, profile, isLast }) {
     Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
   const rate = Number(shift.base_rate || profile?.price_per_hour || 0);
 
+  // Per-shift tint from user prefs (friday/saturday/training/holiday).
+  // Null when it's a regular weekday shift — we keep the surface plain.
+  const tint = resolveTint(shift, profile?.shift_colors, scheme);
+
   return (
-    <View>
+    <View style={{ backgroundColor: tint || "transparent" }}>
       <View
         style={{
           flexDirection: "row",
@@ -43,11 +50,22 @@ export default function ShiftRow({ shift, profile, isLast }) {
           <Type variant="smallLabel" color={theme.colors.muted}>
             {dayLabel}
           </Type>
-          <Type variant="rowDate" color={theme.colors.ink} style={{ marginTop: 2 }}>
+          <Type
+            variant="rowDate"
+            color={theme.colors.ink}
+            style={{ marginTop: 2 }}
+          >
             {dayNum}
           </Type>
         </View>
-        <Hairline vertical thickness={1} style={{ marginHorizontal: 14, height: 36 }} />
+        <View
+          style={{
+            width: 1,
+            height: 36,
+            backgroundColor: theme.colors.borderSoft,
+            marginHorizontal: 14,
+          }}
+        />
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <Icon
@@ -69,7 +87,9 @@ export default function ShiftRow({ shift, profile, isLast }) {
         </View>
         <View style={{ alignItems: "flex-end" }}>
           <Type variant="rowAmount" color={theme.colors.ink}>
-            {Math.round(Number(shift.total_amount || 0)).toLocaleString("en-US")}
+            {Math.round(Number(shift.total_amount || 0)).toLocaleString(
+              "en-US",
+            )}
           </Type>
           <Type variant="small" color={theme.colors.muted}>
             ₪

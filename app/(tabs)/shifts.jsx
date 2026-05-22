@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AnchorCard from "../../components/common/AnchorCard";
@@ -91,6 +92,29 @@ function FAB({ onPress, isRTL }) {
   );
 }
 
+function SwipeAction({ label, color, icon }) {
+  return (
+    <View
+      style={{
+        backgroundColor: color,
+        justifyContent: "center",
+        alignItems: "center",
+        width: 84,
+        marginVertical: 0,
+      }}
+    >
+      <Icon name={icon} size={22} color="#FFFFFF" />
+      <Type
+        variant="small"
+        color="#FFFFFF"
+        style={{ marginTop: 4, fontFamily: "Manrope_600SemiBold" }}
+      >
+        {label}
+      </Type>
+    </View>
+  );
+}
+
 export default function ShiftsScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -136,6 +160,13 @@ export default function ShiftsScreen() {
     );
   };
 
+  const openDetails = (shift) => {
+    router.push({
+      pathname: "/shift-details",
+      params: { shiftData: JSON.stringify(shift) },
+    });
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <ScrollView
@@ -157,7 +188,7 @@ export default function ShiftsScreen() {
         <View style={{ height: 18 }} />
 
         <AnchorCard>
-          <View style={{ flexDirection: "row", padding: 22 }}>
+          <View style={{ flexDirection: "row", padding: 22, paddingRight: 32 }}>
             <View style={{ flex: 1 }}>
               <Eyebrow color={theme.colors.anchorMuted}>
                 {t("shifts.anchor.monthly")}
@@ -229,22 +260,33 @@ export default function ShiftsScreen() {
                 }}
               >
                 {rows.map((shift, i) => (
-                  <Pressable
+                  <Swipeable
                     key={shift.$id || `s-${i}`}
-                    onLongPress={() => handleDelete(shift.$id)}
-                    onPress={() => handleEdit(shift)}
-                    style={({ pressed }) => ({
-                      backgroundColor: pressed
-                        ? theme.colors.surfaceAlt
-                        : "transparent",
-                    })}
+                    renderLeftActions={() => (
+                      <SwipeAction
+                        label={t("common.edit") || "Edit"}
+                        color={theme.colors.accent}
+                        icon="edit"
+                      />
+                    )}
+                    renderRightActions={() => (
+                      <SwipeAction
+                        label={t("common.delete")}
+                        color={theme.colors.neg}
+                        icon="trash"
+                      />
+                    )}
+                    onSwipeableLeftOpen={() => handleEdit(shift)}
+                    onSwipeableRightOpen={() => handleDelete(shift.$id)}
                   >
-                    <ShiftRow
-                      shift={shift}
-                      profile={profile}
-                      isLast={i === rows.length - 1}
-                    />
-                  </Pressable>
+                    <Pressable onPress={() => openDetails(shift)}>
+                      <ShiftRow
+                        shift={shift}
+                        profile={profile}
+                        isLast={i === rows.length - 1}
+                      />
+                    </Pressable>
+                  </Swipeable>
                 ))}
               </View>
             </View>
