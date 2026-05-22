@@ -1,11 +1,10 @@
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { OutlinedButton, PrimaryButton } from "../../components/common/Buttons";
 import Eyebrow from "../../components/common/Eyebrow";
-import Monogram from "../../components/common/Monogram";
 import Pill from "../../components/common/Pill";
 import Type from "../../components/common/Type";
 import { useLanguage } from "../../hooks/lang-context";
@@ -35,20 +34,26 @@ export default function OnBoardingScreen() {
           paddingHorizontal: 28,
         }}
       >
-        <Monogram size={64} letter="G" />
+        <Image
+          source={require("../../assets/images/icon.png")}
+          style={{ width: 96, height: 96, borderRadius: 22 }}
+          resizeMode="contain"
+        />
         <View style={{ height: 24 }} />
         <Eyebrow color={theme.colors.accent}>{t("welcome.eyebrow")}</Eyebrow>
         <Type
           variant="welcomeTitle"
           color={theme.colors.ink}
-          style={{ marginTop: 8 }}
+          align="center"
+          style={{ marginTop: 8, lineHeight: 64 }}
         >
           GuardPay.
         </Type>
         <Type
           variant="welcomeSub"
           color={theme.colors.inkSoft}
-          style={{ marginTop: 6 }}
+          align="center"
+          style={{ marginTop: 6, lineHeight: 38 }}
         >
           {t("welcome.subtitle")}
         </Type>
