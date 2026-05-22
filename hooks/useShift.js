@@ -48,13 +48,15 @@ export const useShift = (user, currentDate) => {
   }, [user, currentDate]);
 
   useEffect(() => {
+    if (!user) return;
     fetchShifts();
     const channel = `databases.${DATABASE_ID}.collections.${SHIFTS_HISTORY}.documents`;
     const unsubscribe = client.subscribe(channel, (response) => {
-      const isMyUser = response.payload.user_id === user.$id;
+      // The subscription can fire once more during sign-out teardown after
+      // `user` has been cleared — guard before reading $id.
+      if (!user) return;
+      const isMyUser = response.payload?.user_id === user.$id;
       const isDeleted = response.events.some((e) => e.includes(".delete"));
-
-      // Check if the modified document belongs to the current user
       if (isMyUser || isDeleted) {
         fetchShifts();
       }

@@ -67,6 +67,9 @@ export default function AddShift() {
   const params = useLocalSearchParams();
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const router = useRouter();
+  const { user, profile } = useAuth();
+
   const fetchUserRates = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -99,10 +102,6 @@ export default function AddShift() {
     }
     fetchUserRates();
   }, [params.existingData, fetchUserRates]);
-
-  const router = useRouter();
-
-  const { user, profile } = useAuth();
 
   const buttonLabel = isEditMode ? "update" : "save";
 

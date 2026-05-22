@@ -24,7 +24,7 @@ import LoadingSpinner from "../common/LoadingSpinnner";
 export default function PreferencesChange({ visable, hideModal }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
-  const { profile, loading, reloadProfile } = useAuth(); // הוספתי reloadProfile כדי שהשינוי ישתקף מיד
+  const { user, profile, fetchUserProfile } = useAuth();
   const { t } = useTranslation();
   const styles = makeStyle(theme, isRTL);
 
@@ -32,8 +32,9 @@ export default function PreferencesChange({ visable, hideModal }) {
     price_per_hour: "",
     price_per_ride: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  // עדכון השדות במידע הקיים כשהמודאל נפתח
+  // Refresh fields with the latest profile data each time the modal opens.
   useEffect(() => {
     if (visable && profile) {
       setFormData({
@@ -45,17 +46,18 @@ export default function PreferencesChange({ visable, hideModal }) {
 
   const handleSaveBtn = async () => {
     if (!formData.price_per_hour || !formData.price_per_ride) return;
-
+    setLoading(true);
     try {
       await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
         price_per_hour: parseFloat(formData.price_per_hour),
         price_per_ride: parseFloat(formData.price_per_ride),
       });
-
-      if (reloadProfile) await reloadProfile(); // רענון המידע באפליקציה
+      await fetchUserProfile(user);
       hideModal();
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -25,6 +25,7 @@ import {
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
+import { normalizeDecimal } from "../../lib/utils";
 registerTranslation("en", en);
 
 export default function SetupProfileScreen() {
@@ -146,10 +147,10 @@ export default function SetupProfileScreen() {
                 onChangeText={(val) =>
                   setFormData((prev) => ({
                     ...prev,
-                    age: val,
+                    age: val.replace(/[^0-9]/g, ""),
                   }))
                 }
-                keyboardType="numeric"
+                keyboardType="number-pad"
               />
               <DatePickerInput
                 locale="en-GB"
@@ -186,28 +187,28 @@ export default function SetupProfileScreen() {
                 placeholder={t("setupP.hour")}
                 contentStyle={styles.contentStyle}
                 mode="outlined"
-                value={formData.price_per_hour}
+                value={String(formData.price_per_hour ?? "")}
                 style={styles.textInput}
                 onChangeText={(val) =>
                   setFormData((prev) => ({
                     ...prev,
-                    price_per_hour: val,
+                    price_per_hour: normalizeDecimal(val),
                   }))
                 }
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
               />
               <TextInput
                 placeholder={t("setupP.ride")}
                 contentStyle={styles.contentStyle}
                 mode="outlined"
-                value={formData.price_per_ride}
+                value={String(formData.price_per_ride ?? "")}
                 onChangeText={(val) =>
                   setFormData((prev) => ({
                     ...prev,
-                    price_per_ride: val,
+                    price_per_ride: normalizeDecimal(val),
                   }))
                 }
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
               />
             </View>
           </View>
