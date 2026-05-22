@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
 import {
   Divider,
+  IconButton,
   List,
-  Surface,
+  Modal,
+  Portal,
   Text,
   TouchableRipple,
   useTheme,
@@ -21,11 +23,14 @@ import {
 } from "../../lib/shiftColors";
 import ShiftColorsModal from "./ShiftColorsModal";
 
-// Profile section for choosing per-shift-type background tints. Persists
-// changed swatches as a JSON blob in users_prefs.shift_colors. Mirrors the
-// "General" / "Preferences" / "Account" card pattern in ProfileSummary so
-// it feels native to the Profile tab.
-export default function AppearanceSection() {
+// Modal launched from the Preferences row. Lists the 4 shift types with
+// their current swatch dot; tapping a row opens the swatch picker modal
+// (nested). A Reset row at the bottom restores the defaults.
+//
+// Persistence and dot rendering are identical to what AppearanceSection
+// did before — this just relocates the UI into a modal so the section
+// can collapse to a single row inside Preferences.
+export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
   const { user, profile, fetchUserProfile } = useAuth();
@@ -36,11 +41,6 @@ export default function AppearanceSection() {
   const colors = parseUserColors(profile?.shift_colors);
   const [openFor, setOpenFor] = useState(null);
 
-  // Write a colors object to Appwrite + refresh the auth-context profile.
-  // When `explicit` is true, persist the full JSON instead of the collapsed
-  // diff — used for reset so the document changes from "custom JSON" to
-  // "defaults JSON" (rather than to "{}", which Appwrite/auth-context
-  // sometimes wouldn't surface to the UI as a change).
   const persist = async (nextColors, { explicit = false } = {}) => {
     if (!profile?.$id) return;
     try {
@@ -98,66 +98,75 @@ export default function AppearanceSection() {
   );
 
   return (
-    <Surface style={[styles.contentWrapper, styles.preferences]} elevation={0}>
-      <Text style={styles.title} variant="headlineMedium">
-        {t("appearance.title")}
-      </Text>
+    <Portal>
+      <Modal
+        visible={visible}
+        onDismiss={onDismiss}
+        contentContainerStyle={styles.modalContainer}
+      >
+        <View style={styles.header}>
+          <Text variant="titleLarge" style={styles.title}>
+            {t("appearance.title")}
+          </Text>
+          <IconButton
+            icon="close"
+            size={22}
+            onPress={onDismiss}
+            accessibilityLabel={t("common.cancel")}
+          />
+        </View>
 
-      <Row labelKey="friday" colorKey="friday" icon="calendar-weekend-outline" />
-      <Divider style={styles.dividerStyle} bold={false} />
-      <Row labelKey="saturday" colorKey="saturday" icon="calendar-weekend" />
-      <Divider style={styles.dividerStyle} bold={false} />
-      <Row labelKey="training" colorKey="training" icon="karate" />
-      <Divider style={styles.dividerStyle} bold={false} />
-      <Row labelKey="holiday" colorKey="holiday" icon="calendar-star" />
-      <Divider style={styles.dividerStyle} bold={false} />
-      <TouchableRipple onPress={onReset}>
-        <List.Item
-          style={styles.listItem}
-          titleStyle={[styles.listTitle, { color: theme.colors.error }]}
-          title={t("appearance.reset")}
-          left={(props) => (
-            <List.Icon
-              {...props}
-              icon="refresh"
-              color={theme.colors.error}
-            />
-          )}
+        <Row labelKey="friday" colorKey="friday" icon="calendar-weekend-outline" />
+        <Divider style={styles.dividerStyle} bold={false} />
+        <Row labelKey="saturday" colorKey="saturday" icon="calendar-weekend" />
+        <Divider style={styles.dividerStyle} bold={false} />
+        <Row labelKey="training" colorKey="training" icon="karate" />
+        <Divider style={styles.dividerStyle} bold={false} />
+        <Row labelKey="holiday" colorKey="holiday" icon="calendar-star" />
+        <Divider style={styles.dividerStyle} bold={false} />
+        <TouchableRipple onPress={onReset}>
+          <List.Item
+            style={styles.listItem}
+            titleStyle={[styles.listTitle, { color: theme.colors.error }]}
+            title={t("appearance.reset")}
+            left={(props) => (
+              <List.Icon {...props} icon="refresh" color={theme.colors.error} />
+            )}
+          />
+        </TouchableRipple>
+
+        <ShiftColorsModal
+          visible={openFor !== null}
+          onDismiss={() => setOpenFor(null)}
+          title={openFor ? t(`appearance.${openFor}`) : undefined}
+          currentColor={openFor ? colors[openFor] : undefined}
+          onSelect={openFor ? updateOne(openFor) : () => {}}
         />
-      </TouchableRipple>
-
-      <ShiftColorsModal
-        visible={openFor !== null}
-        onDismiss={() => setOpenFor(null)}
-        title={openFor ? t(`appearance.${openFor}`) : undefined}
-        currentColor={openFor ? colors[openFor] : undefined}
-        onSelect={openFor ? updateOne(openFor) : () => {}}
-      />
-    </Surface>
+      </Modal>
+    </Portal>
   );
 }
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
-    contentWrapper: {
-      marginTop: 20,
-      marginHorizontal: 10,
-      borderRadius: 30,
+    modalContainer: {
       backgroundColor: theme.colors.surface,
-    },
-    preferences: {
+      margin: 20,
+      borderRadius: 28,
+      paddingTop: 8,
+      paddingBottom: 12,
       overflow: "hidden",
     },
-    title: {
+    header: {
       flexDirection: isRTL ? "row-reverse" : "row",
-      textAlign: isRTL ? "right" : "left",
-      padding: 10,
-      paddingEnd: isRTL ? 30 : 0,
-      paddingStart: isRTL ? 0 : 30,
-      marginBottom: 10,
-      fontWeight: "500",
-      width: "100%",
-      letterSpacing: -1,
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 18,
+      paddingTop: 6,
+      paddingBottom: 4,
+    },
+    title: {
+      fontWeight: "bold",
       color: theme.colors.profileSection,
     },
     dividerStyle: {
@@ -168,12 +177,12 @@ const makeStyle = (theme, isRTL) =>
     listItem: {
       flex: 1,
       paddingHorizontal: 15,
-      paddingVertical: 15,
+      paddingVertical: 12,
     },
     listTitle: {
       textAlign: isRTL ? "right" : "left",
       writingDirection: isRTL ? "rtl" : "ltr",
-      fontSize: 20,
+      fontSize: 18,
     },
     dotWrap: {
       justifyContent: "center",

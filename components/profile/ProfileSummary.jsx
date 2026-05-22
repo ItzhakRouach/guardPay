@@ -19,8 +19,8 @@ import { functions } from "../../lib/appwrite";
 import { formatDates } from "../../lib/utils";
 import WeeklyReminder from "../layout/WeeklyReminder";
 import SecurityLawPDF from "../legal/SecurityLawPDF";
-import AppearanceSection from "../profile/AppearanceSection";
 import PreferencesChange from "../profile/PreferencesChange";
+import ShiftColorsSettingsModal from "../profile/ShiftColorsSettingsModal";
 import LanguagesChange from "./LanguagesChange";
 // וודא שהנתיב לקובץ ה-JSON נכון
 import settlementsData from "../../utils/settlements.json";
@@ -38,6 +38,7 @@ export default function ProfileSummary({
   const [visablePref, setVisablePref] = useState(false);
   const [visablePDF, setVisablePDF] = useState(false);
   const [visableSettlement, setVisableSettlement] = useState(false); // מודאל יישובים
+  const [visableColors, setVisableColors] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [tempDay, setTempDay] = useState(profile?.reminder_day || 1);
@@ -227,9 +228,6 @@ export default function ProfileSummary({
         />
       </Surface>
 
-      {/** Colors Section (sits between General and Preferences) */}
-      <AppearanceSection />
-
       {/**Preferences Section */}
       <Surface
         style={[styles.contentWrapper, styles.preferences]}
@@ -281,6 +279,21 @@ export default function ProfileSummary({
           left={(props) => <List.Icon {...props} icon="car" />}
           title={`${t("index.ride_rate")}  ${profile?.price_per_ride} ₪`}
         />
+        <Divider style={styles.dividerStyle} bold={false} />
+        <TouchableRipple onPress={() => setVisableColors(true)}>
+          <List.Item
+            style={styles.listItem}
+            titleStyle={styles.listTitle}
+            left={(props) => (
+              <List.Icon
+                {...props}
+                icon="palette-outline"
+                color={theme.colors.primary}
+              />
+            )}
+            title={t("index.shift_colors")}
+          />
+        </TouchableRipple>
         <Divider style={styles.dividerStyle} bold={false} />
         <List.Item
           style={styles.listItem}
@@ -419,6 +432,12 @@ export default function ProfileSummary({
           />
         </TouchableRipple>
       </Surface>
+
+      <ShiftColorsSettingsModal
+        visible={visableColors}
+        onDismiss={() => setVisableColors(false)}
+      />
+
       <Portal>
         {loading && (
           <Surface style={styles.loadingOverlay} elevation={0}>

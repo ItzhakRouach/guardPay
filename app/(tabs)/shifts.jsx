@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import { Swipeable } from "react-native-gesture-handler";
 import { IconButton, useTheme } from "react-native-paper";
 import AddShiftButton from "../../components/common/AddShiftButton";
 import LoadingSpinner from "../../components/common/LoadingSpinnner";
@@ -140,18 +140,13 @@ export default function ShiftsScreen() {
         >
           {/** Card to present shift with date , hours , and total money made this day */}
           {shifts.map((shift, index) => (
-            <ReanimatedSwipeable
+            <Swipeable
               key={shift.$id || `shift-${index}`}
-              // Swipe-right reveals delete (red), swipe-left reveals edit
-              // (blue). User must tap the revealed icon to commit — no
-              // auto-open, because the previous auto-open behaviour
-              // raced with the card's onPress and chained edit→details
-              // navigations.
               renderLeftActions={() =>
-                renderRightAction(() => handleDelete(shift.$id))
+                renderLeftAction(() => handleEdit(shift))
               }
               renderRightActions={() =>
-                renderLeftAction(() => handleEdit(shift))
+                renderRightAction(() => handleDelete(shift.$id))
               }
             >
               <TouchableOpacity
@@ -172,7 +167,7 @@ export default function ShiftsScreen() {
                   userColors={profile?.shift_colors}
                 />
               </TouchableOpacity>
-            </ReanimatedSwipeable>
+            </Swipeable>
           ))}
         </ScrollView>
       )}
