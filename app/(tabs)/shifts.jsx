@@ -142,17 +142,33 @@ export default function ShiftsScreen() {
           {shifts.map((shift, index) => (
             <Swipeable
               key={shift.$id || `shift-${index}`}
-              renderLeftActions={() =>
-                renderLeftAction(() => handleEdit(shift))
-              }
-              renderRightActions={() =>
-                renderRightAction(() => handleDelete(shift.$id))
-              }
+              // Make the gesture less twitchy:
+              //   - friction 2 (default 1) doubles the drag distance needed
+              //   - thresholds at 60dp mean a partial swipe snaps back closed
+              //     instead of opening, so a tap-with-a-bit-of-jitter no
+              //     longer accidentally reveals an action.
+              friction={2}
+              leftThreshold={60}
+              rightThreshold={60}
+              // A full swipe-right (left actions revealed past threshold)
+              // is interpreted as "open edit directly" — no need to tap
+              // the revealed pencil. Swipe-left still requires tapping
+              // the delete icon (which then shows a confirm).
+              onSwipeableOpen={(direction, swipeable) => {
+                if (direction === "left") {
+                  swipeable?.close?.();
+                  handleEdit(shift);
+                }
+              }}
             >
               <TouchableOpacity
+                // Tiny activeOpacity tweak so the press feedback isn't so
+                // aggressive it competes with the swipe gesture. delayPressIn
+                // gives the gesture handler a chance to claim the touch
+                // before the tap fires.
+                activeOpacity={0.7}
+                delayPressIn={80}
                 onPress={() => {
-                  console.log(shift);
-
                   router.push({
                     pathname: "/shift-details",
                     params: { shiftData: JSON.stringify(shift) },
