@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { formatMonth } from "../../hooks/useMonthNav";
+import { localeFromLang } from "../../lib/utils";
 import Eyebrow from "./Eyebrow";
 import { IconBtn } from "./Buttons";
 import Type from "./Type";
@@ -15,7 +16,7 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   const { isRTL } = useLanguage();
-  const locale = i18n.language === "he" ? "he-IL" : "en-US";
+  const locale = localeFromLang(i18n.language);
   const { month, year } = formatMonth(currentDate, locale);
 
   // In LTR: prev = ‹, next = › on the right.

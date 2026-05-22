@@ -5,6 +5,7 @@ import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
 import { resolveTint } from "../../lib/shiftColors";
 import { deriveShiftType, TYPE_ICON } from "../../lib/shiftType";
+import { localeFromLang } from "../../lib/utils";
 import Hairline from "../common/Hairline";
 import Icon from "../common/Icon";
 import Type from "../common/Type";
@@ -29,7 +30,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
   const { t, i18n } = useTranslation();
   const { isRTL } = useLanguage();
   const { scheme } = useThemeMode();
-  const locale = i18n.language === "he" ? "he-IL" : "en-US";
+  const locale = localeFromLang(i18n.language);
   const start = new Date(shift.start_time);
   const type = deriveShiftType(shift, profile);
   const dayLabel = weekday(start, locale).toUpperCase();

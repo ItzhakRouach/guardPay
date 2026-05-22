@@ -15,6 +15,7 @@ import { useMonthlySalary } from "../hooks/useMonthlySalary";
 import { useShift } from "../hooks/useShift";
 import { handleGeneratePDF } from "../lib/GeneratePaycheck";
 import { buildPaycheckModel } from "../lib/paycheckData";
+import { localeFromLang } from "../lib/utils";
 
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -306,7 +307,7 @@ export default function PaycheckScreen() {
     [profile, shifts, totals, monthlyReport, lang],
   );
 
-  const locale = i18n.language === "he" ? "he-IL" : "en-US";
+  const locale = localeFromLang(i18n.language);
   const month = currentDate.toLocaleDateString(locale, { month: "long" });
   const year = String(currentDate.getFullYear());
 

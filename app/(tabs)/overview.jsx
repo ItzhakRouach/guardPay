@@ -17,6 +17,7 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
 import { useShift } from "../../hooks/useShift";
+import { localeFromLang } from "../../lib/utils";
 
 const fmtCurrency = (n) =>
   Math.round(Number(n) || 0).toLocaleString("en-US");
@@ -404,7 +405,7 @@ export default function OverviewScreen() {
     const maxIdx = byDow.indexOf(Math.max(...byDow));
     if (byDow[maxIdx] <= 0) return null;
     const sample = new Date(2024, 5, 9 + maxIdx);
-    return sample.toLocaleDateString(i18n.language === "he" ? "he-IL" : "en-US", {
+    return sample.toLocaleDateString(localeFromLang(i18n.language), {
       weekday: "long",
     });
   }, [shifts, i18n.language]);
