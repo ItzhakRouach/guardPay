@@ -783,7 +783,7 @@ export const resources = {
         },
         types: {
           morning: "صباح",
-          evening: "ظهر",
+          evening: "مساء",
           night: "ليل",
           friday: "يوم الجمعة",
           shabbat: "السبت",
@@ -813,7 +813,7 @@ export const resources = {
       },
       shift_type: {
         morning: "صباح",
-        evening: "ظهر",
+        evening: "مساء",
         night: "ليل",
         training: "تدريب",
         vacation: "يوم إجازة",

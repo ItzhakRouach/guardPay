@@ -38,7 +38,7 @@ export default function LanguagesChange({
           buttons={[
             { value: "he", label: t("index.he"), icon: "abjad-hebrew" },
             { value: "en", label: t("index.en"), icon: "alphabet-latin" },
-            { value: "ar", label: "العربية", icon: "abjad-arabic" },
+            { value: "ar", label: t("index.ar"), icon: "abjad-arabic" },
           ]}
           style={styles.segmented}
         />
