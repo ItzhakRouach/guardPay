@@ -124,6 +124,14 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
           },
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
+            value: "sick",
+            label: t("shift_type.sick"),
+            labelStyle: styles.labelStyle,
+            icon: "emoticon-sick-outline",
+            showSelectedCheck: false,
+          },
+          {
+            uncheckedColor: theme.colors.onSecondaryContainer,
             value: "holiday",
             label: t("shift_type.holiday"),
             labelStyle: styles.labelStyle,

@@ -13,6 +13,7 @@ export default function DateTimeModal({
   date,
   startTime,
   endTime,
+  sickEndDate,
 }) {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
@@ -38,11 +39,17 @@ export default function DateTimeModal({
                 ? date
                 : activeField === "start"
                 ? startTime
+                : activeField === "sickEnd"
+                ? sickEndDate || new Date()
                 : endTime
             }
             mode={pickerMode}
             is24Hour={true}
-            display={activeField === "date" ? "inline" : "spinner"}
+            display={
+              activeField === "date" || activeField === "sickEnd"
+                ? "inline"
+                : "spinner"
+            }
             onChange={handleValueChanges}
           />
         </Surface>

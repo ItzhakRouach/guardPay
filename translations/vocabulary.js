@@ -123,6 +123,8 @@ export const resources = {
         start_t: "זמן התחלה",
         end_t: "זמן סיום",
         work_d: "תאריך משמרת",
+        sick_start: "תחילת מחלה",
+        sick_end: "סיום מחלה",
         rate_per_hour: "תעריך שעתי",
         total_d: "סך שעות עבודה",
         save: "שמור משמרת",
@@ -138,6 +140,7 @@ export const resources = {
         training: "אימון",
         vacation: "יום חופש",
         holiday: "יום חג",
+        sick: "מחלה",
       },
       month: {
         0: "ינואר",
@@ -368,6 +371,8 @@ export const resources = {
         start_t: "Start Time",
         end_t: "End Time",
         work_d: "Shift Date",
+        sick_start: "Sick from",
+        sick_end: "Sick until",
         rate_per_hour: "Hour Rate",
         total_d: "Total Duration",
         save: "Save Shift",
@@ -383,6 +388,7 @@ export const resources = {
         training: "Training",
         vacation: "Vacation",
         holiday: "Holiday",
+        sick: "Sick",
       },
       overview: {
         btn: "Generate Paycheck",

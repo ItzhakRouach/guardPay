@@ -5,12 +5,13 @@ import {
   Alert,
   Keyboard,
   Platform,
+  Pressable,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { ID } from "react-native-appwrite";
-import { Button, Text, useTheme } from "react-native-paper";
+import { Button, Surface, Text, TextInput, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
 import ShiftCommentField from "../components/shifts/ShiftCommentField";
@@ -27,6 +28,7 @@ import {
 } from "../lib/appwrite";
 import { getShiftTimes } from "../lib/shiftTimes";
 import { shiftTypeTimes } from "../lib/utils";
+import { buildSickDocs } from "../utils/sickDays";
 
 export default function AddShift() {
   // use to control the show of the picker or not , default not
@@ -48,6 +50,9 @@ export default function AddShift() {
 
   // store user date of the shift
   const [date, setDate] = useState(new Date());
+
+  // For sick days: end date of the sick period (start = `date` above)
+  const [sickEndDate, setSickEndDate] = useState(new Date());
 
   // function to open the picker when user cliked on
   const openPicker = (mode, field) => {
@@ -124,6 +129,7 @@ export default function AddShift() {
       if (activeField === "date") setDate(selectedValue);
       if (activeField === "start") setStartTime(selectedValue);
       if (activeField === "end") setEndTime(selectedValue);
+      if (activeField === "sickEnd") setSickEndDate(selectedValue);
     }
     if (Platform.OS === "android") setShow(false);
   };
@@ -135,6 +141,36 @@ export default function AddShift() {
         hourRate === "" || hourRate === null
           ? profile?.price_per_hour
           : Number(hourRate);
+
+      // Sick days follow Israeli sick-leave law and are computed locally.
+      // No cloud-function call — we generate one document per day in the
+      // selected period and bulk-create them in shifts_history.
+      if (value === "sick") {
+        if (sickEndDate < date) {
+          Alert.alert("שגיאה", "תאריך סיום המחלה חייב להיות אחרי תאריך ההתחלה.");
+          return;
+        }
+        const dailyPay = Number(finalBaseRate) * 8;
+        const docs = buildSickDocs({
+          startDate: date,
+          endDate: sickEndDate,
+          dailyPay,
+          userId: user.$id,
+          baseRate: finalBaseRate,
+        });
+        await Promise.all(
+          docs.map((d) =>
+            databases.createDocument(
+              DATABASE_ID,
+              SHIFTS_HISTORY,
+              ID.unique(),
+              { ...d, comment: comment.trim() },
+            ),
+          ),
+        );
+        router.back();
+        return;
+      }
 
       const finalStart = new Date(date);
       finalStart.setHours(startTime.getHours(), startTime.getMinutes());
@@ -244,6 +280,25 @@ export default function AddShift() {
           hourRate={hourRate}
           defaultRate={profile?.price_per_hour}
         />
+        {/**Sick period end date — only shown for sick-day entries */}
+        {value === "sick" && (
+          <Surface style={styles.sickEndCard} elevation={1}>
+            <Pressable onPress={() => openPicker("date", "sickEnd")}>
+              <View pointerEvents="none">
+                <TextInput
+                  value={sickEndDate.toLocaleDateString("en-GB")}
+                  mode="outlined"
+                  style={styles.sickEndInput}
+                  left={<TextInput.Icon icon="calendar-end" />}
+                  outlineStyle={{ borderRadius: 12 }}
+                />
+                <Text style={styles.sickEndLabel}>
+                  {t("add_shift.sick_end")}
+                </Text>
+              </View>
+            </Pressable>
+          </Surface>
+        )}
         {/**Shift type selected */}
         <View style={styles.shiftTypesWrapper}>
           <ShiftTypeSelected
@@ -277,6 +332,7 @@ export default function AddShift() {
             date={date}
             startTime={startTime}
             endTime={endTime}
+            sickEndDate={sickEndDate}
           />
         )}
         {loading && <LoadingSpinner />}
@@ -311,5 +367,29 @@ const makeStyle = (theme, isRTL) =>
       marginHorizontal: 10,
       paddingHorizontal: 0,
       marginBottom: 30,
+    },
+    sickEndCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 20,
+      padding: 15,
+      marginBottom: 20,
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+    },
+    sickEndInput: {
+      backgroundColor: theme.colors.surface,
+      height: 56,
+    },
+    sickEndLabel: {
+      position: "absolute",
+      top: -8,
+      left: isRTL ? undefined : 15,
+      right: isRTL ? 15 : undefined,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 6,
+      fontSize: 12,
+      fontWeight: "bold",
+      color: theme.colors.primary,
+      zIndex: 1,
     },
   });
