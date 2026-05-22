@@ -2,6 +2,7 @@ const {
   sickDayPercent,
   buildSickDocs,
   restreakSickDocs,
+  restreakSickUpdates,
 } = require("../utils/sickDays");
 
 const DAILY_PAY = 480; // 60 ₪/h × 8h
@@ -53,6 +54,9 @@ describe("buildSickDocs", () => {
     });
     expect(d).toMatchObject({
       is_sick: true,
+      is_training: false,
+      is_vacation: false,
+      is_holiday: false,
       user_id: "u1",
       base_rate: 60,
       h100_hours: 0,
@@ -61,6 +65,9 @@ describe("buildSickDocs", () => {
       h175_extra_hours: 0,
       h200_extra_hours: 0,
       h150_shabat: 0,
+      h150_holiday: 0,
+      h175_holiday: 0,
+      h200_holiday: 0,
       reg_pay_amount: 0,
       extra_pay_amount: 0,
       travel_pay_amount: 0,
@@ -150,6 +157,18 @@ describe("restreakSickDocs", () => {
     expect(out.is_sick).toBe(true);
   });
 
+  test("preserves docs the helper has never seen ($id is required for diffing)", () => {
+    // restreakSickDocs only matches by $id in restreakSickUpdates, so a
+    // doc without $id can't be diffed — it should be dropped from the
+    // update set, not crash. Covered indirectly by other tests; here we
+    // just verify the spread preserves everything else.
+    const docs = [
+      { ...mkDoc("2026-03-02"), comment: "flu" },
+    ];
+    const [out] = restreakSickDocs(docs, DAILY_PAY);
+    expect(out.comment).toBe("flu");
+  });
+
   test("non-contiguous runs each restart at position 1", () => {
     // Two separate streaks: 03-02..03-04, then 03-10..03-13
     const docs = [
@@ -171,5 +190,55 @@ describe("restreakSickDocs", () => {
       0.5,
       1, // second streak
     ]);
+  });
+});
+
+describe("restreakSickUpdates (diff helper)", () => {
+  const mkDoc = (dateISO, id, percent) => ({
+    $id: id,
+    start_time: new Date(dateISO + "T00:00:00").toISOString(),
+    end_time: new Date(dateISO + "T23:59:00").toISOString(),
+    is_sick: true,
+    sick_percent: percent,
+    total_amount: DAILY_PAY * percent,
+  });
+
+  test("empty input → empty output", () => {
+    expect(restreakSickUpdates([], DAILY_PAY)).toEqual([]);
+    expect(restreakSickUpdates(null, DAILY_PAY)).toEqual([]);
+  });
+
+  test("docs already correctly streaked → no updates", () => {
+    // [day 1=0%, day 2=50%, day 3=50%] is already self-consistent
+    const docs = [
+      mkDoc("2026-03-02", "A", 0),
+      mkDoc("2026-03-03", "B", 0.5),
+      mkDoc("2026-03-04", "C", 0.5),
+    ];
+    expect(restreakSickUpdates(docs, DAILY_PAY)).toEqual([]);
+  });
+
+  test("after deleting middle of 5-day streak → days 4 and 5 get downgraded", () => {
+    // Original was 1..5 at 0/50/50/100/100. User deleted day 3 (position 3).
+    // Survivors carry their OLD percents/amounts (the bug we're fixing).
+    // After restreak: positions become 1,2,1,2 → percents 0, 0.5, 0, 0.5.
+    const surviving = [
+      mkDoc("2026-03-02", "A", 0),    // day1 → still pos1 → 0  (no change)
+      mkDoc("2026-03-03", "B", 0.5),  // day2 → still pos2 → 0.5 (no change)
+      mkDoc("2026-03-05", "D", 1),    // day4 → now pos1 (after gap) → 0   (CHANGE)
+      mkDoc("2026-03-06", "E", 1),    // day5 → now pos2 → 0.5   (CHANGE)
+    ];
+    const updates = restreakSickUpdates(surviving, DAILY_PAY);
+    expect(updates).toHaveLength(2);
+    const byId = Object.fromEntries(updates.map((u) => [u.$id, u]));
+    expect(byId.D.sick_percent).toBe(0);
+    expect(byId.D.total_amount).toBe(0);
+    expect(byId.E.sick_percent).toBe(0.5);
+    expect(byId.E.total_amount).toBe(DAILY_PAY * 0.5);
+  });
+
+  test("single sick doc remaining → no updates needed (already correct)", () => {
+    const docs = [mkDoc("2026-03-02", "A", 0)];
+    expect(restreakSickUpdates(docs, DAILY_PAY)).toEqual([]);
   });
 });

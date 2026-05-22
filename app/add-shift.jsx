@@ -5,19 +5,19 @@ import {
   Alert,
   Keyboard,
   Platform,
-  Pressable,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { ID } from "react-native-appwrite";
-import { Button, Surface, Text, TextInput, useTheme } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
 import ShiftCommentField from "../components/shifts/ShiftCommentField";
 import ShiftDatePicker from "../components/shifts/ShiftDatePicker";
 import ShiftSummary from "../components/shifts/ShiftSummary";
 import ShiftTypeSelected from "../components/shifts/ShiftTypeSelected";
+import SickPeriodPicker from "../components/shifts/SickPeriodPicker";
 import { useAuth } from "../hooks/auth-context";
 import { useLanguage } from "../hooks/lang-context";
 import {
@@ -269,35 +269,25 @@ export default function AddShift() {
         <Text variant="headlineMedium" style={styles.title}>
           {!isEditMode ? t("add_shift.add") : t("add_shift.update")}
         </Text>
-        {/**Shift date and time picker */}
-        <ShiftDatePicker
-          date={date}
-          startTime={startTime}
-          endTime={endTime}
-          openPicker={openPicker}
-          loading={loading}
-          setHourRate={setHourRate}
-          hourRate={hourRate}
-          defaultRate={profile?.price_per_hour}
-        />
-        {/**Sick period end date — only shown for sick-day entries */}
-        {value === "sick" && (
-          <Surface style={styles.sickEndCard} elevation={1}>
-            <Pressable onPress={() => openPicker("date", "sickEnd")}>
-              <View pointerEvents="none">
-                <TextInput
-                  value={sickEndDate.toLocaleDateString("en-GB")}
-                  mode="outlined"
-                  style={styles.sickEndInput}
-                  left={<TextInput.Icon icon="calendar-end" />}
-                  outlineStyle={{ borderRadius: 12 }}
-                />
-                <Text style={styles.sickEndLabel}>
-                  {t("add_shift.sick_end")}
-                </Text>
-              </View>
-            </Pressable>
-          </Surface>
+        {/* Sick days use a dedicated two-date picker (start + end);
+            all other shift types use the standard date + time card. */}
+        {value === "sick" ? (
+          <SickPeriodPicker
+            startDate={date}
+            endDate={sickEndDate}
+            openPicker={openPicker}
+          />
+        ) : (
+          <ShiftDatePicker
+            date={date}
+            startTime={startTime}
+            endTime={endTime}
+            openPicker={openPicker}
+            loading={loading}
+            setHourRate={setHourRate}
+            hourRate={hourRate}
+            defaultRate={profile?.price_per_hour}
+          />
         )}
         {/**Shift type selected */}
         <View style={styles.shiftTypesWrapper}>
@@ -367,29 +357,5 @@ const makeStyle = (theme, isRTL) =>
       marginHorizontal: 10,
       paddingHorizontal: 0,
       marginBottom: 30,
-    },
-    sickEndCard: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 20,
-      padding: 15,
-      marginBottom: 20,
-      borderWidth: 1,
-      borderColor: theme.colors.outlineVariant,
-    },
-    sickEndInput: {
-      backgroundColor: theme.colors.surface,
-      height: 56,
-    },
-    sickEndLabel: {
-      position: "absolute",
-      top: -8,
-      left: isRTL ? undefined : 15,
-      right: isRTL ? 15 : undefined,
-      backgroundColor: theme.colors.surface,
-      paddingHorizontal: 6,
-      fontSize: 12,
-      fontWeight: "bold",
-      color: theme.colors.primary,
-      zIndex: 1,
     },
   });

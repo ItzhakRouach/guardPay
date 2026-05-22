@@ -64,6 +64,9 @@ const buildSickDocs = ({ startDate, endDate, dailyPay, userId, baseRate }) => {
     docs.push({
       is_sick: true,
       sick_percent: percent,
+      is_training: false,
+      is_vacation: false,
+      is_holiday: false,
       user_id: userId,
       base_rate: Number(baseRate) || 0,
       start_time: dayStart.toISOString(),
@@ -80,6 +83,9 @@ const buildSickDocs = ({ startDate, endDate, dailyPay, userId, baseRate }) => {
       h175_extra_hours: 0,
       h200_extra_hours: 0,
       h150_shabat: 0,
+      h150_holiday: 0,
+      h175_holiday: 0,
+      h200_holiday: 0,
     });
   }
 
@@ -128,8 +134,38 @@ const restreakSickDocs = (docs, dailyPay) => {
   });
 };
 
+/**
+ * Given the user's *remaining* sick documents after an edit/delete,
+ * return only the docs whose sick_percent or total_amount need updating.
+ *
+ * Each result item is shaped { $id, sick_percent, total_amount } — ready
+ * to feed into Appwrite's updateDocument. Unchanged docs are omitted so
+ * the caller only issues the minimum number of writes.
+ */
+const restreakSickUpdates = (docs, dailyPay) => {
+  if (!Array.isArray(docs) || docs.length === 0) return [];
+  const restreaked = restreakSickDocs(docs, dailyPay);
+  const updates = [];
+  for (const next of restreaked) {
+    const prev = docs.find((d) => d.$id === next.$id);
+    if (!prev) continue;
+    if (
+      prev.sick_percent !== next.sick_percent ||
+      prev.total_amount !== next.total_amount
+    ) {
+      updates.push({
+        $id: next.$id,
+        sick_percent: next.sick_percent,
+        total_amount: next.total_amount,
+      });
+    }
+  }
+  return updates;
+};
+
 module.exports = {
   sickDayPercent,
   buildSickDocs,
   restreakSickDocs,
+  restreakSickUpdates,
 };

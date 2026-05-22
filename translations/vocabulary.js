@@ -117,6 +117,9 @@ export const resources = {
         hours: "שעות",
         delete_confirm_title: "מחיקת משמרת",
         delete_confirm_body: "האם למחוק את המשמרת לצמיתות? לא ניתן לשחזר.",
+        sick_edit_blocked_title: "לא ניתן לערוך ימי מחלה",
+        sick_edit_blocked_body:
+          "לעדכון תקופת מחלה - מחק את הימים והוסף תקופה חדשה.",
       },
       add_shift: {
         add: "הוסף משמרת חדשה",
@@ -365,6 +368,9 @@ export const resources = {
         hours: "Hours",
         delete_confirm_title: "Delete shift?",
         delete_confirm_body: "This shift will be permanently deleted and can't be recovered.",
+        sick_edit_blocked_title: "Sick days can't be edited",
+        sick_edit_blocked_body:
+          "To change a sick period, delete the days and add a new one.",
       },
       add_shift: {
         add: "Add New Shift",
