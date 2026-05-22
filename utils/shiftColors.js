@@ -6,16 +6,19 @@
 // a one-line ESM re-export of this module.
 
 // Light-mode hex is the canonical/stored value. Each swatch has a paired
-// dark-mode hex resolved at render time via DARK_MODE_LOOKUP.
+// dark-mode hex resolved at render time via DARK_MODE_LOOKUP. The dark
+// values are deliberately muted — they sit just above the dark card
+// surface (#163059) with a hint of the source hue, so the tint reads as
+// atmosphere rather than as a bright color block fighting the white text.
 const SWATCHES = [
-  { name: "sky",   light: "#E0F2FE", dark: "#1E3A5F" },
-  { name: "mint",  light: "#DCFCE7", dark: "#14532D" },
-  { name: "peach", light: "#FFE4D6", dark: "#4A2C2A" },
-  { name: "lilac", light: "#EDE9FE", dark: "#2E1065" },
-  { name: "sand",  light: "#FEF3C7", dark: "#422006" },
-  { name: "blush", light: "#FCE7F3", dark: "#500724" },
-  { name: "sage",  light: "#ECFCCB", dark: "#1A2E05" },
-  { name: "stone", light: "#E5E7EB", dark: "#1F2937" },
+  { name: "sky",   light: "#E0F2FE", dark: "#1F3247" },
+  { name: "mint",  light: "#DCFCE7", dark: "#1F3A2E" },
+  { name: "peach", light: "#FFE4D6", dark: "#3A2A22" },
+  { name: "lilac", light: "#EDE9FE", dark: "#2A2840" },
+  { name: "sand",  light: "#FEF3C7", dark: "#37301E" },
+  { name: "blush", light: "#FCE7F3", dark: "#3A2530" },
+  { name: "sage",  light: "#ECFCCB", dark: "#2C3520" },
+  { name: "stone", light: "#E5E7EB", dark: "#262A33" },
 ];
 
 const DARK_MODE_LOOKUP = SWATCHES.reduce((acc, s) => {

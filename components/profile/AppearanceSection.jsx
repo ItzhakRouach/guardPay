@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
-import { Divider, List, Text, useTheme } from "react-native-paper";
+import {
+  Divider,
+  List,
+  Surface,
+  Text,
+  TouchableRipple,
+  useTheme,
+} from "react-native-paper";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
@@ -12,9 +19,10 @@ import {
 } from "../../lib/shiftColors";
 import ShiftColorsModal from "./ShiftColorsModal";
 
-// Profile section for choosing the per-shift-type background tint. Persists
-// the changed swatches as a JSON blob in users_prefs.shift_colors. Old
-// profiles without the field fall back to DEFAULT_COLORS.
+// Profile section for choosing per-shift-type background tints. Persists
+// changed swatches as a JSON blob in users_prefs.shift_colors. Mirrors the
+// "General" / "Preferences" / "Account" card pattern in ProfileSummary so
+// it feels native to the Profile tab.
 export default function AppearanceSection() {
   const theme = useTheme();
   const { isRTL } = useLanguage();
@@ -54,45 +62,54 @@ export default function AppearanceSection() {
     );
   };
 
-  const Row = ({ labelKey, colorKey }) => (
-    <List.Item
-      title={t(`appearance.${labelKey}`)}
-      titleStyle={styles.rowTitle}
-      onPress={() => setOpenFor(colorKey)}
-      right={() => (
-        <View style={styles.dotWrap}>
-          <View
-            style={[styles.dot, { backgroundColor: colors[colorKey] }]}
-          />
-        </View>
-      )}
-    />
+  const Row = ({ labelKey, colorKey, icon }) => (
+    <TouchableRipple onPress={() => setOpenFor(colorKey)}>
+      <List.Item
+        style={styles.listItem}
+        titleStyle={styles.listTitle}
+        title={t(`appearance.${labelKey}`)}
+        left={(props) => (
+          <List.Icon {...props} icon={icon} color={theme.colors.primary} />
+        )}
+        right={() => (
+          <View style={styles.dotWrap}>
+            <View
+              style={[styles.dot, { backgroundColor: colors[colorKey] }]}
+            />
+          </View>
+        )}
+      />
+    </TouchableRipple>
   );
 
   return (
-    <View>
-      <Text variant="titleMedium" style={styles.sectionHeader}>
+    <Surface style={[styles.contentWrapper, styles.preferences]} elevation={0}>
+      <Text style={styles.title} variant="headlineMedium">
         {t("appearance.title")}
       </Text>
-      <Text variant="bodySmall" style={styles.subtitle}>
-        {t("appearance.subtitle")}
-      </Text>
 
-      <List.Section>
-        <Row labelKey="friday" colorKey="friday" />
-        <Divider style={styles.divider} />
-        <Row labelKey="saturday" colorKey="saturday" />
-        <Divider style={styles.divider} />
-        <Row labelKey="training" colorKey="training" />
-        <Divider style={styles.divider} />
-        <Row labelKey="holiday" colorKey="holiday" />
-        <Divider style={styles.divider} />
+      <Row labelKey="friday" colorKey="friday" icon="calendar-weekend-outline" />
+      <Divider style={styles.dividerStyle} bold={false} />
+      <Row labelKey="saturday" colorKey="saturday" icon="calendar-weekend" />
+      <Divider style={styles.dividerStyle} bold={false} />
+      <Row labelKey="training" colorKey="training" icon="school-outline" />
+      <Divider style={styles.dividerStyle} bold={false} />
+      <Row labelKey="holiday" colorKey="holiday" icon="party-popper" />
+      <Divider style={styles.dividerStyle} bold={false} />
+      <TouchableRipple onPress={onReset}>
         <List.Item
+          style={styles.listItem}
+          titleStyle={[styles.listTitle, { color: theme.colors.error }]}
           title={t("appearance.reset")}
-          titleStyle={[styles.rowTitle, { color: theme.colors.error }]}
-          onPress={onReset}
+          left={(props) => (
+            <List.Icon
+              {...props}
+              icon="refresh"
+              color={theme.colors.error}
+            />
+          )}
         />
-      </List.Section>
+      </TouchableRipple>
 
       <ShiftColorsModal
         visible={openFor !== null}
@@ -101,42 +118,57 @@ export default function AppearanceSection() {
         currentColor={openFor ? colors[openFor] : undefined}
         onSelect={openFor ? updateOne(openFor) : () => {}}
       />
-    </View>
+    </Surface>
   );
 }
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
-    sectionHeader: {
-      fontWeight: "bold",
-      color: theme.colors.profileSection,
+    contentWrapper: {
       marginTop: 20,
-      marginBottom: 4,
-      paddingHorizontal: 10,
-      textAlign: isRTL ? "right" : "left",
+      marginHorizontal: 10,
+      borderRadius: 30,
+      backgroundColor: theme.colors.surface,
     },
-    subtitle: {
-      color: theme.colors.summary,
-      marginBottom: 8,
-      paddingHorizontal: 10,
-      textAlign: isRTL ? "right" : "left",
+    preferences: {
+      overflow: "hidden",
     },
-    rowTitle: {
-      color: theme.colors.onSurface,
+    title: {
+      flexDirection: isRTL ? "row-reverse" : "row",
       textAlign: isRTL ? "right" : "left",
+      padding: 10,
+      paddingEnd: isRTL ? 30 : 0,
+      paddingStart: isRTL ? 0 : 30,
+      marginBottom: 10,
+      fontWeight: "500",
+      width: "100%",
+      letterSpacing: -1,
+      color: theme.colors.profileSection,
+    },
+    dividerStyle: {
+      backgroundColor: theme.colors.divider,
+      marginVertical: 1,
+      width: "100%",
+    },
+    listItem: {
+      flex: 1,
+      paddingHorizontal: 15,
+      paddingVertical: 15,
+    },
+    listTitle: {
+      textAlign: isRTL ? "right" : "left",
+      writingDirection: isRTL ? "rtl" : "ltr",
+      fontSize: 20,
     },
     dotWrap: {
       justifyContent: "center",
       paddingHorizontal: 6,
     },
     dot: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      borderWidth: 1,
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      borderWidth: 1.5,
       borderColor: theme.colors.outlineVariant,
-    },
-    divider: {
-      opacity: 0.4,
     },
   });
