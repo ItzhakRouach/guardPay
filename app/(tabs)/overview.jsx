@@ -399,6 +399,10 @@ export default function OverviewScreen() {
     });
   }, [shifts, i18n.language]);
 
+  // Projected month: take whichever is later — today or the most recent
+  // logged shift — as the "covered through" day. If the user already
+  // logged shifts through the end of the month, the projection equals
+  // the confirmed bruto. Otherwise we extrapolate from today's pace.
   const projected = useMemo(() => {
     if (!monthlyReport?.bruto) return 0;
     const now = new Date();
@@ -406,13 +410,25 @@ export default function OverviewScreen() {
       now.getFullYear() === currentDate.getFullYear() &&
       now.getMonth() === currentDate.getMonth();
     if (!sameMonth) return monthlyReport.bruto;
+
     const daysIn = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + 1,
       0,
     ).getDate();
-    return (monthlyReport.bruto / now.getDate()) * daysIn;
-  }, [monthlyReport, currentDate]);
+
+    let lastLoggedDay = 0;
+    shifts.forEach((s) => {
+      const d = new Date(s.start_time);
+      if (Number.isNaN(d.getTime())) return;
+      if (d.getDate() > lastLoggedDay) lastLoggedDay = d.getDate();
+    });
+
+    const covered = Math.max(now.getDate(), lastLoggedDay);
+    if (covered <= 0) return monthlyReport.bruto;
+    if (covered >= daysIn) return monthlyReport.bruto;
+    return (monthlyReport.bruto / covered) * daysIn;
+  }, [monthlyReport, currentDate, shifts]);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>

@@ -41,14 +41,19 @@ function SectionRule({ label, accent = false }) {
   );
 }
 
-function EarningsRow({ row, lang }) {
+function EarningsRow({ row, lang, isRTL }) {
   const theme = useTheme();
   const qty = row.kind === "hours" ? `${row.hours.toFixed(2)}` : `${row.qty}`;
   const label = row.label;
+  // In Hebrew the row visually reads as [amount | qty | rate | label]
+  // left-to-right. row-reverse on the flex container achieves this
+  // while the JSX source order stays the same.
+  const numAlign = isRTL ? "left" : "right";
+  const labelAlign = isRTL ? "right" : "left";
   return (
     <View
       style={{
-        flexDirection: "row",
+        flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "center",
         paddingVertical: 10,
         borderBottomWidth: 1,
@@ -58,7 +63,7 @@ function EarningsRow({ row, lang }) {
       <Type
         variant="body"
         color={theme.colors.ink}
-        style={{ flex: 2.2 }}
+        style={{ flex: 2.2, textAlign: labelAlign }}
         lang={lang}
       >
         {label}
@@ -66,21 +71,29 @@ function EarningsRow({ row, lang }) {
       <Type
         variant="numeric"
         color={theme.colors.inkSoft}
-        style={{ flex: 1, textAlign: "right", fontFamily: "Manrope_500Medium" }}
+        style={{
+          flex: 1,
+          textAlign: numAlign,
+          fontFamily: "Manrope_500Medium",
+        }}
       >
         {fmt(row.rate)}
       </Type>
       <Type
         variant="numeric"
         color={theme.colors.inkSoft}
-        style={{ flex: 0.8, textAlign: "right", fontFamily: "Manrope_500Medium" }}
+        style={{
+          flex: 0.8,
+          textAlign: numAlign,
+          fontFamily: "Manrope_500Medium",
+        }}
       >
         {qty}
       </Type>
       <Type
         variant="rowAmount"
         color={theme.colors.ink}
-        style={{ flex: 1.4, textAlign: "right" }}
+        style={{ flex: 1.4, textAlign: numAlign }}
       >
         {fmt(row.amount)}
       </Type>
@@ -88,50 +101,56 @@ function EarningsRow({ row, lang }) {
   );
 }
 
-function EarningsTable({ model, lang }) {
+function EarningsTable({ model, lang, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const numAlign = isRTL ? "left" : "right";
+  const labelAlign = isRTL ? "right" : "left";
   return (
     <View style={{ marginTop: 4 }}>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           paddingBottom: 8,
           borderBottomWidth: 1,
           borderBottomColor: theme.colors.border,
         }}
       >
-        <Type variant="smallLabel" color={theme.colors.muted} style={{ flex: 2.2 }}>
+        <Type
+          variant="smallLabel"
+          color={theme.colors.muted}
+          style={{ flex: 2.2, textAlign: labelAlign }}
+        >
           {t("paycheck.col.item")}
         </Type>
         <Type
           variant="smallLabel"
           color={theme.colors.muted}
-          style={{ flex: 1, textAlign: "right" }}
+          style={{ flex: 1, textAlign: numAlign }}
         >
           {t("paycheck.col.rate")}
         </Type>
         <Type
           variant="smallLabel"
           color={theme.colors.muted}
-          style={{ flex: 0.8, textAlign: "right" }}
+          style={{ flex: 0.8, textAlign: numAlign }}
         >
           {t("paycheck.col.qty")}
         </Type>
         <Type
           variant="smallLabel"
           color={theme.colors.muted}
-          style={{ flex: 1.4, textAlign: "right" }}
+          style={{ flex: 1.4, textAlign: numAlign }}
         >
           {t("paycheck.col.amount")}
         </Type>
       </View>
       {model.earnings.map((r) => (
-        <EarningsRow key={r.key} row={r} lang={lang} />
+        <EarningsRow key={r.key} row={r} lang={lang} isRTL={isRTL} />
       ))}
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           paddingTop: 14,
           marginTop: 6,
           borderTopWidth: 1.5,
@@ -142,7 +161,7 @@ function EarningsTable({ model, lang }) {
         <Type
           variant="helperItalic"
           color={theme.colors.ink}
-          style={{ flex: 1 }}
+          style={{ flex: 1, textAlign: labelAlign }}
         >
           {t("paycheck.grossTotal")}
         </Type>
@@ -152,7 +171,7 @@ function EarningsTable({ model, lang }) {
         <Type
           variant="body"
           color={theme.colors.muted}
-          style={{ marginLeft: 4 }}
+          style={isRTL ? { marginRight: 4 } : { marginLeft: 4 }}
         >
           ₪
         </Type>
@@ -161,22 +180,28 @@ function EarningsTable({ model, lang }) {
   );
 }
 
-function DeductionsTable({ model, lang }) {
+function DeductionsTable({ model, lang, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const labelAlign = isRTL ? "right" : "left";
   return (
     <View style={{ marginTop: 4 }}>
       {model.summary.map((row, i) => (
         <View key={row.key}>
           <View
             style={{
-              flexDirection: "row",
+              flexDirection: isRTL ? "row-reverse" : "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 12,
             }}
           >
-            <Type variant="body" color={theme.colors.inkSoft} lang={lang}>
+            <Type
+              variant="body"
+              color={theme.colors.inkSoft}
+              lang={lang}
+              style={{ textAlign: labelAlign }}
+            >
               {row.label}
             </Type>
             <Type variant="rowAmount" color={theme.colors.neg}>
@@ -188,7 +213,7 @@ function DeductionsTable({ model, lang }) {
       ))}
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           paddingTop: 14,
           marginTop: 6,
           borderTopWidth: 1.5,
@@ -196,7 +221,11 @@ function DeductionsTable({ model, lang }) {
           alignItems: "baseline",
         }}
       >
-        <Type variant="helperItalic" color={theme.colors.ink} style={{ flex: 1 }}>
+        <Type
+          variant="helperItalic"
+          color={theme.colors.ink}
+          style={{ flex: 1, textAlign: labelAlign }}
+        >
           {t("paycheck.totalDeductions")}
         </Type>
         <Type variant="rowAmount" color={theme.colors.neg}>
@@ -207,18 +236,24 @@ function DeductionsTable({ model, lang }) {
   );
 }
 
-function NetPayCard({ neto, bruto }) {
+function NetPayCard({ neto, bruto, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
   return (
     <AnchorCard radius={20} style={{ marginTop: 24, padding: 24 }}>
-      <Eyebrow color={theme.colors.anchorMuted}>{t("paycheck.netPay")}</Eyebrow>
+      <Eyebrow
+        color={theme.colors.anchorMuted}
+        style={{ textAlign: isRTL ? "right" : "left" }}
+      >
+        {t("paycheck.netPay")}
+      </Eyebrow>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "baseline",
           marginTop: 8,
           gap: 6,
+          justifyContent: isRTL ? "flex-end" : "flex-start",
         }}
       >
         <Type variant="netPay" color={theme.colors.anchorInk}>
@@ -235,7 +270,7 @@ function NetPayCard({ neto, bruto }) {
       <Type
         variant="helperItalic"
         color={theme.colors.anchorMuted}
-        style={{ marginTop: 8 }}
+        style={{ marginTop: 8, textAlign: isRTL ? "right" : "left" }}
       >
         {`${t("paycheck.of")} ${fmt(bruto)} ₪ ${t("paycheck.gross")}`}
       </Type>
@@ -247,7 +282,7 @@ export default function PaycheckScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
-  const { lang } = useLanguage();
+  const { lang, isRTL } = useLanguage();
   const { user, profile } = useAuth();
   const { monthIso } = useLocalSearchParams();
   const currentDate = useMemo(
@@ -291,7 +326,7 @@ export default function PaycheckScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
           justifyContent: "space-between",
           paddingTop: insets.top + 8,
@@ -302,7 +337,10 @@ export default function PaycheckScreen() {
           backgroundColor: theme.colors.bg,
         }}
       >
-        <GhostButton icon="chev-left" onPress={() => router.back()} />
+        <GhostButton
+          icon={isRTL ? "chev-right" : "chev-left"}
+          onPress={() => router.back()}
+        />
         <Eyebrow color={theme.colors.muted}>{t("paycheck.title")}</Eyebrow>
         <GhostButton icon="share" onPress={onExport} />
       </View>
@@ -360,12 +398,12 @@ export default function PaycheckScreen() {
           <Hairline />
 
           <SectionRule label={t("paycheck.earnings")} />
-          <EarningsTable model={model} lang={lang} />
+          <EarningsTable model={model} lang={lang} isRTL={isRTL} />
 
           <SectionRule label={t("paycheck.deductions")} accent />
-          <DeductionsTable model={model} lang={lang} />
+          <DeductionsTable model={model} lang={lang} isRTL={isRTL} />
 
-          <NetPayCard neto={model.neto} bruto={model.bruto} />
+          <NetPayCard neto={model.neto} bruto={model.bruto} isRTL={isRTL} />
 
           <View
             style={{ flexDirection: "row", gap: 12, marginTop: 24 }}
