@@ -46,8 +46,13 @@ export default function OnBoardingScreen() {
       >
         <Image
           source={require("../../assets/images/icon.png")}
-          style={{ width: 96, height: 96, borderRadius: 22 }}
-          resizeMode="contain"
+          // Source is a transparent PNG of the shield logo with built-in
+          // padding around the shield. `resizeMode="cover"` scales the
+          // shield up to fill the visible box — the transparent margins
+          // get cropped instead of leaving an empty "background" look
+          // around the logo.
+          style={{ width: 140, height: 140 }}
+          resizeMode="cover"
         />
         <View style={{ height: 24 }} />
         <Eyebrow color={theme.colors.accent}>{t("welcome.eyebrow")}</Eyebrow>
