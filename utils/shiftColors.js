@@ -37,6 +37,7 @@ const DEFAULT_COLORS = {
   saturday: "#F5F3FF", // lilac
   training: "#F0FDF4", // mint
   holiday: "#FFF7ED",  // peach
+  sick: "#FDF2F8",     // blush
 };
 
 // Resolve a stored (light) hex to the colour we should actually paint.
@@ -71,10 +72,11 @@ const parseUserColors = (raw) => {
 //
 // Priority (first match wins):
 //   1. is_holiday → holiday tint
-//   2. is_training → training tint
-//   3. start_time falls on Saturday (local) → saturday tint
-//   4. start_time falls on Friday (local) → friday tint
-//   5. otherwise → null (caller falls back to theme.colors.surface)
+//   2. is_sick → sick tint
+//   3. is_training → training tint
+//   4. start_time falls on Saturday (local) → saturday tint
+//   5. start_time falls on Friday (local) → friday tint
+//   6. otherwise → null (caller falls back to theme.colors.surface)
 const resolveTint = (shift, userColors, scheme) => {
   if (!shift) return null;
   const colors = parseUserColors(userColors);
@@ -82,6 +84,8 @@ const resolveTint = (shift, userColors, scheme) => {
 
   if (shift.is_holiday) {
     key = "holiday";
+  } else if (shift.is_sick) {
+    key = "sick";
   } else if (shift.is_training) {
     key = "training";
   } else if (shift.start_time) {

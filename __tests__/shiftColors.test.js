@@ -129,6 +129,28 @@ describe("resolveTint priority", () => {
     ).toBe(DEFAULT_COLORS.holiday);
   });
 
+  test("is_sick paints with the sick tint", () => {
+    expect(
+      resolveTint({ start_time: friday, is_sick: true }, null, "light"),
+    ).toBe(DEFAULT_COLORS.sick);
+  });
+
+  test("is_sick wins over Saturday classification", () => {
+    expect(
+      resolveTint({ start_time: saturday, is_sick: true }, null, "light"),
+    ).toBe(DEFAULT_COLORS.sick);
+  });
+
+  test("is_holiday wins over is_sick", () => {
+    expect(
+      resolveTint(
+        { start_time: friday, is_sick: true, is_holiday: true },
+        null,
+        "light",
+      ),
+    ).toBe(DEFAULT_COLORS.holiday);
+  });
+
   test("uses the user's custom color when set", () => {
     const userColors = JSON.stringify({ saturday: "#F7FEE7" }); // sage
     expect(resolveTint({ start_time: saturday }, userColors, "light")).toBe(
