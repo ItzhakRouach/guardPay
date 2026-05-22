@@ -277,7 +277,14 @@ export default function PaycheckScreen() {
 
   const onExport = () => {
     if (!model) return;
-    handleGeneratePDF(totals, profile, currentDate, shifts, monthlyReport);
+    handleGeneratePDF(
+      totals,
+      profile,
+      currentDate,
+      shifts,
+      monthlyReport,
+      lang,
+    );
   };
 
   return (
