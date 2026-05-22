@@ -445,6 +445,7 @@ export default function ProfileScreen() {
                   options={[
                     { label: "EN", value: "en" },
                     { label: "HE", value: "he" },
+                    { label: "AR", value: "ar" },
                   ]}
                   onChange={(v) => changeLanguage(v)}
                 />
