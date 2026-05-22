@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
+import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { IconButton, useTheme } from "react-native-paper";
 import AddShiftButton from "../../components/common/AddShiftButton";
 import LoadingSpinner from "../../components/common/LoadingSpinnner";
@@ -140,7 +140,7 @@ export default function ShiftsScreen() {
         >
           {/** Card to present shift with date , hours , and total money made this day */}
           {shifts.map((shift, index) => (
-            <Swipeable
+            <ReanimatedSwipeable
               key={shift.$id || `shift-${index}`}
               // A full swipe-right (left actions revealed past the default
               // threshold) is interpreted as "open edit directly" — no
@@ -153,13 +153,14 @@ export default function ShiftsScreen() {
                   handleEdit(shift);
                 }
               }}
+              renderLeftActions={() =>
+                renderLeftAction(() => handleEdit(shift))
+              }
+              renderRightActions={() =>
+                renderRightAction(() => handleDelete(shift.$id))
+              }
             >
               <TouchableOpacity
-                // delayPressIn lets the gesture handler classify a touch
-                // as a swipe before the tap fires — fixes the issue
-                // where starting a swipe accidentally opened shift
-                // details.
-                delayPressIn={120}
                 onPress={() => {
                   router.push({
                     pathname: "/shift-details",
@@ -177,7 +178,7 @@ export default function ShiftsScreen() {
                   userColors={profile?.shift_colors}
                 />
               </TouchableOpacity>
-            </Swipeable>
+            </ReanimatedSwipeable>
           ))}
         </ScrollView>
       )}
