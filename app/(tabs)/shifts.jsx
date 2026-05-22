@@ -1,6 +1,13 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { IconButton, useTheme } from "react-native-paper";
 import AddShiftButton from "../../components/common/AddShiftButton";
@@ -23,6 +30,7 @@ export default function ShiftsScreen() {
   const styles = makeStyle(theme);
   const monthName = currentDate.getMonth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   // function that run only when data change (shift added ) and calculate total hours and amount the user earn
   const monthTotals = useMemo(() => {
@@ -74,8 +82,8 @@ export default function ShiftsScreen() {
     </View>
   );
 
-  // handle the delete functionality
-  const handleDelete = async (shiftId) => {
+  // Actual destructive delete, called only after the user confirms.
+  const performDelete = async (shiftId) => {
     try {
       await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
       // refresh current shift list
@@ -83,6 +91,24 @@ export default function ShiftsScreen() {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  // Swipe-to-delete entry point — guard with a confirm so a stray
+  // swipe-and-tap can't silently wipe a shift the user just spent
+  // minutes logging.
+  const handleDelete = (shiftId) => {
+    Alert.alert(
+      t("shifts.delete_confirm_title"),
+      t("shifts.delete_confirm_body"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: () => performDelete(shiftId),
+        },
+      ],
+    );
   };
   // handle the edit functionality
   const handleEdit = (shift) => {

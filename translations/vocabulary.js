@@ -113,6 +113,8 @@ export const resources = {
         total_h: "שעות עבודה",
         amount: "סכום",
         hours: "שעות",
+        delete_confirm_title: "מחיקת משמרת",
+        delete_confirm_body: "האם למחוק את המשמרת לצמיתות? לא ניתן לשחזר.",
       },
       add_shift: {
         add: "הוסף משמרת חדשה",
@@ -344,6 +346,8 @@ export const resources = {
         total_h: "TOTAL HOURS",
         amount: "Amount",
         hours: "Hours",
+        delete_confirm_title: "Delete shift?",
+        delete_confirm_body: "This shift will be permanently deleted and can't be recovered.",
       },
       add_shift: {
         add: "Add New Shift",
