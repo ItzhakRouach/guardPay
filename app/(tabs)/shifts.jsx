@@ -128,7 +128,11 @@ export default function ShiftsScreen() {
   const { user, profile } = useAuth();
   const { currentDate, prev, next } = useMonthNav();
   const { shifts, loading, setShifts } = useShift(user, currentDate);
-  const { totals, monthlyReport } = useMonthlySalary(shifts, currentDate);
+  const { totals, monthlyReport, salaryLoading } = useMonthlySalary(
+    shifts,
+    currentDate,
+    loading,
+  );
   const { isRTL } = useLanguage();
   const { t } = useTranslation();
 
@@ -273,15 +277,23 @@ export default function ShiftsScreen() {
               <Eyebrow color={theme.colors.muted}>
                 {t("shifts.anchor.monthly")}
               </Eyebrow>
-              <Type
-                variant="sectionTitle"
-                color={theme.colors.ink}
-                style={{ marginTop: 6 }}
-              >
-                {`${Math.round(monthlyReport?.bruto || 0).toLocaleString(
-                  "en-US",
-                )} ₪`}
-              </Type>
+              {!monthlyReport && salaryLoading ? (
+                <ActivityIndicator
+                  color={theme.colors.accent}
+                  size="small"
+                  style={{ marginTop: 8, alignSelf: "flex-start" }}
+                />
+              ) : (
+                <Type
+                  variant="sectionTitle"
+                  color={theme.colors.ink}
+                  style={{ marginTop: 6 }}
+                >
+                  {`${Math.round(monthlyReport?.bruto || 0).toLocaleString(
+                    "en-US",
+                  )} ₪`}
+                </Type>
+              )}
               <Type
                 variant="small"
                 color={theme.colors.muted}

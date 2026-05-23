@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../hooks/auth-context"; // וודא שהנתיב נכון
 import { functions } from "../lib/appwrite";
 import { readSalaryCache, writeSalaryCache } from "../lib/salaryCache";
@@ -8,32 +8,48 @@ import { readSalaryCache, writeSalaryCache } from "../lib/salaryCache";
 // figures show up instantly. The cloud function call then runs in the
 // background and overwrites the cached value with the fresh result.
 //
-// Without this, every navigation to Shifts / Overview / Paycheck flashed
-// "0 ₪" for the second the CALCULATE_SALARY function took to respond.
+// `monthlyReport` stays `null` until either the cache hits or the cloud
+// returns — never set to zeros prematurely. `salaryLoading` flips false
+// only when the cloud has either succeeded or returned the empty-month
+// shortcut. Consumers render a spinner when monthlyReport is null AND
+// salaryLoading is true.
 //
-// `currentDate` is optional for backwards compat — callers that don't
-// pass it skip the cache layer entirely.
-export const useMonthlySalary = (shifts, currentDate) => {
+// `currentDate` + `shiftsLoading` are optional for backwards compat —
+// callers that don't pass them get the old non-cached behavior with
+// the new spinner-friendly state shape.
+export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => {
   const { user } = useAuth();
   const [monthlyReport, setMonthlyReport] = useState(null);
+  const [salaryLoading, setSalaryLoading] = useState(true);
 
-  // Cache slot key derived from currentDate. Stable per-month so flips
-  // between months don't mix data.
   const cacheYear = currentDate ? currentDate.getFullYear() : null;
   const cacheMonth = currentDate ? currentDate.getMonth() : null;
   const userId = user?.$id;
 
-  // Hydrate state from AsyncStorage on first mount + whenever the
-  // cache key changes. `cancelled` guard avoids racing writes if the
-  // user flips months mid-fetch.
+  // When the cache key changes (different user or month), drop the
+  // previous month's report so the old value doesn't bleed through.
+  // We use a ref to track the last key we cleared for, so React's
+  // double-invocation in StrictMode doesn't fight us.
+  const lastKeyRef = useRef(null);
+  const currentKey = `${userId || ""}:${cacheYear}-${cacheMonth}`;
+  if (lastKeyRef.current !== currentKey) {
+    lastKeyRef.current = currentKey;
+    // Schedule the reset into the next tick to avoid setting state
+    // during render. useEffect below handles the side-effects.
+  }
+
+  // Hydrate from cache. Resets monthlyReport to null first so the
+  // previous month's value doesn't leak across navigation, then seeds
+  // with the new month's cached value if one exists.
   useEffect(() => {
     if (!userId || cacheYear == null || cacheMonth == null) return;
     let cancelled = false;
+    setMonthlyReport(null);
+    setSalaryLoading(true);
     (async () => {
       const cached = await readSalaryCache(userId, cacheYear, cacheMonth);
       if (cancelled || !cached) return;
-      // Don't clobber a fresher cloud-function result that arrived
-      // first — only seed if state is still null.
+      // Seed only if no fresher value arrived first.
       setMonthlyReport((prev) => prev ?? cached);
     })();
     return () => {
@@ -108,12 +124,18 @@ export const useMonthlySalary = (shifts, currentDate) => {
   const totalShifts = shifts.length - totals.vacationDays - totals.sickDays;
 
   useEffect(() => {
+    // Don't decide anything while the shift list is still being
+    // fetched — empty-array-during-load would falsely look like a
+    // zero-bruto month and clobber a cached value.
+    if (shiftsLoading) return;
+
     const getSalary = async () => {
       if (shifts.length === 0 || !userId) {
         const empty = { bruto: 0, neto: 0, totalDeductions: 0 };
         setMonthlyReport(empty);
-        // Cache the empty result too — re-opening a known-empty month
-        // shouldn't flash a stale non-zero value from a previous fill.
+        setSalaryLoading(false);
+        // Cache zeros too — re-opening a known-empty month shouldn't
+        // flash a stale non-zero value from a previous fill.
         if (cacheYear != null && cacheMonth != null) {
           writeSalaryCache(userId, cacheYear, cacheMonth, empty);
         }
@@ -142,14 +164,17 @@ export const useMonthlySalary = (shifts, currentDate) => {
         }
       } catch (e) {
         console.error("Cloud Error:", e);
+      } finally {
+        setSalaryLoading(false);
       }
     };
 
     getSalary();
-  }, [totals, shifts.length, userId, cacheYear, cacheMonth]);
+  }, [totals, shifts.length, userId, cacheYear, cacheMonth, shiftsLoading]);
 
   return {
     monthlyReport,
+    salaryLoading,
     totals: { ...totals, totalHours, totalReg, totalExtra, totalShifts },
   };
 };
