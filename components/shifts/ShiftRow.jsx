@@ -96,7 +96,13 @@ export default function ShiftRow({ shift, profile, isLast }) {
             {`${fmtTime(shift.start_time)}–${fmtTime(shift.end_time)} · ${totalHours.toFixed(1)}h · ₪${rate}`}
           </Type>
         </View>
-        <View style={{ alignItems: isRTL ? "flex-start" : "flex-end" }}>
+        <View
+          style={{
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "baseline",
+            gap: 4,
+          }}
+        >
           <Type variant="rowAmount" color={theme.colors.ink}>
             {Math.round(Number(shift.total_amount || 0)).toLocaleString(
               "en-US",

@@ -8,7 +8,13 @@ import {
 } from "../lib/appwrite";
 
 export const useShift = (user, currentDate) => {
-  const [loading, setLoading] = useState(false);
+  // Default `loading: true` so the first render accurately reflects
+  // "we haven't fetched yet". The previous initial value of false
+  // created a one-frame window where consumers saw shifts=[] AND
+  // loading=false — useMonthlySalary used that window to write
+  // {bruto:0, neto:0} to its cache, flashing zeros to the user
+  // before the real fetch even started.
+  const [loading, setLoading] = useState(true);
   const [shifts, setShifts] = useState([]);
 
   const fetchShifts = useCallback(async () => {
@@ -48,7 +54,14 @@ export const useShift = (user, currentDate) => {
   }, [user, currentDate]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // No user signed in — nothing to fetch, drop the initial-true
+      // loading state so consumers don't spin forever (the RouteGuard
+      // sends unauthed users away from these screens anyway, but be
+      // defensive).
+      setLoading(false);
+      return;
+    }
     fetchShifts();
     const channel = `databases.${DATABASE_ID}.collections.${SHIFTS_HISTORY}.documents`;
     const unsubscribe = client.subscribe(channel, (response) => {

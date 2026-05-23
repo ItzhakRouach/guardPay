@@ -34,7 +34,7 @@ function bucketByWeek(shifts) {
   return buckets;
 }
 
-function HeroSection({ neto, trendPct, isRTL }) {
+function HeroSection({ neto, trendPct, isRTL, loading }) {
   const theme = useTheme();
   const { t } = useTranslation();
   // Single Animated.Value drives 0→1 progress. `display` is derived from
@@ -95,22 +95,33 @@ function HeroSection({ neto, trendPct, isRTL }) {
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "baseline",
           marginTop: 14,
+          minHeight: 60,
         }}
       >
-        <Type
-          variant="hero"
-          color={theme.colors.ink}
-          style={{ lineHeight: 60 }}
-        >
-          {fmtCurrency(display)}
-        </Type>
-        <Type
-          variant="sectionTitle"
-          color={theme.colors.muted}
-          style={isRTL ? { marginRight: 6 } : { marginLeft: 6 }}
-        >
-          ₪
-        </Type>
+        {loading ? (
+          <ActivityIndicator
+            color={theme.colors.accent}
+            size="large"
+            style={{ alignSelf: isRTL ? "flex-end" : "flex-start" }}
+          />
+        ) : (
+          <>
+            <Type
+              variant="hero"
+              color={theme.colors.ink}
+              style={{ lineHeight: 60 }}
+            >
+              {fmtCurrency(display)}
+            </Type>
+            <Type
+              variant="sectionTitle"
+              color={theme.colors.muted}
+              style={isRTL ? { marginRight: 6 } : { marginLeft: 6 }}
+            >
+              ₪
+            </Type>
+          </>
+        )}
       </View>
       {trendPct != null ? (
         <View
@@ -378,7 +389,11 @@ export default function OverviewScreen() {
   const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
   const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
-  const { monthlyReport, totals } = useMonthlySalary(shifts);
+  const { monthlyReport, totals, salaryLoading } = useMonthlySalary(
+    shifts,
+    currentDate,
+    shiftsLoading,
+  );
   const prevBruto = usePrevMonthBruto(user, currentDate);
   const { t, i18n } = useTranslation();
 
@@ -444,7 +459,11 @@ export default function OverviewScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      {monthlyReport == null || shiftsLoading ? (
+      {shiftsLoading ? (
+        // While shifts themselves are still being fetched we have
+        // nothing to render — show a full-screen spinner. Once shifts
+        // arrive the page renders and the HeroSection's inline
+        // spinner covers the salary-calculation window.
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
@@ -471,6 +490,7 @@ export default function OverviewScreen() {
             neto={monthlyReport?.neto || 0}
             trendPct={trendPct}
             isRTL={isRTL}
+            loading={!monthlyReport && salaryLoading}
           />
           <StatsGrid
             bruto={monthlyReport?.bruto || 0}
