@@ -378,7 +378,7 @@ export default function OverviewScreen() {
   const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
   const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
-  const { monthlyReport, totals } = useMonthlySalary(shifts);
+  const { monthlyReport, totals } = useMonthlySalary(shifts, currentDate);
   const prevBruto = usePrevMonthBruto(user, currentDate);
   const { t, i18n } = useTranslation();
 

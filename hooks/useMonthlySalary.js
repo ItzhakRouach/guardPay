@@ -1,10 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../hooks/auth-context"; // וודא שהנתיב נכון
 import { functions } from "../lib/appwrite";
+import { readSalaryCache, writeSalaryCache } from "../lib/salaryCache";
 
-export const useMonthlySalary = (shifts) => {
-  const { user } = useAuth(); // משיכת המשתמש כדי להשתמש ב-ID שלו
+// Stale-while-revalidate: when the hook mounts (or the user/month
+// changes), we first paint the cached salary report so the bruto / neto
+// figures show up instantly. The cloud function call then runs in the
+// background and overwrites the cached value with the fresh result.
+//
+// Without this, every navigation to Shifts / Overview / Paycheck flashed
+// "0 ₪" for the second the CALCULATE_SALARY function took to respond.
+//
+// `currentDate` is optional for backwards compat — callers that don't
+// pass it skip the cache layer entirely.
+export const useMonthlySalary = (shifts, currentDate) => {
+  const { user } = useAuth();
   const [monthlyReport, setMonthlyReport] = useState(null);
+
+  // Cache slot key derived from currentDate. Stable per-month so flips
+  // between months don't mix data.
+  const cacheYear = currentDate ? currentDate.getFullYear() : null;
+  const cacheMonth = currentDate ? currentDate.getMonth() : null;
+  const userId = user?.$id;
+
+  // Hydrate state from AsyncStorage on first mount + whenever the
+  // cache key changes. `cancelled` guard avoids racing writes if the
+  // user flips months mid-fetch.
+  useEffect(() => {
+    if (!userId || cacheYear == null || cacheMonth == null) return;
+    let cancelled = false;
+    (async () => {
+      const cached = await readSalaryCache(userId, cacheYear, cacheMonth);
+      if (cancelled || !cached) return;
+      // Don't clobber a fresher cloud-function result that arrived
+      // first — only seed if state is still null.
+      setMonthlyReport((prev) => prev ?? cached);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, cacheYear, cacheMonth]);
 
   const totals = useMemo(() => {
     const initial = {
@@ -74,8 +109,14 @@ export const useMonthlySalary = (shifts) => {
 
   useEffect(() => {
     const getSalary = async () => {
-      if (shifts.length === 0 || !user?.$id) {
-        setMonthlyReport({ bruto: 0, neto: 0, totalDeductions: 0 });
+      if (shifts.length === 0 || !userId) {
+        const empty = { bruto: 0, neto: 0, totalDeductions: 0 };
+        setMonthlyReport(empty);
+        // Cache the empty result too — re-opening a known-empty month
+        // shouldn't flash a stale non-zero value from a previous fill.
+        if (cacheYear != null && cacheMonth != null) {
+          writeSalaryCache(userId, cacheYear, cacheMonth, empty);
+        }
         return;
       }
       try {
@@ -90,19 +131,22 @@ export const useMonthlySalary = (shifts) => {
               vacation_pay: totals.vacationAmount,
               training_pay: totals.trainingAmount,
               sick_pay: totals.sickAmount,
-              user_id: user.$id,
+              user_id: userId,
             },
           }),
         );
         const result = JSON.parse(execution.responseBody);
         setMonthlyReport(result);
+        if (cacheYear != null && cacheMonth != null) {
+          writeSalaryCache(userId, cacheYear, cacheMonth, result);
+        }
       } catch (e) {
         console.error("Cloud Error:", e);
       }
     };
 
     getSalary();
-  }, [totals, shifts.length, user?.$id]); // ה-Effect ירוץ מחדש כשהנתונים או המשתמש משתנים
+  }, [totals, shifts.length, userId, cacheYear, cacheMonth]);
 
   return {
     monthlyReport,

@@ -292,7 +292,7 @@ export default function PaycheckScreen() {
     [monthIso],
   );
   const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
-  const { monthlyReport, totals } = useMonthlySalary(shifts);
+  const { monthlyReport, totals } = useMonthlySalary(shifts, currentDate);
 
   const model = useMemo(
     () =>

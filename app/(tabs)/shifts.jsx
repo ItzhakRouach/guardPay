@@ -128,7 +128,7 @@ export default function ShiftsScreen() {
   const { user, profile } = useAuth();
   const { currentDate, prev, next } = useMonthNav();
   const { shifts, loading, setShifts } = useShift(user, currentDate);
-  const { totals, monthlyReport } = useMonthlySalary(shifts);
+  const { totals, monthlyReport } = useMonthlySalary(shifts, currentDate);
   const { isRTL } = useLanguage();
   const { t } = useTranslation();
 
