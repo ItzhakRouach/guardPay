@@ -2,7 +2,7 @@
   "expo": {
     "name": "GuardPay",
     "slug": "GuardPay",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "orientation": "portrait",
     "runtimeVersion": {
       "policy": "appVersion"
