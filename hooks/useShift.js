@@ -17,6 +17,20 @@ export const useShift = (user, currentDate) => {
   const [loading, setLoading] = useState(true);
   const [shifts, setShifts] = useState([]);
 
+  // When `currentDate` changes, synchronously drop the previous
+  // month's shifts and flip loading back on during render. Otherwise
+  // consumers (notably useMonthlySalary) get one render with the new
+  // currentDate but the OLD shifts array + stale `loading: false`,
+  // which used to trigger a CALCULATE_SALARY call against the previous
+  // month's totals and write the result into the new month's cache.
+  const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+  const [lastMonthKey, setLastMonthKey] = useState(monthKey);
+  if (lastMonthKey !== monthKey) {
+    setLastMonthKey(monthKey);
+    setShifts([]);
+    setLoading(true);
+  }
+
   const fetchShifts = useCallback(async () => {
     if (!user) return;
     setLoading(true);
