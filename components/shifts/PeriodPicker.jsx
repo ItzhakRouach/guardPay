@@ -3,7 +3,20 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 
-export default function SickPeriodPicker({ startDate, endDate, openPicker }) {
+// Two-date range picker (start + end), no time fields. Used for whole-day
+// period entries — sick leave and vacation — where the user picks a
+// from-date and a to-date and one document is created per calendar day.
+//
+// `endField` is the activeField name the modal uses to know which end-date
+// state to update ("sickEnd" or "vacEnd"); the start always uses "date".
+export default function PeriodPicker({
+  startDate,
+  endDate,
+  openPicker,
+  startLabel,
+  endLabel,
+  endField,
+}) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
   const styles = makeStyle(theme, isRTL);
@@ -21,12 +34,12 @@ export default function SickPeriodPicker({ startDate, endDate, openPicker }) {
               left={<TextInput.Icon icon="calendar-start" />}
               outlineStyle={styles.outline}
             />
-            <Text style={styles.label}>{t("add_shift.sick_start")}</Text>
+            <Text style={styles.label}>{t(startLabel)}</Text>
           </View>
         </Pressable>
 
         <View style={{ marginTop: 18 }}>
-          <Pressable onPress={() => openPicker("date", "sickEnd")}>
+          <Pressable onPress={() => openPicker("date", endField)}>
             <View pointerEvents="none">
               <TextInput
                 value={endDate.toLocaleDateString("en-GB")}
@@ -35,7 +48,7 @@ export default function SickPeriodPicker({ startDate, endDate, openPicker }) {
                 left={<TextInput.Icon icon="calendar-end" />}
                 outlineStyle={styles.outline}
               />
-              <Text style={styles.label}>{t("add_shift.sick_end")}</Text>
+              <Text style={styles.label}>{t(endLabel)}</Text>
             </View>
           </Pressable>
         </View>
