@@ -20,12 +20,8 @@ import ShiftSummary from "../components/shifts/ShiftSummary";
 import ShiftTypeSelected from "../components/shifts/ShiftTypeSelected";
 import { useAuth } from "../hooks/auth-context";
 import { useLanguage } from "../hooks/lang-context";
-import {
-  DATABASE_ID,
-  SHIFTS_HISTORY,
-  databases,
-  functions,
-} from "../lib/appwrite";
+import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../lib/appwrite";
+import { computeShiftDoc } from "../lib/salaryLogic";
 import { getShiftTimes } from "../lib/shiftTimes";
 import { shiftTypeTimes } from "../lib/utils";
 import { buildSickDocs } from "../utils/sickDays";
@@ -177,10 +173,9 @@ export default function AddShift() {
       }
 
       // Vacation spans a from→to date range (like sick days), but each day
-      // is paid the full daily wage with no streak. We reuse the existing
-      // cloud calculation by looping the single-day CALCULATE_SHIFT call
-      // once per calendar day, so every doc matches what a single-day
-      // vacation produces today and stays consistent with CALCULATE_SALARY.
+      // is paid the full daily wage with no streak. computeShiftDoc builds
+      // the same document the cloud CALCULATE_SHIFT produced for a single
+      // vacation day — locally and instantly, no network round-trip.
       if (value === "vacation") {
         const startDay = new Date(
           date.getFullYear(),
@@ -211,35 +206,16 @@ export default function AddShift() {
           return { dStart, dEnd };
         });
 
-        const executions = await Promise.all(
-          days.map(({ dStart, dEnd }) =>
-            functions.createExecution(
-              "697d0f3c001bba7f03d2",
-              JSON.stringify({
-                action: "CALCULATE_SHIFT",
-                payload: {
-                  startTime: dStart.toISOString(),
-                  endTime: dEnd.toISOString(),
-                  baseRate: finalBaseRate,
-                  travelRate: profile.price_per_ride,
-                  type: "vacation",
-                  user_id: user.$id,
-                  isHoliday: false,
-                },
-              }),
-              false,
-              "/",
-              "POST",
-            ),
-          ),
-        );
-
         await Promise.all(
-          executions.map((execution) => {
-            if (execution.status === "failed") {
-              throw new Error("החישוב בשרת נכשל");
-            }
-            const docData = JSON.parse(execution.responseBody);
+          days.map(({ dStart, dEnd }) => {
+            const docData = computeShiftDoc({
+              startTime: dStart.toISOString(),
+              endTime: dEnd.toISOString(),
+              baseRate: finalBaseRate,
+              travelRate: profile.price_per_ride,
+              type: "vacation",
+              isHoliday: false,
+            });
             docData.user_id = user.$id;
             docData.comment = comment.trim();
             return databases.createDocument(
@@ -260,32 +236,16 @@ export default function AddShift() {
       const finalEnd = new Date(date);
       finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
 
-      // קריאה לשרת - המקור היחיד לחישוב
-      const execution = await functions.createExecution(
-        "697d0f3c001bba7f03d2",
-        JSON.stringify({
-          action: "CALCULATE_SHIFT",
-          payload: {
-            startTime: finalStart.toISOString(),
-            endTime: finalEnd.toISOString(),
-            baseRate: finalBaseRate,
-            travelRate: profile.price_per_ride,
-            type: value,
-            user_id: user.$id,
-            // הוספת פרמטר חג אם רלוונטי
-            isHoliday: value === "holiday",
-          },
-        }),
-        false,
-        "/",
-        "POST",
-      );
-
-      if (execution.status === "failed") {
-        throw new Error("החישוב בשרת נכשל");
-      }
-
-      const docData = JSON.parse(execution.responseBody);
+      // Compute the shift document locally — same result the cloud
+      // CALCULATE_SHIFT produced, with no network round-trip.
+      const docData = computeShiftDoc({
+        startTime: finalStart.toISOString(),
+        endTime: finalEnd.toISOString(),
+        baseRate: finalBaseRate,
+        travelRate: profile.price_per_ride,
+        type: value,
+        isHoliday: value === "holiday",
+      });
       docData.user_id = user.$id;
       docData.comment = comment.trim();
 
