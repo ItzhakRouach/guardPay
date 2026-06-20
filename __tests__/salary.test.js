@@ -1,5 +1,9 @@
 /* global describe, test, expect */
-const { calculateSalary, calculateShiftPay } = require("../utils/salaryLogic");
+const {
+  calculateSalary,
+  calculateShiftPay,
+  computeShiftDoc,
+} = require("../utils/salaryLogic");
 
 describe("Shift Calculation Logic Noraml Weekday 8 Hours Tests", () => {
   //case 1
@@ -125,7 +129,7 @@ describe("Shift Calculation Logic Weekend 8 Hours - Saturday/Friday Tests", () =
     expect(result.total_amount).toBe(537.5);
   });
 
-  test("Holiday Shift - Check Database Flag Output", () => {
+  test("Holiday Shift - Buckets into holiday fields, not shabat", () => {
     const result = calculateShiftPay(
       "2026-04-06T07:00:00",
       "2026-04-06T15:00:00",
@@ -134,9 +138,24 @@ describe("Shift Calculation Logic Weekend 8 Hours - Saturday/Friday Tests", () =
       true,
     );
 
-    // This ensures your frontend/database gets the flag back
-    expect(result.is_holiday).toBe(true);
-    expect(result.h150_shabat).toBe(8);
+    // Holiday hours go into the dedicated holiday buckets; shabat zeroed.
+    expect(result.h150_holiday).toBe(8);
+    expect(result.h150_shabat).toBe(0);
+    expect(result.total_amount).toBe(600); // 8 * 50 * 1.5
+  });
+
+  test("Holiday Shift - computeShiftDoc returns is_holiday flag", () => {
+    const doc = computeShiftDoc({
+      startTime: "2026-04-06T07:00:00",
+      endTime: "2026-04-06T15:00:00",
+      baseRate: 50,
+      travelRate: 0,
+      type: "holiday",
+      isHoliday: true,
+    });
+    // The wrapper (not calculateShiftPay) attaches the storage flags.
+    expect(doc.is_holiday).toBe(true);
+    expect(doc.h150_holiday).toBe(8);
   });
 });
 
@@ -243,28 +262,28 @@ describe("Monthly Salary Calculation - Neto/Bruto Tests", () => {
   test("Average Salary - Crossing Bituah Leumi Threshold", () => {
     const result = calculateSalary(10000, 0, 0);
     expect(result.bruto).toBe(10000);
-    expect(result.incomeTax).toBeCloseTo(584.1, 1); //(710 + (10000 - 7010) * 0.14) - 544.5
+    expect(result.incomeTax).toBeCloseTo(575.1, 1); //(701 + (10000 - 7010) * 0.14) - 544.5
     expect(result.bituahLeumiAndHealth).toBeCloseTo(560.63, 1); //(7522 * 0.035) + (2478 * 0.12) = 263.27 + 297.36 = 560.63
     expect(result.pensia).toBeCloseTo(700);
-    expect(result.neto).toBeCloseTo(10000 - 584.1 - 700 - 560.63);
+    expect(result.neto).toBeCloseTo(10000 - 575.1 - 700 - 560.63);
   });
 
   test("High Salary - Crossing Bituah Leumi and Taxes Threshold", () => {
     const result = calculateSalary(15000, 0, 0);
     expect(result.bruto).toBe(15000);
-    expect(result.incomeTax).toBeCloseTo(1580.5, 1); // (710 + 427 + (15000 - 10060) * 0.2 ) - 544.5
+    expect(result.incomeTax).toBeCloseTo(1571.5, 1); // (701 + 427 + (15000 - 10060) * 0.2 ) - 544.5
     expect(result.bituahLeumiAndHealth).toBeCloseTo(1160.63, 1); // (7522 * 0.035) + (7478 * 0.12) = 263.27 + 897.36 = 1160.63
     expect(result.pensia).toBeCloseTo(1050); // regular pay * 0.07 = 15000 * 0.07
-    expect(result.neto).toBeCloseTo(15000 - 1580.5 - 1160.63 - 1050);
+    expect(result.neto).toBeCloseTo(15000 - 1571.5 - 1160.63 - 1050);
   });
 
   test("Average Salary With Regular , Extra and Travel Pay ", () => {
     const result = calculateSalary(10000, 2000, 500);
     expect(result.bruto).toBe(12500);
     expect(result.bituahLeumiAndHealth).toBeCloseTo(860.63, 1); // (7522 * 0.035) + (4978 * 0.12) = 263.27 + 597.36 = 860.63
-    expect(result.incomeTax).toBeCloseTo(1080.5, 1); // (710 + 427 + (12500 - 10060) * 0.2 ) - 544.5
+    expect(result.incomeTax).toBeCloseTo(1071.5, 1); // (701 + 427 + (12500 - 10060) * 0.2 ) - 544.5
     expect(result.pensia).toBeCloseTo(865, 1); // regular pay * 0.07 + extra Pay * 0.07 + travel Pay * 0.05;
-    expect(result.neto).toBeCloseTo(9693.87, 1);
+    expect(result.neto).toBeCloseTo(9702.87, 1);
   });
 });
 
@@ -275,8 +294,8 @@ describe("Monthly Salary Calculation with Benefits", () => {
 
     expect(result.bruto).toBe(10000);
     expect(result.settlementBenefitValue).toBe(0);
-    // המס צריך להיות בערך 584 ש"ח (לפי המדרגות ונקודות הזיכוי)
-    expect(result.incomeTax).toBeCloseTo(584.1, 1);
+    // המס צריך להיות בערך 575 ש"ח (לפי המדרגות ונקודות הזיכוי)
+    expect(result.incomeTax).toBeCloseTo(575.1, 1);
   });
 
   test("Settlement Benefit - Beit Shean (12%)", () => {
@@ -318,5 +337,57 @@ describe("Monthly Salary Calculation with Sick Pay", () => {
     const after = calculateSalary(10000, 2000, 500, 0, 0, 2.25, 0, 0, 0);
     expect(after.bruto).toBe(before.bruto);
     expect(after.neto).toBe(before.neto);
+  });
+
+  test("Top bracket - 35% above 22,440", () => {
+    const result = calculateSalary(25000, 0, 0);
+    // grossTax = 701+427+1218+1950 + (25000-22440)*0.35 = 4296 + 896 = 5192
+    // incomeTax = 5192 - (2.25*242) = 5192 - 544.5 = 4647.5
+    expect(result.incomeTax).toBeCloseTo(4647.5, 1);
+  });
+});
+
+describe("computeShiftDoc - shift document wrapper", () => {
+  test("Training is flat baseRate*8 with travel", () => {
+    const doc = computeShiftDoc({
+      startTime: "2026-01-27T07:00:00",
+      endTime: "2026-01-27T15:00:00",
+      baseRate: 50,
+      travelRate: 30,
+      type: "training",
+    });
+    expect(doc.total_amount).toBe(400); // 50 * 8
+    expect(doc.travel_pay_amount).toBe(30);
+    expect(doc.is_training).toBe(true);
+    expect(doc.reg_hours).toBe(0);
+  });
+
+  test("Vacation is flat baseRate*8 with no travel", () => {
+    const doc = computeShiftDoc({
+      startTime: "2026-01-27T07:00:00",
+      endTime: "2026-01-27T15:00:00",
+      baseRate: 50,
+      travelRate: 30,
+      type: "vacation",
+    });
+    expect(doc.total_amount).toBe(400); // 50 * 8
+    expect(doc.travel_pay_amount).toBe(0); // vacation gets no travel
+    expect(doc.is_vacation).toBe(true);
+  });
+
+  test("Regular shift delegates to calculateShiftPay and adds flags", () => {
+    const doc = computeShiftDoc({
+      startTime: "2026-01-27T07:00:00",
+      endTime: "2026-01-27T15:00:00",
+      baseRate: 50,
+      travelRate: 0,
+      type: "morning",
+      isHoliday: false,
+    });
+    expect(doc.total_amount).toBe(400);
+    expect(doc.is_training).toBe(false);
+    expect(doc.is_vacation).toBe(false);
+    expect(doc.is_holiday).toBe(false);
+    expect(doc.base_rate).toBe(50);
   });
 });

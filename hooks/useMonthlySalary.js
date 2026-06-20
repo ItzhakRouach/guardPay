@@ -1,24 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../hooks/auth-context"; // וודא שהנתיב נכון
-import { functions } from "../lib/appwrite";
+import { calculateSalary } from "../lib/salaryLogic";
 import { readSalaryCache, writeSalaryCache } from "../lib/salaryCache";
 
 // Stale-while-revalidate: when the hook mounts (or the user/month
 // changes), we first paint the cached salary report so the bruto / neto
-// figures show up instantly. The cloud function call then runs in the
-// background and overwrites the cached value with the fresh result.
+// figures show up instantly. The salary is then recomputed locally (via
+// calculateSalary — formerly the CALCULATE_SALARY cloud function) and
+// overwrites the cached value with the fresh result.
 //
-// `monthlyReport` stays `null` until either the cache hits or the cloud
-// returns — never set to zeros prematurely. `salaryLoading` flips false
-// only when the cloud has either succeeded or returned the empty-month
-// shortcut. Consumers render a spinner when monthlyReport is null AND
+// `monthlyReport` stays `null` until either the cache hits or the local
+// compute runs — never set to zeros prematurely. `salaryLoading` flips
+// false only once the compute has run or taken the empty-month shortcut.
+// Consumers render a spinner when monthlyReport is null AND
 // salaryLoading is true.
 //
 // `currentDate` + `shiftsLoading` are optional for backwards compat —
 // callers that don't pass them get the old non-cached behavior with
 // the new spinner-friendly state shape.
 export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [monthlyReport, setMonthlyReport] = useState(null);
   const [salaryLoading, setSalaryLoading] = useState(true);
 
@@ -150,29 +151,27 @@ export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => 
         return;
       }
       try {
-        const execution = await functions.createExecution(
-          "697d0f3c001bba7f03d2",
-          JSON.stringify({
-            action: "CALCULATE_SALARY",
-            payload: {
-              regularPay: totals.regPay,
-              extraPay: totals.extraPay,
-              travelPay: totals.travelPay,
-              vacation_pay: totals.vacationAmount,
-              training_pay: totals.trainingAmount,
-              sick_pay: totals.sickAmount,
-              user_id: userId,
-            },
-          }),
+        // Computed locally (was the CALCULATE_SALARY cloud function).
+        // Settlement / credit-point inputs come from the profile — the same
+        // fields the cloud function used to read from users_prefs, with the
+        // same defaults — so the result is identical, just without the
+        // (flaky) network round-trip.
+        const result = calculateSalary(
+          totals.regPay,
+          totals.extraPay,
+          totals.travelPay,
+          totals.trainingAmount,
+          totals.vacationAmount,
+          profile?.credit_points || 2.25,
+          profile?.settlement_percent || 0,
+          profile?.settlement_annual_cap || 0,
+          totals.sickAmount,
         );
         if (cancelled) return;
-        const result = JSON.parse(execution.responseBody);
         setMonthlyReport(result);
         if (cacheYear != null && cacheMonth != null) {
           writeSalaryCache(userId, cacheYear, cacheMonth, result);
         }
-      } catch (e) {
-        console.error("Cloud Error:", e);
       } finally {
         if (!cancelled) setSalaryLoading(false);
       }
@@ -182,7 +181,17 @@ export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => 
     return () => {
       cancelled = true;
     };
-  }, [totals, shifts.length, userId, cacheYear, cacheMonth, shiftsLoading]);
+  }, [
+    totals,
+    shifts.length,
+    userId,
+    cacheYear,
+    cacheMonth,
+    shiftsLoading,
+    profile?.credit_points,
+    profile?.settlement_percent,
+    profile?.settlement_annual_cap,
+  ]);
 
   return {
     monthlyReport,
