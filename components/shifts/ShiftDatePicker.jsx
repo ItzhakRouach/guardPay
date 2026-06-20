@@ -12,6 +12,7 @@ export default function ShiftDatePicker({
   hourRate, // ערך ה-State (יכול להיות מחרוזת ריקה)
   setHourRate, // פונקציית העדכון
   defaultRate, // תעריף ברירת המחדל מהפרופיל (למשל 52)
+  hideTime, // hide the start/end time fields (e.g. training uses fixed hours)
 }) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
@@ -36,6 +37,7 @@ export default function ShiftDatePicker({
         </Pressable>
 
         {/** Time Section */}
+        {!hideTime && (
         <View style={styles.timeRow}>
           <Pressable
             style={styles.flex1}
@@ -81,6 +83,7 @@ export default function ShiftDatePicker({
             </View>
           </Pressable>
         </View>
+        )}
 
         {/** Hour Rate Section - התיקון כאן */}
         <View style={{ marginTop: 15 }}>

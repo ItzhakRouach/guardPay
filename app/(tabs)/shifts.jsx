@@ -21,12 +21,20 @@ import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { screenContentLayout, useContentInset } from "../../lib/responsive";
 import { restreakSickUpdates } from "../../utils/sickDays";
 
+// Calendar week-of-month, Sunday→Saturday. Days before the month's first
+// Sunday fall in week 1; each Sunday starts a new week. A month can span up
+// to 6 such weeks (e.g. a 31-day month starting on a Saturday).
+function weekOfMonth(d) {
+  const firstWeekday = new Date(d.getFullYear(), d.getMonth(), 1).getDay(); // 0 = Sun
+  return Math.ceil((d.getDate() + firstWeekday) / 7);
+}
+
 function groupByWeek(shifts) {
   const groups = {};
   shifts.forEach((s) => {
     const d = new Date(s.start_time);
     if (Number.isNaN(d.getTime())) return;
-    const wk = Math.min(5, Math.floor((d.getDate() - 1) / 7) + 1);
+    const wk = weekOfMonth(d);
     if (!groups[wk]) groups[wk] = [];
     groups[wk].push(s);
   });

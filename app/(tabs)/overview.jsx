@@ -23,13 +23,33 @@ import { localeFromLang } from "../../lib/utils";
 const fmtCurrency = (n) =>
   Math.round(Number(n) || 0).toLocaleString("en-US");
 
+// Sum earnings into calendar weeks (Sunday→Saturday) of the month. The
+// bucket count matches the number of Sunday-weeks the month actually spans
+// (5 or 6), so the chart's W1..Wn bars line up with the Shifts-tab grouping.
 function bucketByWeek(shifts) {
-  const buckets = [0, 0, 0, 0, 0];
-  (shifts || []).forEach((s) => {
+  const valid = (shifts || []).filter((s) => {
     const d = new Date(s.start_time || s.date);
-    if (Number.isNaN(d.getTime())) return;
-    const wk = Math.min(4, Math.floor((d.getDate() - 1) / 7));
-    buckets[wk] += Number(s.total_amount || 0);
+    return !Number.isNaN(d.getTime());
+  });
+  if (valid.length === 0) return [0, 0, 0, 0, 0];
+
+  // All shifts in this view belong to one month — derive its shape once.
+  const ref = new Date(valid[0].start_time || valid[0].date);
+  const firstWeekday = new Date(ref.getFullYear(), ref.getMonth(), 1).getDay();
+  const daysInMonth = new Date(
+    ref.getFullYear(),
+    ref.getMonth() + 1,
+    0,
+  ).getDate();
+  const weeksInMonth = Math.ceil((daysInMonth + firstWeekday) / 7);
+
+  const buckets = new Array(weeksInMonth).fill(0);
+  valid.forEach((s) => {
+    const d = new Date(s.start_time || s.date);
+    const wk = Math.ceil((d.getDate() + firstWeekday) / 7) - 1; // 0-indexed
+    if (wk >= 0 && wk < buckets.length) {
+      buckets[wk] += Number(s.total_amount || 0);
+    }
   });
   return buckets;
 }

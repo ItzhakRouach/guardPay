@@ -14,10 +14,10 @@ import { Button, Text, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
 import ShiftCommentField from "../components/shifts/ShiftCommentField";
+import PeriodPicker from "../components/shifts/PeriodPicker";
 import ShiftDatePicker from "../components/shifts/ShiftDatePicker";
 import ShiftSummary from "../components/shifts/ShiftSummary";
 import ShiftTypeSelected from "../components/shifts/ShiftTypeSelected";
-import SickPeriodPicker from "../components/shifts/SickPeriodPicker";
 import { useAuth } from "../hooks/auth-context";
 import { useLanguage } from "../hooks/lang-context";
 import {
@@ -53,6 +53,9 @@ export default function AddShift() {
 
   // For sick days: end date of the sick period (start = `date` above)
   const [sickEndDate, setSickEndDate] = useState(new Date());
+
+  // For vacation: end date of the vacation period (start = `date` above)
+  const [vacEndDate, setVacEndDate] = useState(new Date());
 
   // function to open the picker when user cliked on
   const openPicker = (mode, field) => {
@@ -130,6 +133,7 @@ export default function AddShift() {
       if (activeField === "start") setStartTime(selectedValue);
       if (activeField === "end") setEndTime(selectedValue);
       if (activeField === "sickEnd") setSickEndDate(selectedValue);
+      if (activeField === "vacEnd") setVacEndDate(selectedValue);
     }
     if (Platform.OS === "android") setShow(false);
   };
@@ -167,6 +171,84 @@ export default function AddShift() {
               { ...d, comment: comment.trim() },
             ),
           ),
+        );
+        router.back();
+        return;
+      }
+
+      // Vacation spans a from→to date range (like sick days), but each day
+      // is paid the full daily wage with no streak. We reuse the existing
+      // cloud calculation by looping the single-day CALCULATE_SHIFT call
+      // once per calendar day, so every doc matches what a single-day
+      // vacation produces today and stays consistent with CALCULATE_SALARY.
+      if (value === "vacation") {
+        const startDay = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+        );
+        const endDay = new Date(
+          vacEndDate.getFullYear(),
+          vacEndDate.getMonth(),
+          vacEndDate.getDate(),
+        );
+        if (endDay < startDay) {
+          Alert.alert("שגיאה", "תאריך סיום החופשה חייב להיות אחרי תאריך ההתחלה.");
+          return;
+        }
+
+        const config = shiftTypeTimes.vacation;
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const numDays =
+          Math.round((endDay - startDay) / ONE_DAY_MS) + 1;
+
+        const days = Array.from({ length: numDays }, (_, i) => {
+          const day = new Date(startDay.getTime() + i * ONE_DAY_MS);
+          const dStart = new Date(day);
+          dStart.setHours(config.startH, config.startM, 0, 0);
+          const dEnd = new Date(day);
+          dEnd.setHours(config.endH, config.endM, 0, 0);
+          return { dStart, dEnd };
+        });
+
+        const executions = await Promise.all(
+          days.map(({ dStart, dEnd }) =>
+            functions.createExecution(
+              "697d0f3c001bba7f03d2",
+              JSON.stringify({
+                action: "CALCULATE_SHIFT",
+                payload: {
+                  startTime: dStart.toISOString(),
+                  endTime: dEnd.toISOString(),
+                  baseRate: finalBaseRate,
+                  travelRate: profile.price_per_ride,
+                  type: "vacation",
+                  user_id: user.$id,
+                  isHoliday: false,
+                },
+              }),
+              false,
+              "/",
+              "POST",
+            ),
+          ),
+        );
+
+        await Promise.all(
+          executions.map((execution) => {
+            if (execution.status === "failed") {
+              throw new Error("החישוב בשרת נכשל");
+            }
+            const docData = JSON.parse(execution.responseBody);
+            docData.user_id = user.$id;
+            docData.comment = comment.trim();
+            return databases.createDocument(
+              DATABASE_ID,
+              SHIFTS_HISTORY,
+              ID.unique(),
+              docData,
+            );
+          }),
         );
         router.back();
         return;
@@ -269,13 +351,27 @@ export default function AddShift() {
         <Text variant="headlineMedium" style={styles.title}>
           {!isEditMode ? t("add_shift.add") : t("add_shift.update")}
         </Text>
-        {/* Sick days use a dedicated two-date picker (start + end);
-            all other shift types use the standard date + time card. */}
+        {/* Sick days and vacation use a dedicated two-date range picker
+            (start + end), one entry per day; all other shift types use the
+            standard date + time card. Training hides the time fields since
+            it always uses fixed default hours. */}
         {value === "sick" ? (
-          <SickPeriodPicker
+          <PeriodPicker
             startDate={date}
             endDate={sickEndDate}
             openPicker={openPicker}
+            startLabel="add_shift.sick_start"
+            endLabel="add_shift.sick_end"
+            endField="sickEnd"
+          />
+        ) : value === "vacation" ? (
+          <PeriodPicker
+            startDate={date}
+            endDate={vacEndDate}
+            openPicker={openPicker}
+            startLabel="add_shift.vacation_start"
+            endLabel="add_shift.vacation_end"
+            endField="vacEnd"
           />
         ) : (
           <ShiftDatePicker
@@ -287,6 +383,7 @@ export default function AddShift() {
             setHourRate={setHourRate}
             hourRate={hourRate}
             defaultRate={profile?.price_per_hour}
+            hideTime={value === "training"}
           />
         )}
         {/**Shift type selected */}
@@ -323,6 +420,7 @@ export default function AddShift() {
             startTime={startTime}
             endTime={endTime}
             sickEndDate={sickEndDate}
+            vacEndDate={vacEndDate}
           />
         )}
         {loading && <LoadingSpinner />}
