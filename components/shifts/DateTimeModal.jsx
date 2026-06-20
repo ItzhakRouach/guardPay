@@ -14,6 +14,7 @@ export default function DateTimeModal({
   startTime,
   endTime,
   sickEndDate,
+  vacEndDate,
 }) {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
@@ -41,12 +42,16 @@ export default function DateTimeModal({
                 ? startTime
                 : activeField === "sickEnd"
                 ? sickEndDate || new Date()
+                : activeField === "vacEnd"
+                ? vacEndDate || new Date()
                 : endTime
             }
             mode={pickerMode}
             is24Hour={true}
             display={
-              activeField === "date" || activeField === "sickEnd"
+              activeField === "date" ||
+              activeField === "sickEnd" ||
+              activeField === "vacEnd"
                 ? "inline"
                 : "spinner"
             }
