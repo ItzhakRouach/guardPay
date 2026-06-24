@@ -16,6 +16,7 @@ import WeeklyReminder from "../../components/layout/WeeklyReminder";
 import SecurityLawPDF from "../../components/legal/SecurityLawPDF";
 import LanguagesChange from "../../components/profile/LanguagesChange";
 import PreferencesChange from "../../components/profile/PreferencesChange";
+import SettlementSettingsModal from "../../components/profile/SettlementSettingsModal";
 import ShiftColorsSettingsModal from "../../components/profile/ShiftColorsSettingsModal";
 import ShiftTimesSettingsModal from "../../components/profile/ShiftTimesSettingsModal";
 import { useAuth } from "../../hooks/auth-context";
@@ -149,6 +150,7 @@ export default function ProfileScreen() {
   const [langOpen, setLangOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [timesOpen, setTimesOpen] = useState(false);
+  const [settlementOpen, setSettlementOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -395,6 +397,17 @@ export default function ProfileScreen() {
               icon="clock"
               label={t("index.shift_times")}
               onPress={() => setTimesOpen(true)}
+            />
+            <SettingsRow
+              isRTL={isRTL}
+              icon="gift"
+              label={t("settlement.row_label")}
+              value={
+                profile?.settlement_name
+                  ? `${profile.settlement_name} · ${profile.settlement_percent}%`
+                  : t("settlement.none")
+              }
+              onPress={() => setSettlementOpen(true)}
               last
             />
           </View>
@@ -543,6 +556,10 @@ export default function ProfileScreen() {
       <ShiftTimesSettingsModal
         visible={timesOpen}
         onDismiss={() => setTimesOpen(false)}
+      />
+      <SettlementSettingsModal
+        visible={settlementOpen}
+        onDismiss={() => setSettlementOpen(false)}
       />
       {pdfOpen ? (
         <SecurityLawPDF
