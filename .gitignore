@@ -3,6 +3,11 @@
 # dependencies
 node_modules/
 
+# This project uses npm (package-lock.json). Keep stray pnpm artifacts out
+# so EAS Build doesn't get an ambiguous package manager from the upload.
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
 # Expo
 .expo/
 dist/
