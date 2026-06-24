@@ -301,6 +301,14 @@ export const resources = {
         reset_confirm_title: "לאפס את זמני המשמרות?",
         reset_confirm_body: "כל הזמנים יחזרו לברירת המחדל של האפליקציה.",
       },
+      settlement: {
+        row_label: "יישוב מזכה מס",
+        none: "לא נבחר יישוב",
+        modal_title: "בחירת יישוב מגורים",
+        search_placeholder: "חפש יישוב...",
+        benefit_desc: "זיכוי {{percent}}% · תקרה {{cap}} ₪",
+        clear: "הסר יישוב",
+      },
       appearance: {
         title: "צבעים",
         subtitle: "בחר צבעים למשמרות לפי סוג",
@@ -629,6 +637,14 @@ export const resources = {
         reset: "Reset to defaults",
         reset_confirm_title: "Reset shift times?",
         reset_confirm_body: "All three presets will return to the app defaults.",
+      },
+      settlement: {
+        row_label: "Tax-credited settlement",
+        none: "No settlement selected",
+        modal_title: "Select your settlement",
+        search_placeholder: "Search settlement...",
+        benefit_desc: "{{percent}}% credit · cap {{cap}} ₪",
+        clear: "Remove settlement",
       },
       appearance: {
         title: "Colors",
@@ -959,6 +975,14 @@ export const resources = {
         reset_confirm_title: "إعادة ضبط أوقات الورديات؟",
         reset_confirm_body:
           "ستعود جميع الأوقات إلى الإعدادات الافتراضية للتطبيق.",
+      },
+      settlement: {
+        row_label: "بلدة مزكية لضريبة الدخل",
+        none: "لم يتم اختيار بلدة",
+        modal_title: "اختيار بلدة السكن",
+        search_placeholder: "ابحث عن بلدة...",
+        benefit_desc: "خصم {{percent}}% · الحد الأقصى {{cap}} ₪",
+        clear: "إزالة البلدة",
       },
       appearance: {
         title: "الألوان",

@@ -55,6 +55,13 @@ export default function DateTimeModal({
                 ? "inline"
                 : "spinner"
             }
+            // iOS pickers otherwise follow the SYSTEM appearance, so in
+            // app-light / system-dark the inline calendar renders pale
+            // (dark-variant) text on our light surface. Pin the variant +
+            // colors to the app theme so every date stays readable.
+            themeVariant={theme.dark ? "dark" : "light"}
+            accentColor={theme.colors.primary}
+            textColor={theme.colors.onSurface}
             onChange={handleValueChanges}
           />
         </Surface>
