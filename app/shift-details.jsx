@@ -31,6 +31,15 @@ export default function ShiftDetails() {
 
   if (!shift) return null;
 
+  // Label by the flag, not by which field the hours landed in — the same rule
+  // the payslip uses (lib/paycheckData.js pickLabel). 150/175/200 hours sit in
+  // the *_shabat / *_extra_hours fields for a Shabbat shift and in the
+  // *_holiday fields for a חג one added here; a חג shift imported from
+  // מִשְׁמֶרֶת has them in the former WITH is_holiday true, because importWeek
+  // folds them there so the monthly total counts them. Summing both members of
+  // a pair is count-once: the writer never fills both.
+  const isHoliday = !!shift.is_holiday;
+
   const DetailRow = ({ label, value, suffix = "" }) => {
     if (!value || value === 0 || value === "0") return null;
     return (
@@ -110,35 +119,20 @@ export default function ShiftDetails() {
               value={shift.h150_extra_hours}
               suffix=" h"
             />
+            {/* שבת/חג — לפי הדגל, לא לפי השדה שבו נשמרו השעות */}
             <DetailRow
-              label={t("shiftDetails.h150Shabat")}
-              value={shift.h150_shabat}
+              label={t(isHoliday ? "shiftDetails.h150Holiday" : "shiftDetails.h150Shabat")}
+              value={Number(shift.h150_shabat || 0) + Number(shift.h150_holiday || 0)}
               suffix=" h"
             />
             <DetailRow
-              label={t("shiftDetails.h175")}
-              value={shift.h175_extra_hours}
+              label={t(isHoliday ? "shiftDetails.h175Holiday" : "shiftDetails.h175")}
+              value={Number(shift.h175_extra_hours || 0) + Number(shift.h175_holiday || 0)}
               suffix=" h"
             />
             <DetailRow
-              label={t("shiftDetails.h200")}
-              value={shift.h200_extra_hours}
-              suffix=" h"
-            />
-            {/* שורות חג חדשות */}
-            <DetailRow
-              label={t("shiftDetails.h150Holiday") || "150% חג"}
-              value={shift.h150_holiday}
-              suffix=" h"
-            />
-            <DetailRow
-              label={t("shiftDetails.h175Holiday") || "175% חג"}
-              value={shift.h175_holiday}
-              suffix=" h"
-            />
-            <DetailRow
-              label={t("shiftDetails.h200Holiday") || "200% חג"}
-              value={shift.h200_holiday}
+              label={t(isHoliday ? "shiftDetails.h200Holiday" : "shiftDetails.h200")}
+              value={Number(shift.h200_extra_hours || 0) + Number(shift.h200_holiday || 0)}
               suffix=" h"
             />
 

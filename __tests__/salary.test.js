@@ -391,3 +391,48 @@ describe("computeShiftDoc - shift document wrapper", () => {
     expect(doc.base_rate).toBe(50);
   });
 });
+
+describe("Hour-bucket contract invariant", () => {
+  // Every hour a shift is paid for must land in exactly one of the nine
+  // buckets, and the nine must add up to what ShiftRow renders
+  // (reg_hours + extra_hours). This holds today and is a guard, not a fix:
+  // it is what makes summing the *_shabat/*_extra AND *_holiday fields in
+  // utils/monthlyTotals.js provably count-once. If a future writer change
+  // fills both members of a pair, this fails here instead of on a payslip.
+  const BUCKETS = [
+    "h100_hours", "h125_extra_hours", "h150_extra_hours",
+    "h150_shabat", "h175_extra_hours", "h200_extra_hours",
+    "h150_holiday", "h175_holiday", "h200_holiday",
+  ];
+  const PAIRS = [
+    ["h150_shabat", "h150_holiday"],
+    ["h175_extra_hours", "h175_holiday"],
+    ["h200_extra_hours", "h200_holiday"],
+  ];
+
+  const CASES = [
+    ["weekday 8h", "2026-01-27T07:00:00", "2026-01-27T15:00:00", false],
+    ["weekday 12h", "2026-01-27T07:00:00", "2026-01-27T19:00:00", false],
+    ["weekday night 23-07", "2026-01-27T23:00:00", "2026-01-28T07:00:00", false],
+    ["friday evening", "2026-01-30T16:00:00", "2026-01-31T00:00:00", false],
+    ["saturday 8h", "2026-01-31T07:00:00", "2026-01-31T15:00:00", false],
+    ["saturday night crossing Sunday 04:00", "2026-01-31T23:00:00", "2026-02-01T07:00:00", false],
+    ["holiday 8h", "2026-04-06T07:00:00", "2026-04-06T15:00:00", true],
+    ["holiday 12h", "2026-04-06T07:00:00", "2026-04-06T19:00:00", true],
+    ["holiday night", "2026-04-06T23:00:00", "2026-04-07T07:00:00", true],
+    ["holiday crossing Sunday 04:00", "2026-04-11T23:00:00", "2026-04-12T07:00:00", true],
+  ];
+
+  test.each(CASES)("%s: nine buckets === reg_hours + extra_hours", (_n, start, end, isHoliday) => {
+    const r = calculateShiftPay(start, end, 50, 0, isHoliday);
+    const bucketSum = BUCKETS.reduce((t, k) => t + Number(r[k] || 0), 0);
+    expect(bucketSum).toBeCloseTo(r.reg_hours + r.extra_hours, 2);
+  });
+
+  test.each(CASES)("%s: no pair has both members filled", (_n, start, end, isHoliday) => {
+    const r = calculateShiftPay(start, end, 50, 0, isHoliday);
+    for (const [a, b] of PAIRS) {
+      expect(Number(r[a] || 0) === 0 || Number(r[b] || 0) === 0).toBe(true);
+    }
+  });
+});

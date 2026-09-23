@@ -18,8 +18,10 @@ GuardPay's Appwrite project: `69583540003a5151db86` on `https://fra.cloud.appwri
 | `users_prefs` | `EXPO_PUBLIC_APPWRITE_USERS_PREFS_ID` | One profile doc per user | `user_id`, `price_per_hour`, `price_per_ride`, settlement info, language pref, name, birthdate |
 | `shifts_history` | `EXPO_PUBLIC_APPWRITE_SHIFTS_HISTORY_ID` | One doc per shift | `user_id`, `start_time`, `end_time`, `base_rate`, `is_training`, `is_vacation`, `is_holiday`, plus the full hour-bucket bundle (see below) |
 
-**Hour-bucket fields on `shifts_history`** (must match [lib/salaryLogic.js](lib/salaryLogic.js) output):
-`h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `reg_hours`, `extra_hours`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`.
+**Hour-bucket fields on `shifts_history`** (must match [lib/salaryLogic.js](lib/salaryLogic.js) output — 15 in all):
+`h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `h150_holiday`, `h175_holiday`, `h200_holiday`, `reg_hours`, `extra_hours`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`.
+
+The three `*_holiday` buckets hold a חג shift's hours **instead of** the `*_shabat` / `*_extra_hours` ones. Readers sum both sets (count-once, since the writer fills only one per pair).
 
 ### Functions
 | ID | Purpose | Caller |
@@ -69,7 +71,7 @@ GuardPay's Appwrite project: `69583540003a5151db86` on `https://fra.cloud.appwri
 **The Appwrite project is production with live users.** Read these before touching any schema or function.
 
 - **Never delete or rename** an existing field on `users_prefs` or `shifts_history`. Old documents will become unreadable or silently lose data. Add new fields as optional with a default.
-- **Never rename or remove** an entry in the hour-bucket field-name contract (`h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`). Historical shifts depend on these.
+- **Never rename or remove** an entry in the hour-bucket field-name contract (`h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `h150_holiday`, `h175_holiday`, `h200_holiday`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`). Historical shifts depend on these — and a reader that quietly omits one is not a rename but has the same effect: the חג buckets went unread for months and every חג shift counted as 0 hours.
 - **Cloud function deploys are immediate-production.** `CALCULATE_SALARY` (`697d0f3c001bba7f03d2`) affects every user's neto the moment it ships. Always: (1) mirror the change in [utils/salaryLogic.js](utils/salaryLogic.js), (2) run `npm test`, (3) ask the user before deploying.
 - **No experimental queries against live data.** If you need to test a destructive or bulk operation, ask the user to create a staging Appwrite project and copy the env vars.
 - **Migrations / backfills** require an approved dry-run plan that estimates affected document count and is reversible.
