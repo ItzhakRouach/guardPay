@@ -59,7 +59,11 @@ All thresholds and constants are test-locked — don't refactor numbers without 
 
 ### Cross-file field-name contract
 
-The salary calculator emits — and the Appwrite shifts collection, [hooks/useMonthlySalary.js](hooks/useMonthlySalary.js), and [lib/GeneratePaycheck.js](lib/GeneratePaycheck.js) all read — the same hour-bucket field names: `h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, plus `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`. Adding a new pay bracket means updating all four places.
+The salary calculator emits — and the Appwrite shifts collection, [utils/monthlyTotals.js](utils/monthlyTotals.js) (the reducer behind `useMonthlySalary`), and [lib/paycheckData.js](lib/paycheckData.js) `HOUR_TYPES` (imported by [lib/GeneratePaycheck.js](lib/GeneratePaycheck.js), so the modal and the PDF share one table) all read — **nine** hour-bucket field names: `h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `h150_holiday`, `h175_holiday`, `h200_holiday`, plus `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`. Adding a new pay bracket means updating all of them.
+
+The nine are **three pairs plus three singles**: `calculateShiftPay` fills either `h150_shabat`/`h175_extra_hours`/`h200_extra_hours` (Shabbat) **or** `h150_holiday`/`h175_holiday`/`h200_holiday` (חג), never both — so readers sum both sets and still count once. Every reader must cover all nine: omitting the three `*_holiday` fields is what made חג shifts contribute full pay and **zero hours** to the month total for months. The invariant is test-locked in [__tests__/salary.test.js](__tests__/salary.test.js): the nine buckets always sum to `reg_hours + extra_hours`.
+
+A חג shift imported from מִשְׁמֶרֶת is a third case: the Appwrite function folds its holiday buckets into the Shabbat ones before writing, so it carries `is_holiday` **and** `h150_shabat`. Labels therefore key off `is_holiday`, never off which field holds the hours.
 
 Day-type flags on `shifts_history` (mutually exclusive — only one is true per document): `is_training`, `is_vacation`, `is_sick`, `is_holiday`. Sick docs additionally carry `sick_percent` (0 / 0.5 / 1.0) used by the PDF to bucket rows. Sick-day math is computed in [utils/sickDays.js](utils/sickDays.js): `useMonthlySalary` passes the precomputed `sick_pay` sum into `calculateSalary`, which adds it to bruto + 7% pension but does not know about the streak rule.
 

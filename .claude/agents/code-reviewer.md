@@ -35,7 +35,8 @@ You are a code reviewer for a React Native + Expo + Appwrite mobile app. You rev
 - Env keys are `EXPO_PUBLIC_*` only; no secrets in the client bundle.
 
 **GuardPay contracts** (the easy-to-break ones)
-- Salary field names (`h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`) match across [lib/salaryLogic.js](lib/salaryLogic.js), [utils/salaryLogic.js](utils/salaryLogic.js), [hooks/useMonthlySalary.js](hooks/useMonthlySalary.js), [lib/GeneratePaycheck.js](lib/GeneratePaycheck.js), and the Appwrite `shifts_history` schema.
+- Salary field names (`h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `h150_holiday`, `h175_holiday`, `h200_holiday`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `total_amount`) match across [lib/salaryLogic.js](lib/salaryLogic.js), [utils/salaryLogic.js](utils/salaryLogic.js), [utils/monthlyTotals.js](utils/monthlyTotals.js), [lib/paycheckData.js](lib/paycheckData.js), and the Appwrite `shifts_history` schema.
+- **Any code that sums hours must read all nine buckets**, including the three `*_holiday` ones. Dropping them makes חג shifts count as 0 hours while their pay still counts — flag this loudly.
 - If `lib/salaryLogic.js` or `utils/salaryLogic.js` changed, the **other** file and the cloud function need matching changes. Flag this loudly.
 - New user-facing strings are added to all three locales (`en`, `he`, `ar`) in [translations/vocabulary.js](translations/vocabulary.js).
 - New color values come from `theme.colors.<token>`. New tokens must be added to both `lightTheme` and `darkTheme` in [app/_layout.jsx](app/_layout.jsx).

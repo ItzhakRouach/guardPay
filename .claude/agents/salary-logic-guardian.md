@@ -30,7 +30,8 @@ Run this sequence:
    - 175% / 200% weekend OT brackets
    - Holiday flag (only in `utils/`) overrides to special-pay path
    - 15-min granularity throughout
-   - Field names returned: `total_amount`, `reg_hours`, `extra_hours`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`
+   - Field names returned (15): `total_amount`, `reg_hours`, `extra_hours`, `reg_pay_amount`, `extra_pay_amount`, `travel_pay_amount`, `h100_hours`, `h125_extra_hours`, `h150_extra_hours`, `h150_shabat`, `h175_extra_hours`, `h200_extra_hours`, `h150_holiday`, `h175_holiday`, `h200_holiday`
+   - The three `*_holiday` buckets are filled **instead of** `h150_shabat`/`h175_extra_hours`/`h200_extra_hours` when `isHoliday` is true — never both. Any reader that sums hours must cover all nine, or חג shifts silently count as 0 hours.
 4. Grep all four consumers for the field names — flag any new/renamed field in one place that isn't reflected elsewhere.
 5. Run `npm test` and report results.
 6. Verify the Israeli tax constants in `calculateSalary` haven't drifted: pensia 7%/7%/5%, Bituah Leumi threshold 7522 (3.5%/12%), tax brackets at 7010/10060/16150 (10%/14%/20%/31%), credit point value 242, settlement cap monthly = annual/12.

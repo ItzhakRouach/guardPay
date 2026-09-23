@@ -2,7 +2,7 @@
   "expo": {
     "name": "GuardPay",
     "slug": "GuardPay",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "orientation": "portrait",
     "runtimeVersion": {
       "policy": "appVersion"
@@ -72,6 +72,9 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0854cd6f-9ceb-43af-826c-a63c2517b59a"
     }
   }
 }
