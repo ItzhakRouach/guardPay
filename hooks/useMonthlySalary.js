@@ -19,7 +19,12 @@ import { readSalaryCache, writeSalaryCache } from "../lib/salaryCache";
 // `currentDate` + `shiftsLoading` are optional for backwards compat —
 // callers that don't pass them get the old non-cached behavior with
 // the new spinner-friendly state shape.
-export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => {
+export const useMonthlySalary = (
+  shifts,
+  currentDate,
+  shiftsLoading = false,
+  shiftsError = null,
+) => {
   const { user, profile } = useAuth();
   const [monthlyReport, setMonthlyReport] = useState(null);
   const [salaryLoading, setSalaryLoading] = useState(true);
@@ -79,6 +84,13 @@ export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => 
     const getSalary = async () => {
       if (shifts.length === 0 || !userId) {
         if (cancelled) return;
+        // A failed fetch with nothing in memory is NOT a known-empty
+        // month. Keep whatever the cache hydrated (or the spinner) and,
+        // above all, don't overwrite the cache with zeros.
+        if (shiftsError) {
+          setSalaryLoading(false);
+          return;
+        }
         const empty = { bruto: 0, neto: 0, totalDeductions: 0 };
         setMonthlyReport(empty);
         setSalaryLoading(false);
@@ -127,6 +139,7 @@ export const useMonthlySalary = (shifts, currentDate, shiftsLoading = false) => 
     cacheYear,
     cacheMonth,
     shiftsLoading,
+    shiftsError,
     profile?.credit_points,
     profile?.settlement_percent,
     profile?.settlement_annual_cap,

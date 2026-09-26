@@ -16,6 +16,10 @@ export const useShift = (user, currentDate) => {
   // before the real fetch even started.
   const [loading, setLoading] = useState(true);
   const [shifts, setShifts] = useState([]);
+  // Set when the last fetch failed. The previous `shifts` array is kept in
+  // that case so a backend outage shows the last-known month (and doesn't
+  // let useMonthlySalary cache a zero month). Cleared on the next success.
+  const [error, setError] = useState(null);
 
   // When `currentDate` changes, synchronously drop the previous
   // month's shifts and flip loading back on during render. Otherwise
@@ -60,8 +64,10 @@ export const useShift = (user, currentDate) => {
         ],
       );
       setShifts(response.documents || []);
+      setError(null);
     } catch (err) {
-      console.log(err);
+      console.log("[useShift] fetch failed:", err?.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -91,5 +97,5 @@ export const useShift = (user, currentDate) => {
     return () => unsubscribe();
   }, [fetchShifts, user]);
 
-  return { setShifts, shifts, loading, refetch: fetchShifts };
+  return { setShifts, shifts, loading, error, refetch: fetchShifts };
 };

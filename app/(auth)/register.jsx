@@ -13,6 +13,8 @@ import {
   ActivityIndicator,
   Button,
   Icon,
+  Portal,
+  Snackbar,
   Text,
   useTheme,
 } from "react-native-paper";
@@ -28,26 +30,43 @@ export default function RegisterScreen() {
   const theme = useTheme();
   const styles = makeStyle(theme, isRTL);
   const [isLoading, setIsLoading] = useState(false);
+  const [notice, setNotice] = useState(null);
+
+  // Sign-in helpers resolve to { ok, cancelled?, kind? }. A dismissed
+  // sheet says nothing; an unreachable backend says so; anything else
+  // gets a generic retry message. Previously every failure was silent.
+  const showResult = (result) => {
+    if (!result || result.ok || result.cancelled) return;
+    if (result.kind === "network") {
+      setNotice(t("service.network_body"));
+    } else if (result.kind === "paused" || result.kind === "server") {
+      setNotice(t("service.unavailable_body"));
+    } else {
+      setNotice(t("service.signin_failed"));
+    }
+  };
 
   const handleAppleSignIn = async () => {
+    if (isLoading) return;
     try {
       setIsLoading(true);
-      await signInWithApple();
+      showResult(await signInWithApple());
     } catch (e) {
       console.log(e);
-      setIsLoading(false);
+      setNotice(t("service.signin_failed"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    if (isLoading) return;
     try {
       setIsLoading(true);
-      await signInWithGoogle();
+      showResult(await signInWithGoogle());
     } catch (e) {
       console.log(e);
-      setIsLoading(false);
+      setNotice(t("service.signin_failed"));
     } finally {
       setIsLoading(false);
     }
@@ -111,6 +130,15 @@ export default function RegisterScreen() {
           </Button>
           <PrivacyConsent />
         </View>
+        <Portal>
+          <Snackbar
+            visible={!!notice}
+            onDismiss={() => setNotice(null)}
+            duration={4000}
+          >
+            {notice}
+          </Snackbar>
+        </Portal>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );

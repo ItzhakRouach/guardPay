@@ -10,6 +10,10 @@ import {
   functions,
   USERS_PREFS,
 } from "../lib/appwrite";
+import {
+  classifyAppwriteError,
+  isBackendUnavailable,
+} from "../lib/appwriteErrors";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,18 +26,42 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [profile, setProfile] = useState(null);
+  // `backendError` is set (to a kind from classifyAppwriteError) when the
+  // session check failed because Appwrite was unreachable — paused project,
+  // no network, 5xx. In that state `user` is deliberately left untouched so
+  // the RouteGuard can show a "service unavailable" screen instead of
+  // bouncing a signed-in user to onboarding.
+  const [backendError, setBackendError] = useState(null);
+  // `profileError` (null | error kind) means "we could not find out whether
+  // a users_prefs doc exists" — distinct from `profile === null` ("we know
+  // there is none"). Conflating the two used to send existing users back
+  // through setupPrefs, which then created a second prefs document.
+  const [profileError, setProfileError] = useState(null);
 
   //funtion to fetch user and if successed also fetch  his profile / prefs
   const getUser = async () => {
     try {
       const session = await account.get();
       setUser(session);
+      setBackendError(null);
       if (session) {
         await fetchUserProfile(session);
       }
     } catch (err) {
-      console.log(err);
-      setUser(null);
+      const kind = classifyAppwriteError(err);
+      if (isBackendUnavailable(kind)) {
+        console.log(
+          `[auth] backend unavailable (${kind}) type=${err?.type} code=${err?.code}:`,
+          err?.message,
+        );
+        setBackendError(kind);
+      } else {
+        // A real "no session" (401) or something we can't interpret: treat
+        // as signed out, exactly as before.
+        console.log(err);
+        setUser(null);
+        setBackendError(null);
+      }
     } finally {
       setIsLoadingUser(false);
     }
@@ -51,10 +79,25 @@ export function AuthProvider({ children }) {
       } else {
         setProfile(null);
       }
+      setProfileError(null);
     } catch (err) {
-      console.log(err);
-      setProfile(null);
+      // Any failure here is "unknown whether a profile exists". Never
+      // downgrade to `profile = null` — that is the path that creates a
+      // duplicate users_prefs document.
+      const kind = classifyAppwriteError(err);
+      console.log(
+        `[auth] profile fetch failed (${kind}) type=${err?.type} code=${err?.code}:`,
+        err?.message,
+      );
+      setProfileError(kind);
     }
+  };
+
+  // Re-run the bootstrap after an outage. Flips the loading flag so the
+  // RouteGuard shows the spinner rather than a stale error screen.
+  const retry = async () => {
+    setIsLoadingUser(true);
+    await getUser();
   };
 
   // sign in using google
@@ -84,11 +127,13 @@ export function AuthProvider({ children }) {
         // Create session with OAuth credentials
         await account.createSession(userId, secret);
         await getUser();
-        return true;
+        return { ok: true };
       }
+      // Browser sheet dismissed without completing OAuth.
+      return { ok: false, cancelled: true };
     } catch (error) {
       console.error("Google Sign-In Error:", error);
-      return false;
+      return { ok: false, kind: classifyAppwriteError(error) };
     }
   };
 
@@ -140,34 +185,46 @@ export function AuthProvider({ children }) {
 
       await getUser();
       console.log("Logged in natively!");
-      return true;
+      return { ok: true };
     } catch (e) {
       // User-cancelled FaceID, network failure, or the cloud function
-      // returning an error all land here. Return false so the caller can
-      // distinguish "user dismissed prompt" from "session created" — they
-      // were previously swallowed and the UI thought sign-in succeeded.
+      // returning an error all land here. Return a result object so the
+      // caller can distinguish "user dismissed prompt" (say nothing) from
+      // "backend unavailable" (say so) from "something else failed".
       if (e?.code === "ERR_REQUEST_CANCELED") {
         console.log("Apple Sign-In cancelled by user");
-      } else {
-        console.error("Apple Sign-In error:", e);
+        return { ok: false, cancelled: true };
       }
-      return false;
+      console.error("Apple Sign-In error:", e);
+      return { ok: false, kind: classifyAppwriteError(e) };
     }
   };
 
   //function to handle users sign out the app
   const signOut = async () => {
+    // Clear outage flags too, otherwise a sign-out from the
+    // ServiceUnavailable screen would leave the guard stuck on it.
+    const clearLocal = () => {
+      setUser(null);
+      setProfile(null);
+      setBackendError(null);
+      setProfileError(null);
+    };
     try {
       // מנסים למחוק מהשרת
       await account.deleteSession("current");
       console.log("Session deleted from server");
-      setUser(null);
-      setProfile(null);
-      router.replace("/(auth)/onBoarding");
     } catch (error) {
       console.log("User already signed out or session expired:", error.message);
-      setUser(null);
-      setProfile(null);
+    }
+    clearLocal();
+    // The Stack may be unmounted (ServiceUnavailable is showing); the
+    // RouteGuard effect routes to onboarding on its own once `user` is
+    // null, so a navigation failure here is harmless.
+    try {
+      router.replace("/(auth)/onBoarding");
+    } catch (navErr) {
+      console.log("[auth] post-signout navigation skipped:", navErr?.message);
     }
   };
 
@@ -188,6 +245,9 @@ export function AuthProvider({ children }) {
         setProfile,
         signInWithGoogle,
         signInWithApple,
+        backendError,
+        profileError,
+        retry,
       }}
     >
       {children}

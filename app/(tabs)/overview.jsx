@@ -20,8 +20,7 @@ import { useShift } from "../../hooks/useShift";
 import { screenContentLayout } from "../../lib/responsive";
 import { localeFromLang } from "../../lib/utils";
 
-const fmtCurrency = (n) =>
-  Math.round(Number(n) || 0).toLocaleString("en-US");
+const fmtCurrency = (n) => Math.round(Number(n) || 0).toLocaleString("en-US");
 
 // Sum earnings into calendar weeks (Sunday→Saturday) of the month. The
 // bucket count matches the number of Sunday-weeks the month actually spans
@@ -408,11 +407,16 @@ export default function OverviewScreen() {
   const { user } = useAuth();
   const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
-  const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
+  const {
+    shifts,
+    loading: shiftsLoading,
+    error: shiftsError,
+  } = useShift(user, currentDate);
   const { monthlyReport, totals, salaryLoading } = useMonthlySalary(
     shifts,
     currentDate,
     shiftsLoading,
+    shiftsError,
   );
   const prevBruto = usePrevMonthBruto(user, currentDate);
   const { t, i18n } = useTranslation();
@@ -505,6 +509,15 @@ export default function OverviewScreen() {
             onPrev={prev}
             onNext={next}
           />
+          {shiftsError ? (
+            <Type
+              variant="small"
+              color={theme.colors.neg}
+              style={{ marginTop: 14, textAlign: "center" }}
+            >
+              {t("service.refresh_failed")}
+            </Type>
+          ) : null}
           <View style={{ height: 20 }} />
           <HeroSection
             neto={monthlyReport?.neto || 0}

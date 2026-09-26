@@ -1,0 +1,48 @@
+# Keeps the Appwrite Cloud Free-plan project from being auto-paused.
+#
+# Appwrite pauses a Free project after 7 days without *Console/development*
+# activity; end-user API traffic does not count. This job runs every 3 days
+# and performs a schema-level write on a throwaway `keepalive` database
+# (never the production collections). Whether Appwrite counts API-key
+# schema writes as "development activity" is unverified — this is an
+# experiment. See docs/ops/appwrite-keepalive.md for the runbook and the
+# success criterion (3 weeks without a manual resume).
+#
+# If the project is already paused, the script exits non-zero so GitHub
+# emails the repository owner — a free outage alert.
+name: Appwrite keep-alive
+
+on:
+  schedule:
+    # Every 3 days at 03:17 UTC (well inside the 7-day window; odd minute
+    # avoids the top-of-hour GitHub cron congestion).
+    - cron: "17 3 */3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: appwrite-keepalive
+  cancel-in-progress: false
+
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/appwrite-keepalive.mjs
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Touch the keepalive database
+        env:
+          APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+          APPWRITE_KEEPALIVE_API_KEY: ${{ secrets.APPWRITE_KEEPALIVE_API_KEY }}
+        run: node scripts/appwrite-keepalive.mjs

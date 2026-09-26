@@ -135,11 +135,17 @@ export default function ShiftsScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
   const { currentDate, prev, next } = useMonthNav();
-  const { shifts, loading, setShifts } = useShift(user, currentDate);
+  const {
+    shifts,
+    loading,
+    setShifts,
+    error: shiftsError,
+  } = useShift(user, currentDate);
   const { totals, monthlyReport, salaryLoading } = useMonthlySalary(
     shifts,
     currentDate,
     loading,
+    shiftsError,
   );
   const { isRTL } = useLanguage();
   const { t } = useTranslation();
@@ -193,7 +199,10 @@ export default function ShiftsScreen() {
       }
     } catch (err) {
       console.error("ShiftsScreen: delete failed", err);
-      Alert.alert(t("shifts.delete_confirm_title"), String(err?.message || err));
+      Alert.alert(
+        t("shifts.delete_confirm_title"),
+        String(err?.message || err),
+      );
     } finally {
       if (needsRestreak) setIsProcessing(false);
     }
@@ -340,6 +349,16 @@ export default function ShiftsScreen() {
             </View>
           </View>
         </HeroCard>
+
+        {shiftsError && !loading ? (
+          <Type
+            variant="small"
+            color={theme.colors.neg}
+            style={{ marginTop: 14, textAlign: "center" }}
+          >
+            {t("service.refresh_failed")}
+          </Type>
+        ) : null}
 
         {loading || isProcessing ? (
           <View style={{ paddingVertical: 60, alignItems: "center" }}>

@@ -37,6 +37,18 @@ export const resources = {
         invalid_birth_date: "תאריך לידה אינו יכול להיות בעתיד",
         incorrect_data_type: "בבקשה תשתמש בספרות בלבד",
       },
+      service: {
+        unavailable_title: "השירות אינו זמין כרגע",
+        unavailable_body:
+          "הנתונים שלך שמורים ולא נמחקו. נסו שוב בעוד מספר דקות.",
+        network_title: "אין חיבור לאינטרנט",
+        network_body: "בדקו את החיבור לרשת ונסו שוב.",
+        retry: "נסו שוב",
+        sign_out: "התנתקות",
+        signin_failed: "ההתחברות נכשלה. נסו שוב.",
+        refresh_failed:
+          "לא ניתן לרענן את המשמרות כרגע. מוצגים הנתונים האחרונים.",
+      },
       landing: {
         subTitle:
           "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש השכר. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי, ומבטיחה שתקבלו בדיוק את מה שמגיע לכם",
@@ -371,6 +383,18 @@ export const resources = {
         not_auth: "Username or Password are Invalid , please try again.",
         invalid_birth_date: "Birth date cannot be in the future",
         incorrect_data_type: "Please Enter Valid Numbers",
+      },
+      service: {
+        unavailable_title: "Service temporarily unavailable",
+        unavailable_body:
+          "Your data is safe and has not been deleted. Please try again in a few minutes.",
+        network_title: "No internet connection",
+        network_body: "Check your connection and try again.",
+        retry: "Try again",
+        sign_out: "Sign out",
+        signin_failed: "Sign-in failed. Please try again.",
+        refresh_failed:
+          "Couldn't refresh shifts right now. Showing the latest saved data.",
       },
       landing: {
         subTitle:
@@ -708,6 +732,18 @@ export const resources = {
         not_auth: "اسم المستخدم أو كلمة المرور غير صحيحة، يرجى المحاولة مجدداً",
         invalid_birth_date: "لا يمكن أن يكون تاريخ الميلاد في المستقبل",
         incorrect_data_type: "يرجى استخدام الأرقام فقط",
+      },
+      service: {
+        unavailable_title: "الخدمة غير متاحة حالياً",
+        unavailable_body:
+          "بياناتك محفوظة ولم تُحذف. يرجى المحاولة مجدداً بعد بضع دقائق.",
+        network_title: "لا يوجد اتصال بالإنترنت",
+        network_body: "تحقّق من الاتصال بالشبكة وحاول مجدداً.",
+        retry: "حاول مجدداً",
+        sign_out: "تسجيل الخروج",
+        signin_failed: "فشل تسجيل الدخول. يرجى المحاولة مجدداً.",
+        refresh_failed:
+          "تعذّر تحديث الورديات حالياً. تُعرض آخر البيانات المحفوظة.",
       },
       landing: {
         subTitle:

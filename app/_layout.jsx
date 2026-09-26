@@ -26,6 +26,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
+import ServiceUnavailable from "../components/layout/ServiceUnavailable";
 import { AuthProvider, useAuth } from "../hooks/auth-context";
 import { LanguageProvider } from "../hooks/lang-context";
 import { ThemeProvider, useThemeMode } from "../hooks/theme-context";
@@ -80,11 +81,30 @@ const darkTheme = {
 
 function RouteGuard({ children }) {
   const router = useRouter();
-  const { user, isLoadingUser, profile } = useAuth();
+  const {
+    user,
+    isLoadingUser,
+    profile,
+    backendError,
+    profileError,
+    retry,
+    signOut,
+  } = useAuth();
   const segments = useSegments();
 
+  // Backend unreachable and we don't know who this is → don't route
+  // anywhere (routing to onboarding is what made a paused project look
+  // like a deleted account). Signed in, no profile in memory, and the
+  // profile query failed → same hold, because routing to setupPrefs would
+  // create a duplicate prefs doc. A failed *refresh* of an already-loaded
+  // profile (settings modals call fetchUserProfile after saving) must NOT
+  // tear down the app — hence the `!profile` guard.
+  const showOutage =
+    !isLoadingUser &&
+    ((!user && !!backendError) || (!!user && !!profileError && !profile));
+
   useEffect(() => {
-    if (isLoadingUser) return;
+    if (isLoadingUser || showOutage) return;
 
     const inAuthGroup = segments[0] === "(auth)";
     const inSetupScreen = segments[1] === "setupPrefs";
@@ -99,10 +119,20 @@ function RouteGuard({ children }) {
     } else if (user && inAuthGroup && profile) {
       router.replace("/(tabs)");
     }
-  }, [user, segments, isLoadingUser, profile]);
+  }, [user, segments, isLoadingUser, profile, showOutage]);
 
   if (isLoadingUser) {
     return <LoadingSpinner />;
+  }
+
+  if (showOutage) {
+    return (
+      <ServiceUnavailable
+        kind={backendError || profileError || "server"}
+        onRetry={retry}
+        onSignOut={user ? signOut : undefined}
+      />
+    );
   }
 
   return <>{children}</>;

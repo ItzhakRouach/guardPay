@@ -291,11 +291,16 @@ export default function PaycheckScreen() {
     () => (monthIso ? new Date(String(monthIso)) : new Date()),
     [monthIso],
   );
-  const { shifts, loading: shiftsLoading } = useShift(user, currentDate);
+  const {
+    shifts,
+    loading: shiftsLoading,
+    error: shiftsError,
+  } = useShift(user, currentDate);
   const { monthlyReport, totals, salaryLoading } = useMonthlySalary(
     shifts,
     currentDate,
     shiftsLoading,
+    shiftsError,
   );
 
   const model = useMemo(
@@ -316,8 +321,12 @@ export default function PaycheckScreen() {
   const month = currentDate.toLocaleDateString(locale, { month: "long" });
   const year = String(currentDate.getFullYear());
 
+  // Never export a payslip built from a month whose fetch failed — after a
+  // month switch `shifts` is reset to [] before the fetch, so the PDF
+  // would be an empty or partial month presented as real.
+  const exportBlocked = !!shiftsError;
   const onExport = () => {
-    if (!model) return;
+    if (!model || exportBlocked) return;
     handleGeneratePDF(
       totals,
       profile,
@@ -350,6 +359,16 @@ export default function PaycheckScreen() {
         <Eyebrow color={theme.colors.muted}>{t("paycheck.title")}</Eyebrow>
         <GhostButton icon="share" onPress={onExport} />
       </View>
+
+      {exportBlocked ? (
+        <Type
+          variant="small"
+          color={theme.colors.neg}
+          style={{ marginTop: 10, paddingHorizontal: 24, textAlign: "center" }}
+        >
+          {t("service.refresh_failed")}
+        </Type>
+      ) : null}
 
       {!model || shiftsLoading ? (
         <View
@@ -412,13 +431,12 @@ export default function PaycheckScreen() {
 
           <NetPayCard neto={model.neto} bruto={model.bruto} isRTL={isRTL} />
 
-          <View
-            style={{ flexDirection: "row", gap: 12, marginTop: 24 }}
-          >
+          <View style={{ flexDirection: "row", gap: 12, marginTop: 24 }}>
             <OutlinedButton
               label={t("paycheck.export")}
               icon="document"
               onPress={onExport}
+              disabled={exportBlocked}
               fullWidth={false}
               style={{ flex: 1 }}
             />
@@ -426,6 +444,7 @@ export default function PaycheckScreen() {
               label={t("paycheck.share")}
               icon="share"
               onPress={onExport}
+              disabled={exportBlocked}
               fullWidth={false}
               style={{ flex: 1 }}
             />

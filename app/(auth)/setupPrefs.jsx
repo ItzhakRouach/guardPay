@@ -6,7 +6,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { ID } from "react-native-appwrite";
+import { ID, Query } from "react-native-appwrite";
 import {
   Button,
   IconButton,
@@ -99,6 +99,18 @@ export default function SetupProfileScreen() {
     setError(null);
     setIsLoading(true);
     try {
+      // Belt-and-braces against duplicate prefs documents: this screen is
+      // reached when the auth context believes there is no profile. If
+      // that belief was wrong (a transient fetch failure, a stale state),
+      // adopt the existing document instead of creating a second one.
+      const existing = await databases.listDocuments(DATABASE_ID, USERS_PREFS, [
+        Query.equal("user_id", user.$id),
+        Query.limit(1),
+      ]);
+      if (existing.documents.length > 0) {
+        await fetchUserProfile(user);
+        return;
+      }
       await databases.createDocument(DATABASE_ID, USERS_PREFS, ID.unique(), {
         user_id: user.$id,
         price_per_hour: parseFloat(formData.price_per_hour),
