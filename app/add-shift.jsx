@@ -473,7 +473,7 @@ export default function AddShift() {
             vacEndDate={vacEndDate}
           />
         )}
-        {loading && <LoadingSpinner />}
+        {loading && <LoadingSpinner overlay />}
       </View>
     </TouchableWithoutFeedback>
   );

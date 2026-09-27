@@ -215,7 +215,7 @@ export default function PreferencesChange({ visable, hideModal }) {
             </View>
           </View>
         </TouchableWithoutFeedback>
-        {loading && <LoadingSpinner />}
+        {loading && <LoadingSpinner overlay />}
       </Modal>
     </Portal>
   );
