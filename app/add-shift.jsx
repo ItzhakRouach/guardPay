@@ -366,8 +366,20 @@ export default function AddShift() {
       docData.comment = comment.trim();
       // Editing with the weekly rule off (or as a non-worked type) must not
       // leave a stale weekly_regular_before from an earlier computation.
+      // Only send the null when the document actually carried a value, so
+      // editing keeps working for everyone even if the optional attribute
+      // has not been added to the collection yet.
       if (isEditMode && !(otRules.weekly && isWorkedType)) {
-        docData.weekly_regular_before = null;
+        let hadWeekly = false;
+        try {
+          const prev = JSON.parse(params.existingData || "{}");
+          hadWeekly =
+            prev.weekly_regular_before !== undefined &&
+            prev.weekly_regular_before !== null;
+        } catch {
+          hadWeekly = false;
+        }
+        if (hadWeekly) docData.weekly_regular_before = null;
       }
 
       let saved;

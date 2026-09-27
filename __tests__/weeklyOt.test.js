@@ -411,3 +411,17 @@ describe("recomputeWeek — hygiene", () => {
     expect(String(before)).toBe("25.8");
   });
 });
+
+describe("calculateShiftPay — daily and weekly boundary coincide", () => {
+  test("34 h used + 8 h shift: the cap and the 42 land together → identical to no rules", () => {
+    const a = shift("2026-04-06T07:00:00", "2026-04-06T15:00:00");
+    const b = shift("2026-04-06T07:00:00", "2026-04-06T15:00:00", weekly(34));
+    expect(b).toEqual(a);
+  });
+  test("34 h used + 10 h shift: the 9th and 10th hours are OT under both rules, still 2@125", () => {
+    const r = shift("2026-04-06T07:00:00", "2026-04-06T17:00:00", weekly(34));
+    expect(r.h100_hours).toBe(8);
+    expect(r.h125_extra_hours).toBe(2);
+    expect(r.h150_extra_hours).toBe(0);
+  });
+});
