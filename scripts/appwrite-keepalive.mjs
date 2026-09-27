@@ -33,6 +33,14 @@ function fail(msg, code = 1) {
   process.exit(code);
 }
 
+// Appwrite's error body is { message, code, type } — safe to print (it never
+// echoes credentials) and essential for diagnosing scope / plan-limit 403s.
+function describe(res) {
+  const t = res.json?.type ? ` type=${res.json.type}` : "";
+  const m = res.json?.message ? ` message="${res.json.message}"` : "";
+  return `${res.status}${t}${m}`;
+}
+
 if (!ENDPOINT || !PROJECT || !KEY) {
   fail(
     "missing APPWRITE_ENDPOINT / APPWRITE_PROJECT_ID / APPWRITE_KEEPALIVE_API_KEY",
@@ -72,12 +80,13 @@ async function api(method, path, body) {
 async function ensureDatabase() {
   const got = await api("GET", `/v1/databases/${DB_ID}`);
   if (got.status === 200) return;
-  if (got.status !== 404) fail(`unexpected ${got.status} reading database`);
+  if (got.status !== 404)
+    fail(`unexpected response reading database: ${describe(got)}`);
   const made = await api("POST", "/v1/databases", {
     databaseId: DB_ID,
     name: "keepalive",
   });
-  if (made.status !== 201) fail(`could not create database (${made.status})`);
+  if (made.status !== 201) fail(`could not create database: ${describe(made)}`);
   console.log("keepalive: created database");
 }
 
@@ -87,14 +96,16 @@ async function ensureCollection() {
     `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}`,
   );
   if (got.status === 200) return;
-  if (got.status !== 404) fail(`unexpected ${got.status} reading collection`);
+  if (got.status !== 404)
+    fail(`unexpected response reading collection: ${describe(got)}`);
   const made = await api("POST", `/v1/databases/${DB_ID}/collections`, {
     collectionId: COLLECTION_ID,
     name: "heartbeats",
     documentSecurity: false,
     enabled: true,
   });
-  if (made.status !== 201) fail(`could not create collection (${made.status})`);
+  if (made.status !== 201)
+    fail(`could not create collection: ${describe(made)}`);
   console.log("keepalive: created collection");
 }
 
@@ -111,13 +122,13 @@ async function ensureAttribute() {
       required: false,
     });
     if (made.status !== 202 && made.status !== 201) {
-      fail(`could not create attribute (${made.status})`);
+      fail(`could not create attribute: ${describe(made)}`);
     }
     console.log("keepalive: created attribute");
   } else if (got.status === 200 && got.json?.status === "available") {
     return;
   } else if (got.status !== 200) {
-    fail(`unexpected ${got.status} reading attribute`);
+    fail(`unexpected response reading attribute: ${describe(got)}`);
   }
   for (let i = 0; i < 10; i += 1) {
     await new Promise((r) => setTimeout(r, 2000));
@@ -133,7 +144,7 @@ async function schemaTouch(stamp) {
     name: `keepalive ${stamp}`,
     enabled: true,
   });
-  if (res.status !== 200) fail(`schema touch failed (${res.status})`);
+  if (res.status !== 200) fail(`schema touch failed: ${describe(res)}`);
   console.log("keepalive: schema touch ok");
 }
 
@@ -143,7 +154,7 @@ async function trafficTouch(stamp) {
     `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}/documents`,
     { documentId: "unique()", data: { note: stamp } },
   );
-  if (res.status !== 201) fail(`heartbeat write failed (${res.status})`);
+  if (res.status !== 201) fail(`heartbeat write failed: ${describe(res)}`);
   console.log("keepalive: heartbeat written");
 
   const cutoff = new Date(
