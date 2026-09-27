@@ -198,3 +198,149 @@ describe("computeShiftDoc — rules and weekly_regular_before", () => {
     expect(doc.total_amount).toBe(RATE * 8);
   });
 });
+
+const {
+  weekStartOf,
+  weekEndOf,
+  weekKeyOf,
+  regularHoursBefore,
+  recomputeWeek,
+} = require("../utils/weeklyOt");
+const { DEFAULT_RULES } = require("../utils/overtimeRules");
+
+const doc = (id, start, end, extra = {}) => ({
+  $id: id,
+  ...computeShiftDoc({
+    startTime: start,
+    endTime: end,
+    baseRate: RATE,
+    travelRate: 0,
+    type: "morning",
+    isHoliday: false,
+  }),
+  ...extra,
+});
+const WEEKLY = { ...DEFAULT_RULES, weekly: true };
+
+describe("week boundaries", () => {
+  test("weekStartOf is the local Sunday 00:00; weekEndOf the next Sunday", () => {
+    const wed = new Date(2026, 3, 8, 13); // Wed 8 Apr 2026
+    expect(weekStartOf(wed).getTime()).toBe(new Date(2026, 3, 5).getTime());
+    expect(weekEndOf(wed).getTime()).toBe(new Date(2026, 3, 12).getTime());
+    expect(weekKeyOf(wed)).toBe("2026-3-5");
+  });
+  test("a Saturday-night shift belongs to the week it starts in", () => {
+    expect(weekKeyOf("2026-04-11T23:00:00")).toBe("2026-3-5");
+    expect(weekKeyOf("2026-04-12T00:30:00")).toBe("2026-3-12");
+  });
+});
+
+describe("regularHoursBefore", () => {
+  const week = [
+    doc("a", "2026-04-05T07:00:00", "2026-04-05T15:00:00"), // Sun 8h → 8 reg
+    doc("b", "2026-04-06T07:00:00", "2026-04-06T17:00:00"), // Mon 10h → 8 reg
+    doc("c", "2026-04-07T07:00:00", "2026-04-07T15:00:00", {
+      is_training: true,
+    }), // ignored
+    doc("d", "2026-04-08T07:00:00", "2026-04-08T15:00:00"), // Wed 8h
+  ];
+  test("sums reg_hours of earlier worked docs only", () => {
+    expect(regularHoursBefore(week, "2026-04-08T07:00:00")).toBe(16);
+    expect(regularHoursBefore(week, "2026-04-09T07:00:00")).toBe(24);
+    expect(regularHoursBefore(week, "2026-04-05T06:00:00")).toBe(0);
+  });
+  test("excludes the document being edited", () => {
+    expect(regularHoursBefore(week, "2026-04-09T07:00:00", "d")).toBe(16);
+  });
+});
+
+describe("recomputeWeek", () => {
+  const sixDays = [
+    doc("sun", "2026-04-05T07:00:00", "2026-04-05T15:00:00"),
+    doc("mon", "2026-04-06T07:00:00", "2026-04-06T15:00:00"),
+    doc("tue", "2026-04-07T07:00:00", "2026-04-07T15:00:00"),
+    doc("wed", "2026-04-08T07:00:00", "2026-04-08T15:00:00"),
+    doc("thu", "2026-04-09T07:00:00", "2026-04-09T15:00:00"),
+    doc("fri", "2026-04-10T07:00:00", "2026-04-10T15:00:00"),
+  ];
+  test("weekly on: only Friday's numbers change (2 reg, 2@125, 4@150); earlier days get the field", () => {
+    const updates = recomputeWeek(sixDays, WEEKLY);
+    const byId = Object.fromEntries(updates.map((u) => [u.$id, u]));
+    expect(byId.fri.h100_hours).toBe(2);
+    expect(byId.fri.h125_extra_hours).toBe(2);
+    expect(byId.fri.h150_extra_hours).toBe(4);
+    expect(byId.fri.weekly_regular_before).toBe(40);
+    expect(byId.sun.weekly_regular_before).toBe(0);
+    expect(byId.sun.h100_hours).toBe(8);
+    expect(updates).toHaveLength(6);
+  });
+  test("stable: recomputing already-recomputed docs yields no updates", () => {
+    const first = recomputeWeek(sixDays, WEEKLY);
+    const applied = sixDays.map((d) => ({
+      ...d,
+      ...(first.find((u) => u.$id === d.$id) || {}),
+    }));
+    expect(recomputeWeek(applied, WEEKLY)).toEqual([]);
+  });
+  test("weekly off restores daily-only numbers and clears the field", () => {
+    const first = recomputeWeek(sixDays, WEEKLY);
+    const applied = sixDays.map((d) => ({
+      ...d,
+      ...(first.find((u) => u.$id === d.$id) || {}),
+    }));
+    const back = recomputeWeek(applied, DEFAULT_RULES);
+    const fri = back.find((u) => u.$id === "fri");
+    expect(fri.h100_hours).toBe(8);
+    expect(fri.extra_hours).toBe(0);
+    expect(fri.weekly_regular_before).toBeNull();
+    expect(recomputeWeek(sixDays, DEFAULT_RULES)).toEqual([]);
+  });
+  test("order is by start time regardless of input order", () => {
+    const shuffled = [
+      sixDays[5],
+      sixDays[2],
+      sixDays[0],
+      sixDays[4],
+      sixDays[1],
+      sixDays[3],
+    ];
+    const updates = recomputeWeek(shuffled, WEEKLY);
+    expect(updates.find((u) => u.$id === "fri").weekly_regular_before).toBe(40);
+    expect(updates.find((u) => u.$id === "sun").weekly_regular_before).toBe(0);
+  });
+  test("flat-day docs are ignored and contribute nothing", () => {
+    const withFlat = [
+      ...sixDays,
+      doc("sick", "2026-04-09T00:00:00", "2026-04-09T23:59:00", {
+        is_sick: true,
+        reg_hours: 8,
+      }),
+    ];
+    const updates = recomputeWeek(withFlat, WEEKLY);
+    expect(updates.find((u) => u.$id === "sick")).toBeUndefined();
+    expect(updates.find((u) => u.$id === "fri").weekly_regular_before).toBe(40);
+  });
+  test("legacy end<start document recomputes to its own stored numbers (no spurious update)", () => {
+    const legacy = {
+      ...doc("n", "2026-04-06T22:00:00", "2026-04-07T06:00:00"),
+      end_time: "2026-04-06T06:00:00",
+    };
+    expect(recomputeWeek([legacy], DEFAULT_RULES)).toEqual([]);
+  });
+  test("missing base_rate: skipped for rewriting but its reg_hours still advance the week", () => {
+    const old = {
+      ...doc("old", "2026-04-05T07:00:00", "2026-04-05T15:00:00"),
+      base_rate: undefined,
+    };
+    const fri = doc("fri", "2026-04-10T07:00:00", "2026-04-10T15:00:00");
+    const updates = recomputeWeek([old, fri], WEEKLY);
+    expect(updates.find((u) => u.$id === "old")).toBeUndefined();
+    expect(updates.find((u) => u.$id === "fri").weekly_regular_before).toBe(8);
+  });
+  test("8.6 daily norm flows through the rules", () => {
+    const nine = doc("nine", "2026-04-06T07:00:00", "2026-04-06T16:00:00");
+    const [u] = recomputeWeek([nine], { ...DEFAULT_RULES, daily: 8.6 });
+    expect(u.h100_hours).toBeCloseTo(8.6, 6);
+    expect(u.weekly_regular_before).toBeNull();
+  });
+});
