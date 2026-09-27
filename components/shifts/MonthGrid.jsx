@@ -7,10 +7,16 @@ import { bucketByDay, monthShape } from "../../lib/monthGrid";
 import { resolveDot } from "../../lib/shiftColors";
 import { deriveShiftType } from "../../lib/shiftType";
 import { localeFromLang } from "../../lib/utils";
-import { radius, spacing } from "../../lib/theme";
+import { radius } from "../../lib/theme";
 import Type from "../common/Type";
 
-const CELL_HEIGHT = 52;
+// A floor, not a fixed height: at the larger accessibility text sizes the
+// day number needs more room, and a hard height would clip it.
+const CELL_MIN_HEIGHT = 52;
+// Seven columns have to share the screen width, so the day number is
+// capped well below the system maximum. Everything else in the app scales
+// freely; this is the one grid that cannot reflow.
+const DAY_MAX_SCALE = 1.4;
 const MAX_DOTS = 3;
 
 // Sunday-first weekday initials in the active language. `narrow` gives
@@ -65,7 +71,9 @@ export default function MonthGrid({
         borderWidth: 1,
         borderColor: theme.colors.border,
         borderRadius: radius.card,
-        paddingHorizontal: 10,
+        // Kept tight: seven columns split whatever is left, and the cell
+        // has to clear a 44pt touch target on the narrowest phone.
+        paddingHorizontal: 4,
         paddingTop: 12,
         paddingBottom: 8,
       }}
@@ -89,7 +97,10 @@ export default function MonthGrid({
           {shape.cells.slice(row * 7, row * 7 + 7).map((day, col) => {
             if (day === null) {
               return (
-                <View key={col} style={{ flex: 1, height: CELL_HEIGHT }} />
+                <View
+                  key={col}
+                  style={{ flex: 1, minHeight: CELL_MIN_HEIGHT }}
+                />
               );
             }
             const docs = byDay[day] || [];
@@ -102,17 +113,27 @@ export default function MonthGrid({
                 onPress={() => onSelectDay(day)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
-                accessibilityLabel={t("shifts.day_a11y", {
-                  day,
-                  count: docs.length,
-                })}
+                accessibilityLabel={
+                  docs.length
+                    ? t("shifts.day_a11y", { day, n: docs.length })
+                    : `${day} — ${t("shifts.day_none")}`
+                }
                 style={{
                   flex: 1,
-                  height: CELL_HEIGHT,
+                  minHeight: CELL_MIN_HEIGHT,
+                  paddingVertical: 6,
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 5,
                   borderRadius: radius.control,
+                  // Today is a fill, selection is a ring, so a day that is
+                  // both still shows that the tap registered. The border is
+                  // always present and only changes colour, so selecting a
+                  // day never shifts the grid.
+                  borderWidth: 2,
+                  borderColor: isSelected
+                    ? theme.colors.accent
+                    : "transparent",
                   backgroundColor: isToday
                     ? theme.colors.accentFill
                     : isSelected
@@ -123,6 +144,8 @@ export default function MonthGrid({
                 <Type
                   variant="sheetValue"
                   numeric
+                  align="center"
+                  maxFontSizeMultiplier={DAY_MAX_SCALE}
                   color={
                     isToday
                       ? theme.colors.onAccentFill
@@ -164,4 +187,4 @@ export default function MonthGrid({
   );
 }
 
-export { CELL_HEIGHT, spacing };
+export { CELL_MIN_HEIGHT };

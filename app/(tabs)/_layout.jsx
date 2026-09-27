@@ -74,11 +74,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
               <Type
                 variant="tabLabel"
                 color={color}
-                style={{
-                  fontFamily: focused
-                    ? "IBMPlexSansHebrew_600SemiBold"
-                    : "IBMPlexSansHebrew_500Medium",
-                }}
+                weight={focused ? "600" : "500"}
               >
                 {t(labelKey(route.name))}
               </Type>
