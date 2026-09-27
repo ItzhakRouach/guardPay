@@ -315,6 +315,7 @@ const computeShiftDoc = ({
   travelRate = 0,
   type,
   isHoliday = false,
+  rules,
 }) => {
   if (type === "training" || type === "vacation") {
     return {
@@ -347,6 +348,7 @@ const computeShiftDoc = ({
     baseRate,
     travelRate,
     isHoliday,
+    rules,
   );
   result.is_training = false;
   result.is_vacation = false;
@@ -354,6 +356,16 @@ const computeShiftDoc = ({
   result.end_time = endTime;
   result.base_rate = Number(baseRate);
   result.is_holiday = !!isHoliday;
+  // Recorded only when the weekly rule was applied, so the details screen
+  // can explain the brackets and recompute passes can see the rule used.
+  if (
+    rules &&
+    rules.weeklyRegularBefore !== null &&
+    rules.weeklyRegularBefore !== undefined &&
+    Number.isFinite(Number(rules.weeklyRegularBefore))
+  ) {
+    result.weekly_regular_before = Number(rules.weeklyRegularBefore);
+  }
   return result;
 };
 

@@ -162,3 +162,39 @@ describe("calculateShiftPay — midnight split", () => {
     expect(r.h150_extra_hours).toBe(2);
   });
 });
+
+describe("computeShiftDoc — rules and weekly_regular_before", () => {
+  const base = {
+    startTime: "2026-04-10T07:00:00",
+    endTime: "2026-04-10T15:00:00",
+    baseRate: RATE,
+    travelRate: 0,
+    type: "morning",
+    isHoliday: false,
+  };
+  test("no rules → no weekly_regular_before key, numbers as before", () => {
+    const doc = computeShiftDoc(base);
+    expect("weekly_regular_before" in doc).toBe(false);
+    expect(doc.h100_hours).toBe(8);
+  });
+  test("weekly rules → field recorded and brackets shift", () => {
+    const doc = computeShiftDoc({ ...base, rules: weekly(40) });
+    expect(doc.weekly_regular_before).toBe(40);
+    expect(doc.h100_hours).toBe(2);
+    expect(doc.h125_extra_hours).toBe(2);
+  });
+  test("weekly off (null) → key absent even with rules object", () => {
+    const doc = computeShiftDoc({ ...base, rules: { ...DEFAULT_CALC_RULES } });
+    expect("weekly_regular_before" in doc).toBe(false);
+  });
+  test("training days ignore rules and never carry the field", () => {
+    const doc = computeShiftDoc({
+      ...base,
+      type: "training",
+      rules: weekly(40),
+    });
+    expect(doc.is_training).toBe(true);
+    expect("weekly_regular_before" in doc).toBe(false);
+    expect(doc.total_amount).toBe(RATE * 8);
+  });
+});
