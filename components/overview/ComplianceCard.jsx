@@ -6,11 +6,13 @@ import { useLanguage } from "../../hooks/lang-context";
 import { computeComplianceFlags } from "../../lib/compliance";
 import { localeFromLang } from "../../lib/utils";
 import Eyebrow from "../common/Eyebrow";
+import Hairline from "../common/Hairline";
 import Icon from "../common/Icon";
 import Type from "../common/Type";
 
 // "כדאי לדעת": legal limits crossed this month, in plain language. Rendered
-// only when there is something to say. Never affects pay.
+// only when there is something to say. Never affects pay. Laid out like the
+// Insights card above it: one row per finding, readable text size.
 const sundayOf = (weekKey) => {
   const [y, m, d] = weekKey.split("-").map(Number);
   return new Date(y, m, d);
@@ -25,63 +27,97 @@ export default function ComplianceCard({ shifts }) {
   const fmt = (date) =>
     date.toLocaleDateString(locale, { day: "numeric", month: "short" });
 
-  const lines = [];
+  const rows = [];
   for (const iso of flags.longDays) {
-    lines.push(t("compliance.long_day", { date: fmt(new Date(iso)) }));
+    rows.push({
+      icon: "clock",
+      text: t("compliance.long_day", { date: fmt(new Date(iso)) }),
+    });
   }
   for (const w of flags.otWeeks) {
-    lines.push(
-      t("compliance.weekly_ot", {
+    rows.push({
+      icon: "chart",
+      text: t("compliance.weekly_ot", {
         week: fmt(sundayOf(w.weekKey)),
         hours: w.hours,
       }),
-    );
+    });
   }
   for (const k of flags.shortRestWeeks) {
-    lines.push(t("compliance.short_rest", { week: fmt(sundayOf(k)) }));
+    rows.push({
+      icon: "moon",
+      text: t("compliance.short_rest", { week: fmt(sundayOf(k)) }),
+    });
   }
-  if (lines.length === 0) return null;
+  if (rows.length === 0) return null;
 
+  const align = isRTL ? "right" : "left";
   return (
     <View
       style={{
-        marginTop: 22,
+        marginTop: 16,
         borderRadius: 18,
+        backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
-        backgroundColor: theme.colors.surface,
-        padding: 18,
+        paddingHorizontal: 20,
+        paddingTop: 18,
+        paddingBottom: 16,
       }}
     >
       <View
         style={{
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
-          gap: 8,
+          gap: 10,
         }}
       >
-        <Icon name="shield" size={16} color={theme.colors.accent} />
-        <Eyebrow color={theme.colors.muted}>{t("compliance.title")}</Eyebrow>
+        <Icon name="shield" size={18} color={theme.colors.accent} />
+        <Type variant="sectionTitle" color={theme.colors.ink}>
+          {t("compliance.title")}
+        </Type>
       </View>
-      <View style={{ marginTop: 10, gap: 8 }}>
-        {lines.map((line, i) => (
-          <Type
-            key={`${i}-${line}`}
-            variant="body"
-            color={theme.colors.ink}
-            style={{ textAlign: isRTL ? "right" : "left" }}
-          >
-            {`• ${line}`}
-          </Type>
+
+      <View style={{ marginTop: 6 }}>
+        {rows.map((r, i) => (
+          <View key={`${i}-${r.text}`}>
+            <View
+              style={{
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "flex-start",
+                gap: 12,
+                paddingVertical: 14,
+              }}
+            >
+              <View style={{ paddingTop: 3 }}>
+                <Icon name={r.icon} size={18} color={theme.colors.inkSoft} />
+              </View>
+              <Type
+                variant="pitch"
+                color={theme.colors.ink}
+                style={{ flex: 1, textAlign: align }}
+              >
+                {r.text}
+              </Type>
+            </View>
+            {i < rows.length - 1 ? <Hairline soft /> : null}
+          </View>
         ))}
       </View>
-      <Type
-        variant="small"
-        color={theme.colors.muted}
-        style={{ marginTop: 12, textAlign: isRTL ? "right" : "left" }}
-      >
-        {t("compliance.footer")}
-      </Type>
+
+      <Hairline soft />
+      <View style={{ paddingTop: 12 }}>
+        <Eyebrow color={theme.colors.muted}>
+          {t("compliance.footer_label")}
+        </Eyebrow>
+        <Type
+          variant="body"
+          color={theme.colors.muted}
+          style={{ marginTop: 6, textAlign: align }}
+        >
+          {t("compliance.footer")}
+        </Type>
+      </View>
     </View>
   );
 }

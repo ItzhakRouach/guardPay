@@ -148,6 +148,7 @@ export const resources = {
         recompute_partial: "{{failed}} משמרות לא עודכנו. נסו לשמור שוב.",
       },
       compliance: {
+        footer_label: "מה זה אומר",
         title: "כדאי לדעת",
         long_day: "ב-{{date}} עבדתם יותר מ-12 שעות ביום — מעבר למותר בחוק.",
         weekly_ot: "בשבוע שמתחיל ב-{{week}} נצברו {{hours}} שעות נוספות — יותר מ-16 המותרות.",
@@ -583,6 +584,7 @@ export const resources = {
         recompute_partial: "{{failed}} shifts could not be updated. Try saving again.",
       },
       compliance: {
+        footer_label: "What this means",
         title: "Worth knowing",
         long_day: "On {{date}} you worked more than 12 hours in a day — above the legal limit.",
         weekly_ot: "The week starting {{week}} has {{hours}} overtime hours — more than the 16 allowed.",
@@ -994,6 +996,7 @@ export const resources = {
         recompute_partial: "تعذّر تحديث {{failed}} وردية. حاول الحفظ مجدداً.",
       },
       compliance: {
+        footer_label: "ماذا يعني هذا",
         title: "جدير بالمعرفة",
         long_day: "في {{date}} عملت أكثر من 12 ساعة في اليوم — فوق الحد القانوني.",
         weekly_ot: "الأسبوع الذي يبدأ في {{week}} يتضمن {{hours}} ساعة إضافية — أكثر من 16 المسموح بها.",
