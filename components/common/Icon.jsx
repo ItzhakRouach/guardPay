@@ -10,24 +10,134 @@ const PATHS = {
   sun: ({ s, c }) => (
     <>
       <Circle cx={12} cy={12} r={4} stroke={c} strokeWidth={s} fill="none" />
-      <Line x1={12} y1={2} x2={12} y2={5} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={12} y1={19} x2={12} y2={22} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={2} y1={12} x2={5} y2={12} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={19} y1={12} x2={22} y2={12} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={4.9} y1={4.9} x2={6.9} y2={6.9} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={17.1} y1={17.1} x2={19.1} y2={19.1} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={4.9} y1={19.1} x2={6.9} y2={17.1} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={17.1} y1={6.9} x2={19.1} y2={4.9} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Line
+        x1={12}
+        y1={2}
+        x2={12}
+        y2={5}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={12}
+        y1={19}
+        x2={12}
+        y2={22}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={2}
+        y1={12}
+        x2={5}
+        y2={12}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={19}
+        y1={12}
+        x2={22}
+        y2={12}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={4.9}
+        y1={4.9}
+        x2={6.9}
+        y2={6.9}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={17.1}
+        y1={17.1}
+        x2={19.1}
+        y2={19.1}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={4.9}
+        y1={19.1}
+        x2={6.9}
+        y2={17.1}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={17.1}
+        y1={6.9}
+        x2={19.1}
+        y2={4.9}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
   sunset: ({ s, c }) => (
     <>
-      <Path d="M6 17a6 6 0 0 1 12 0" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" />
-      <Line x1={3} y1={17} x2={21} y2={17} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={12} y1={3} x2={12} y2={7} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={4} y1={10} x2={6} y2={11} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={20} y1={10} x2={18} y2={11} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={9} y1={20} x2={15} y2={20} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Path
+        d="M6 17a6 6 0 0 1 12 0"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+      />
+      <Line
+        x1={3}
+        y1={17}
+        x2={21}
+        y2={17}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={12}
+        y1={3}
+        x2={12}
+        y2={7}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={4}
+        y1={10}
+        x2={6}
+        y2={11}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={20}
+        y1={10}
+        x2={18}
+        y2={11}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={9}
+        y1={20}
+        x2={15}
+        y2={20}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
   moon: ({ s, c }) => (
@@ -41,8 +151,22 @@ const PATHS = {
   ),
   briefcase: ({ s, c }) => (
     <>
-      <Rect x={3} y={7} width={18} height={13} rx={2} stroke={c} strokeWidth={s} fill="none" />
-      <Path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke={c} strokeWidth={s} fill="none" />
+      <Rect
+        x={3}
+        y={7}
+        width={18}
+        height={13}
+        rx={2}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
+      <Path
+        d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
       <Line x1={3} y1={13} x2={21} y2={13} stroke={c} strokeWidth={s} />
     </>
   ),
@@ -60,57 +184,204 @@ const PATHS = {
   ),
   plus: ({ s, c }) => (
     <>
-      <Line x1={12} y1={5} x2={12} y2={19} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={5} y1={12} x2={19} y2={12} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Line
+        x1={12}
+        y1={5}
+        x2={12}
+        y2={19}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={5}
+        y1={12}
+        x2={19}
+        y2={12}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
   calendar: ({ s, c }) => (
     <>
-      <Rect x={3} y={5} width={18} height={16} rx={2} stroke={c} strokeWidth={s} fill="none" />
+      <Rect
+        x={3}
+        y={5}
+        width={18}
+        height={16}
+        rx={2}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
       <Line x1={3} y1={10} x2={21} y2={10} stroke={c} strokeWidth={s} />
-      <Line x1={8} y1={3} x2={8} y2={7} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={16} y1={3} x2={16} y2={7} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Line
+        x1={8}
+        y1={3}
+        x2={8}
+        y2={7}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={16}
+        y1={3}
+        x2={16}
+        y2={7}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
   "calendar-plus": ({ s, c }) => (
     <>
-      <Rect x={3} y={5} width={18} height={16} rx={2} stroke={c} strokeWidth={s} fill="none" />
+      <Rect
+        x={3}
+        y={5}
+        width={18}
+        height={16}
+        rx={2}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
       <Line x1={3} y1={10} x2={21} y2={10} stroke={c} strokeWidth={s} />
-      <Line x1={8} y1={3} x2={8} y2={7} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={16} y1={3} x2={16} y2={7} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={12} y1={13} x2={12} y2={18} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={9.5} y1={15.5} x2={14.5} y2={15.5} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Line
+        x1={8}
+        y1={3}
+        x2={8}
+        y2={7}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={16}
+        y1={3}
+        x2={16}
+        y2={7}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={12}
+        y1={13}
+        x2={12}
+        y2={18}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={9.5}
+        y1={15.5}
+        x2={14.5}
+        y2={15.5}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
   clock: ({ s, c }) => (
     <>
       <Circle cx={12} cy={12} r={9} stroke={c} strokeWidth={s} fill="none" />
-      <Polyline points="12,7 12,12 16,14" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <Polyline
+        points="12,7 12,12 16,14"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </>
   ),
   tag: ({ s, c }) => (
     <>
-      <Path d="M20.5 13.5L13.5 20.5l-9-9V4.5h7l9 9z" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
+      <Path
+        d="M20.5 13.5L13.5 20.5l-9-9V4.5h7l9 9z"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinejoin="round"
+      />
       <Circle cx={8.5} cy={8.5} r={1.4} fill={c} />
     </>
   ),
   "chev-left": ({ s, c }) => (
-    <Polyline points="15,5 8,12 15,19" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <Polyline
+      points="15,5 8,12 15,19"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   ),
   "chev-right": ({ s, c }) => (
-    <Polyline points="9,5 16,12 9,19" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <Polyline
+      points="9,5 16,12 9,19"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   ),
   "chev-down": ({ s, c }) => (
-    <Polyline points="5,9 12,16 19,9" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <Polyline
+      points="5,9 12,16 19,9"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   ),
   "chev-up": ({ s, c }) => (
-    <Polyline points="5,15 12,8 19,15" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <Polyline
+      points="5,15 12,8 19,15"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   ),
   list: ({ s, c }) => (
     <>
-      <Line x1={8} y1={6} x2={20} y2={6} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={8} y1={12} x2={20} y2={12} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={8} y1={18} x2={20} y2={18} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Line
+        x1={8}
+        y1={6}
+        x2={20}
+        y2={6}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={8}
+        y1={12}
+        x2={20}
+        y2={12}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={8}
+        y1={18}
+        x2={20}
+        y2={18}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
       <Circle cx={4} cy={6} r={1} fill={c} />
       <Circle cx={4} cy={12} r={1} fill={c} />
       <Circle cx={4} cy={18} r={1} fill={c} />
@@ -118,15 +389,45 @@ const PATHS = {
   ),
   chart: ({ s, c }) => (
     <>
-      <Rect x={3} y={13} width={4} height={8} stroke={c} strokeWidth={s} fill="none" />
-      <Rect x={10} y={8} width={4} height={13} stroke={c} strokeWidth={s} fill="none" />
-      <Rect x={17} y={4} width={4} height={17} stroke={c} strokeWidth={s} fill="none" />
+      <Rect
+        x={3}
+        y={13}
+        width={4}
+        height={8}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
+      <Rect
+        x={10}
+        y={8}
+        width={4}
+        height={13}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
+      <Rect
+        x={17}
+        y={4}
+        width={4}
+        height={17}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
     </>
   ),
   user: ({ s, c }) => (
     <>
       <Circle cx={12} cy={8} r={4} stroke={c} strokeWidth={s} fill="none" />
-      <Path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" />
+      <Path
+        d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+      />
     </>
   ),
   gear: ({ s, c }) => (
@@ -142,14 +443,49 @@ const PATHS = {
     </>
   ),
   check: ({ s, c }) => (
-    <Polyline points="4,12 10,18 20,6" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <Polyline
+      points="4,12 10,18 20,6"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   ),
   document: ({ s, c }) => (
     <>
-      <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
-      <Polyline points="14,2 14,8 20,8" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
-      <Line x1={8} y1={13} x2={16} y2={13} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={8} y1={17} x2={16} y2={17} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Path
+        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinejoin="round"
+      />
+      <Polyline
+        points="14,2 14,8 20,8"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinejoin="round"
+      />
+      <Line
+        x1={8}
+        y1={13}
+        x2={16}
+        y2={13}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={8}
+        y1={17}
+        x2={16}
+        y2={17}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
   share: ({ s, c }) => (
@@ -163,8 +499,20 @@ const PATHS = {
   ),
   bell: ({ s, c }) => (
     <>
-      <Path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1z" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
-      <Path d="M10 21a2 2 0 0 0 4 0" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" />
+      <Path
+        d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1z"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M10 21a2 2 0 0 0 4 0"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+      />
     </>
   ),
   star: ({ s, c }) => (
@@ -178,11 +526,32 @@ const PATHS = {
   ),
   gift: ({ s, c }) => (
     <>
-      <Rect x={3} y={9} width={18} height={12} rx={1.5} stroke={c} strokeWidth={s} fill="none" />
+      <Rect
+        x={3}
+        y={9}
+        width={18}
+        height={12}
+        rx={1.5}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
       <Line x1={3} y1={13} x2={21} y2={13} stroke={c} strokeWidth={s} />
       <Line x1={12} y1={9} x2={12} y2={21} stroke={c} strokeWidth={s} />
-      <Path d="M12 9c-2 0-3.5-1-3.5-2.5C8.5 5 9.5 4 11 4c1 0 1.5 1 1 5" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
-      <Path d="M12 9c2 0 3.5-1 3.5-2.5C15.5 5 14.5 4 13 4c-1 0-1.5 1-1 5" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
+      <Path
+        d="M12 9c-2 0-3.5-1-3.5-2.5C8.5 5 9.5 4 11 4c1 0 1.5 1 1 5"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M12 9c2 0 3.5-1 3.5-2.5C15.5 5 14.5 4 13 4c-1 0-1.5 1-1 5"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinejoin="round"
+      />
     </>
   ),
   sparkle: ({ s, c }) => (
@@ -196,20 +565,65 @@ const PATHS = {
   ),
   "arrow-up": ({ s, c }) => (
     <>
-      <Line x1={12} y1={4} x2={12} y2={20} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Polyline points="6,10 12,4 18,10" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <Line
+        x1={12}
+        y1={4}
+        x2={12}
+        y2={20}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Polyline
+        points="6,10 12,4 18,10"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </>
   ),
   "arrow-down": ({ s, c }) => (
     <>
-      <Line x1={12} y1={4} x2={12} y2={20} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Polyline points="6,14 12,20 18,14" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <Line
+        x1={12}
+        y1={4}
+        x2={12}
+        y2={20}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Polyline
+        points="6,14 12,20 18,14"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </>
   ),
   "arrow-right": ({ s, c }) => (
     <>
-      <Line x1={4} y1={12} x2={20} y2={12} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Polyline points="14,6 20,12 14,18" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <Line
+        x1={4}
+        y1={12}
+        x2={20}
+        y2={12}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Polyline
+        points="14,6 20,12 14,18"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </>
   ),
   edit: ({ s, c }) => (
@@ -223,24 +637,78 @@ const PATHS = {
   ),
   trash: ({ s, c }) => (
     <>
-      <Line x1={4} y1={6} x2={20} y2={6} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Path d="M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6" stroke={c} strokeWidth={s} fill="none" />
-      <Path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke={c} strokeWidth={s} fill="none" />
+      <Line
+        x1={4}
+        y1={6}
+        x2={20}
+        y2={6}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
+      <Path
+        d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
     </>
   ),
   shield: ({ s, c }) => (
-    <Path d="M12 2l8 3v7a8 8 0 0 1-8 8 8 8 0 0 1-8-8V5z" stroke={c} strokeWidth={s} fill="none" strokeLinejoin="round" />
+    <Path
+      d="M12 2l8 3v7a8 8 0 0 1-8 8 8 8 0 0 1-8-8V5z"
+      stroke={c}
+      strokeWidth={s}
+      fill="none"
+      strokeLinejoin="round"
+    />
   ),
   lock: ({ s, c }) => (
     <>
-      <Rect x={5} y={11} width={14} height={10} rx={2} stroke={c} strokeWidth={s} fill="none" />
-      <Path d="M8 11V8a4 4 0 0 1 8 0v3" stroke={c} strokeWidth={s} fill="none" />
+      <Rect
+        x={5}
+        y={11}
+        width={14}
+        height={10}
+        rx={2}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
+      <Path
+        d="M8 11V8a4 4 0 0 1 8 0v3"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
     </>
   ),
   mail: ({ s, c }) => (
     <>
-      <Rect x={3} y={5} width={18} height={14} rx={2} stroke={c} strokeWidth={s} fill="none" />
-      <Polyline points="3,7 12,13 21,7" stroke={c} strokeWidth={s} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <Rect
+        x={3}
+        y={5}
+        width={18}
+        height={14}
+        rx={2}
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+      />
+      <Polyline
+        points="3,7 12,13 21,7"
+        stroke={c}
+        strokeWidth={s}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </>
   ),
   receipt: ({ s, c }) => (
@@ -252,8 +720,24 @@ const PATHS = {
         fill="none"
         strokeLinejoin="round"
       />
-      <Line x1={9} y1={8} x2={15} y2={8} stroke={c} strokeWidth={s} strokeLinecap="round" />
-      <Line x1={9} y1={12} x2={15} y2={12} stroke={c} strokeWidth={s} strokeLinecap="round" />
+      <Line
+        x1={9}
+        y1={8}
+        x2={15}
+        y2={8}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
+      <Line
+        x1={9}
+        y1={12}
+        x2={15}
+        y2={12}
+        stroke={c}
+        strokeWidth={s}
+        strokeLinecap="round"
+      />
     </>
   ),
 };

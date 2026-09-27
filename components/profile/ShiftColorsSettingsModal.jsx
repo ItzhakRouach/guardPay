@@ -21,6 +21,7 @@ import {
   serialiseUserColors,
 } from "../../lib/shiftColors";
 import ShiftColorsModal from "./ShiftColorsModal";
+import { radius, textStart } from "../../lib/theme";
 
 // Modal launched from the Preferences "Shift colors" row. Lists the 4
 // shift types with their current swatch dot; tapping a row opens the
@@ -173,16 +174,16 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
     },
     clipWrap: {
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
       paddingTop: 8,
       paddingBottom: 8,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 18,
@@ -199,7 +200,7 @@ const makeStyle = (theme, isRTL) =>
       width: "100%",
     },
     row: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       paddingHorizontal: 10,
       paddingVertical: 8,
@@ -212,7 +213,7 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       color: theme.colors.onSurface,
       fontSize: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingHorizontal: 4,
     },

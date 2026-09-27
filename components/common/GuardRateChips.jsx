@@ -1,16 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Chip, Text, useTheme } from "react-native-paper";
-import { useLanguage } from "../../hooks/lang-context";
 import { currentGuardRates } from "../../lib/guardRates";
 import { localeFromLang } from "../../lib/utils";
+import { radius, textStart } from "../../lib/theme";
+
+// Paper multiplies theme.roundness by 2 for Chip, which would give 22.
+// Chips are controls, so they take the control radius.
+const chipShape = { borderRadius: radius.control };
 
 // Two one-tap presets for the hourly rate: regular guard / supervisor, from
 // the security-sector extension order, with the validity note. `value` is
 // the current field string; `onPick` receives the rate as a string.
 export default function GuardRateChips({ value, onPick }) {
   const { t, i18n } = useTranslation();
-  const { isRTL } = useLanguage();
   const theme = useTheme();
   const rates = currentGuardRates();
   const isSel = (n) => Number(String(value).replace(",", ".")) === n;
@@ -19,9 +22,10 @@ export default function GuardRateChips({ value, onPick }) {
   );
   return (
     <View style={{ marginTop: 8 }}>
-      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
         <Chip
           compact
+          style={chipShape}
           selected={isSel(rates.regular)}
           onPress={() => onPick(String(rates.regular))}
         >
@@ -29,6 +33,7 @@ export default function GuardRateChips({ value, onPick }) {
         </Chip>
         <Chip
           compact
+          style={chipShape}
           selected={isSel(rates.supervisor)}
           onPress={() => onPick(String(rates.supervisor))}
         >
@@ -40,7 +45,7 @@ export default function GuardRateChips({ value, onPick }) {
         style={{
           marginTop: 6,
           color: theme.colors.onSurfaceVariant,
-          textAlign: isRTL ? "right" : "left",
+          textAlign: textStart,
         }}
       >
         {rates.expired

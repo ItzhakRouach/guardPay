@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
-import { useLanguage } from "../../hooks/lang-context";
 import { computeComplianceFlags } from "../../lib/compliance";
 import { localeFromLang } from "../../lib/utils";
 import Eyebrow from "../common/Eyebrow";
 import Hairline from "../common/Hairline";
 import Icon from "../common/Icon";
 import Type from "../common/Type";
+import { radius, textStart } from "../../lib/theme";
 
 // "כדאי לדעת": legal limits crossed this month, in plain language. Rendered
 // only when there is something to say. Never affects pay. Laid out like the
@@ -21,7 +21,6 @@ const sundayOf = (weekKey) => {
 export default function ComplianceCard({ shifts }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const { isRTL } = useLanguage();
   const flags = useMemo(() => computeComplianceFlags(shifts), [shifts]);
   const locale = localeFromLang(i18n.language);
   const fmt = (date) =>
@@ -51,12 +50,12 @@ export default function ComplianceCard({ shifts }) {
   }
   if (rows.length === 0) return null;
 
-  const align = isRTL ? "right" : "left";
+  const align = textStart;
   return (
     <View
       style={{
         marginTop: 16,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -67,7 +66,7 @@ export default function ComplianceCard({ shifts }) {
     >
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "center",
           gap: 10,
         }}
@@ -83,7 +82,7 @@ export default function ComplianceCard({ shifts }) {
           <View key={`${i}-${r.text}`}>
             <View
               style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
+                flexDirection: "row",
                 alignItems: "flex-start",
                 gap: 12,
                 paddingVertical: 14,

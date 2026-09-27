@@ -2,12 +2,18 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import { SegmentedButtons, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
+import { shapeSegmentedButtons } from "../../lib/segmentedShape";
+import { radius } from "../../lib/theme";
 
 export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  // Paper rounds a row's outer corners by array index using physical
+  // corners, which points the wrong way once the row mirrors.
+  const shape = (buttons) =>
+    shapeSegmentedButtons(buttons, isRTL, radius.control);
   return (
     <>
       <SegmentedButtons
@@ -15,90 +21,40 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
         value={value}
         style={styles.segmented}
         onValueChange={handleShiftTypeChange}
-        theme={{
-          colors: {
-            // Background of the SELECTED button
-            secondaryContainer: theme.colors.secondaryContainer,
-
-            // Text/Icon color of the SELECTED button
-            onSecondaryContainer: theme.colors.primary,
-
-            // Background of UNSELECTED buttons
-            surface: theme.colors.surface,
-
-            // Border color
-            outline: theme.colors.borderOutline,
+        theme={segmentedTheme(theme)}
+        buttons={shape([
+          {
+            uncheckedColor: theme.colors.onSecondaryContainer,
+            value: "morning",
+            label: t("shift_type.morning"),
+            labelStyle: styles.labelStyle,
+            icon: "weather-sunset-up",
+            showSelectedCheck: false,
           },
-        }}
-        buttons={
-          isRTL
-            ? [
-                {
-                  uncheckedColor: theme.colors.onSecondaryContainer,
-                  value: "morning",
-                  label: t("shift_type.morning"),
-                  labelStyle: styles.labelStyle,
-                  icon: "weather-sunset-up",
-                  showSelectedCheck: false,
-                },
-                {
-                  uncheckedColor: theme.colors.onSecondaryContainer,
-                  value: "evening",
-                  label: t("shift_type.evening"),
-                  labelStyle: styles.labelStyle,
-                  icon: "weather-sunset-down",
-                  showSelectedCheck: false,
-                },
-                {
-                  uncheckedColor: theme.colors.onSecondaryContainer,
-                  value: "night",
-                  label: t("shift_type.night"),
-                  labelStyle: styles.labelStyle,
-                  icon: "weather-night",
-                  showSelectedCheck: false,
-                },
-              ].reverse()
-            : [
-                {
-                  uncheckedColor: theme.colors.onSecondaryContainer,
-                  value: "morning",
-                  label: t("shift_type.morning"),
-                  labelStyle: styles.labelStyle,
-                  icon: "weather-sunset-up",
-                  showSelectedCheck: false,
-                },
-                {
-                  uncheckedColor: theme.colors.onSecondaryContainer,
-                  value: "evening",
-                  label: t("shift_type.evening"),
-                  labelStyle: styles.labelStyle,
-                  icon: "weather-sunset-down",
-                  showSelectedCheck: false,
-                },
-                {
-                  uncheckedColor: theme.colors.onSecondaryContainer,
-                  value: "night",
-                  label: t("shift_type.night"),
-                  labelStyle: styles.labelStyle,
-                  icon: "weather-night",
-                  showSelectedCheck: false,
-                },
-              ]
-        }
+          {
+            uncheckedColor: theme.colors.onSecondaryContainer,
+            value: "evening",
+            label: t("shift_type.evening"),
+            labelStyle: styles.labelStyle,
+            icon: "weather-sunset-down",
+            showSelectedCheck: false,
+          },
+          {
+            uncheckedColor: theme.colors.onSecondaryContainer,
+            value: "night",
+            label: t("shift_type.night"),
+            labelStyle: styles.labelStyle,
+            icon: "weather-night",
+            showSelectedCheck: false,
+          },
+        ])}
       />
       <SegmentedButtons
         value={value}
         style={styles.segmentedTwo}
         onValueChange={handleShiftTypeChange}
-        theme={{
-          colors: {
-            secondaryContainer: theme.colors.secondaryContainer,
-            onSecondaryContainer: theme.colors.primary,
-            surface: theme.colors.surface,
-            outline: theme.colors.borderOutline,
-          },
-        }}
-        buttons={[
+        theme={segmentedTheme(theme)}
+        buttons={shape([
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "training",
@@ -115,21 +71,14 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             icon: "home-heart",
             showSelectedCheck: false,
           },
-        ]}
+        ])}
       />
       <SegmentedButtons
         value={value}
         style={styles.segmentedTwo}
         onValueChange={handleShiftTypeChange}
-        theme={{
-          colors: {
-            secondaryContainer: theme.colors.secondaryContainer,
-            onSecondaryContainer: theme.colors.primary,
-            surface: theme.colors.surface,
-            outline: theme.colors.borderOutline,
-          },
-        }}
-        buttons={[
+        theme={segmentedTheme(theme)}
+        buttons={shape([
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "sick",
@@ -146,26 +95,45 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             icon: "calendar-star",
             showSelectedCheck: false,
           },
-        ]}
+        ])}
       />
     </>
   );
 }
 
+// Paper computes a segmented item's corner as `5 * roundness`. The app sets
+// roundness to 11 so that TextInput lands on the control radius, which here
+// would give 55 and clamp every button into a full pill. Dividing it back out
+// is the only lever SegmentedButtons exposes.
+const segmentedTheme = (theme) => ({
+  roundness: radius.control / 5,
+  colors: {
+    // Background of the SELECTED button
+    secondaryContainer: theme.colors.secondaryContainer,
+    // Text and icon colour of the SELECTED button
+    onSecondaryContainer: theme.colors.primary,
+    // Background of UNSELECTED buttons
+    surface: theme.colors.surface,
+    // Border colour
+    outline: theme.colors.borderOutline,
+  },
+});
+
 const makeStyle = (theme) =>
   StyleSheet.create({
     labelStyle: {
       color: theme.colors.primary,
-      fontSize: 16,
+      fontSize: 15,
     },
+    // No background and no radius of its own. The row used to paint a
+    // surface-coloured pill at radius 30 behind buttons whose own corners
+    // are radius.control, so the mismatched box showed through as a visible
+    // container. The buttons draw their own outline and fill; the row is
+    // only a layout box.
     segmented: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 30,
       marginHorizontal: 0,
     },
     segmentedTwo: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 30,
       marginHorizontal: 0,
       marginTop: 12,
     },

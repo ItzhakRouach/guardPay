@@ -33,7 +33,6 @@ export default function Pill({ options, value, onChange }) {
             <Type
               variant="eyebrow"
               color={active ? theme.colors.accent : theme.colors.muted}
-              style={{ letterSpacing: 1.2 }}
             >
               {opt.label}
             </Type>

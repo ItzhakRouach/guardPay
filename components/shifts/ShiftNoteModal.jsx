@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   Alert,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
@@ -17,6 +19,7 @@ import {
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../../lib/appwrite";
+import { inputTextStart, radius, textStart } from "../../lib/theme";
 
 // Edit-comment modal launched from Shift Details. Writes shift.comment
 // straight to the shifts_history document; caller passes the shift and an
@@ -60,47 +63,64 @@ export default function ShiftNoteModal({ visible, onDismiss, shift, onSaved }) {
 
   return (
     <Portal>
+      {/* Paper's Modal does no keyboard avoidance of its own, and this one
+          is centred, so the note field lands right where the keyboard opens.
+          The wrapper lifts the sheet clear of it. */}
       <Modal
         visible={visible}
         onDismiss={onDismiss}
-        contentContainerStyle={styles.modalContainer}
+        contentContainerStyle={styles.modalWrapper}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View>
-            <Text variant="titleLarge" style={styles.title}>
-              {t("shiftDetails.editNote")}
-            </Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalContainer}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View>
+              <Text variant="titleLarge" style={styles.title}>
+                {t("shiftDetails.editNote")}
+              </Text>
 
-            <TextInput
-              mode="outlined"
-              label={t("add_shift.note_label")}
-              placeholder={t("add_shift.note_placeholder")}
-              value={value}
-              onChangeText={setValue}
-              multiline
-              numberOfLines={4}
-              maxLength={500}
-              left={<TextInput.Icon icon="note-text-outline" />}
-              contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-              style={styles.input}
-              outlineStyle={styles.outline}
-            />
+              {/* Static label, not Paper's floating one: Paper derives the
+                label's translateX from I18nManager.isRTL (kept false here)
+                and adds another offset for the left icon, so under the
+                mirrored layout the label slid out of the field and clipped.
+                Same treatment as ShiftCommentField. */}
+              <View style={styles.fieldWrap}>
+                <TextInput
+                  mode="outlined"
+                  placeholder={t("add_shift.note_placeholder")}
+                  value={value}
+                  onChangeText={setValue}
+                  multiline
+                  numberOfLines={4}
+                  maxLength={500}
+                  left={<TextInput.Icon icon="note-text-outline" />}
+                  contentStyle={{ textAlign: inputTextStart(isRTL) }}
+                  style={styles.input}
+                  outlineStyle={styles.outline}
+                />
+                <Text style={styles.floatLabel}>
+                  {t("add_shift.note_label")}
+                </Text>
+              </View>
 
-            <View style={styles.actions}>
-              <Button mode="text" onPress={onDismiss} disabled={saving}>
-                {t("common.cancel")}
-              </Button>
-              <Button
-                mode="contained"
-                onPress={handleSave}
-                loading={saving}
-                disabled={saving}
-              >
-                {t("shiftDetails.saveNote")}
-              </Button>
+              <View style={styles.actions}>
+                <Button mode="text" onPress={onDismiss} disabled={saving}>
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={handleSave}
+                  loading={saving}
+                  disabled={saving}
+                >
+                  {t("shiftDetails.saveNote")}
+                </Button>
+              </View>
             </View>
-          </View>
-        </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
     </Portal>
   );
@@ -108,25 +128,46 @@ export default function ShiftNoteModal({ visible, onDismiss, shift, onSaved }) {
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
+    // The Modal's own container stays transparent so the avoiding view can
+    // move the sheet without dragging a coloured box around with it.
+    modalWrapper: {
+      margin: 20,
+    },
     modalContainer: {
       backgroundColor: theme.colors.surface,
-      margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       padding: 24,
     },
     title: {
       fontWeight: "bold",
       color: theme.colors.onSurface,
       marginBottom: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
+    },
+    // Own positioning context, so the label anchors to the field and not
+    // to the modal body above it.
+    fieldWrap: {
+      marginBottom: 16,
     },
     input: {
       backgroundColor: theme.colors.surface,
       minHeight: 110,
-      marginBottom: 16,
     },
     outline: {
-      borderRadius: 12,
+      borderRadius: radius.control,
+    },
+    // Sits in the gap in the outline; `start` is logical so it follows the
+    // field's leading edge in both directions.
+    floatLabel: {
+      position: "absolute",
+      top: -8,
+      start: 15,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 6,
+      fontSize: 12,
+      fontWeight: "bold",
+      color: theme.colors.onSurfaceVariant,
+      textAlign: textStart,
     },
     actions: {
       flexDirection: "row",

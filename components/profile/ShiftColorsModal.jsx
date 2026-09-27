@@ -1,16 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
-import {
-  Button,
-  Modal,
-  Portal,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
 import { resolveSwatchHex, SWATCHES } from "../../lib/shiftColors";
+import { radius, textStart } from "../../lib/theme";
 
 // Picker modal: shows the 8 swatches in a grid. Caller controls visibility
 // via `visible` and gets the chosen hex back via `onSelect(hex)`.
@@ -98,14 +93,14 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       padding: 24,
     },
     title: {
       fontWeight: "bold",
       color: theme.colors.onSurface,
       marginBottom: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
     grid: {
       flexDirection: "row",

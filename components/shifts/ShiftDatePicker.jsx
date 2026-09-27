@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { normalizeDecimal } from "../../lib/utils";
+import { inputTextStart } from "../../lib/theme";
 
 export default function ShiftDatePicker({
   startTime,
@@ -38,51 +39,51 @@ export default function ShiftDatePicker({
 
         {/** Time Section */}
         {!hideTime && (
-        <View style={styles.timeRow}>
-          <Pressable
-            style={styles.flex1}
-            onPress={() => openPicker("time", "start")}
-          >
-            <View pointerEvents="none">
-              <TextInput
-                value={startTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
-                mode="outlined"
-                contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-                left={isRTL ? <TextInput.Icon icon="clock-start" /> : null}
-                right={!isRTL ? <TextInput.Icon icon="clock-start" /> : null}
-                style={styles.timeInput}
-                outlineStyle={styles.outline}
-              />
-              <Text style={styles.label}>{t("add_shift.start_t")}</Text>
-            </View>
-          </Pressable>
+          <View style={styles.timeRow}>
+            <Pressable
+              style={styles.flex1}
+              onPress={() => openPicker("time", "start")}
+            >
+              <View pointerEvents="none">
+                <TextInput
+                  value={startTime.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                  mode="outlined"
+                  contentStyle={{ textAlign: inputTextStart(isRTL) }}
+                  left={isRTL ? <TextInput.Icon icon="clock-start" /> : null}
+                  right={!isRTL ? <TextInput.Icon icon="clock-start" /> : null}
+                  style={styles.timeInput}
+                  outlineStyle={styles.outline}
+                />
+                <Text style={styles.label}>{t("add_shift.start_t")}</Text>
+              </View>
+            </Pressable>
 
-          <Pressable
-            style={styles.flex1}
-            onPress={() => openPicker("time", "end")}
-          >
-            <View pointerEvents="none">
-              <TextInput
-                value={endTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
-                mode="outlined"
-                contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-                left={isRTL ? <TextInput.Icon icon="clock-end" /> : null}
-                right={!isRTL ? <TextInput.Icon icon="clock-end" /> : null}
-                style={styles.timeInput}
-                outlineStyle={styles.outline}
-              />
-              <Text style={styles.label}>{t("add_shift.end_t")}</Text>
-            </View>
-          </Pressable>
-        </View>
+            <Pressable
+              style={styles.flex1}
+              onPress={() => openPicker("time", "end")}
+            >
+              <View pointerEvents="none">
+                <TextInput
+                  value={endTime.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                  mode="outlined"
+                  contentStyle={{ textAlign: inputTextStart(isRTL) }}
+                  left={isRTL ? <TextInput.Icon icon="clock-end" /> : null}
+                  right={!isRTL ? <TextInput.Icon icon="clock-end" /> : null}
+                  style={styles.timeInput}
+                  outlineStyle={styles.outline}
+                />
+                <Text style={styles.label}>{t("add_shift.end_t")}</Text>
+              </View>
+            </Pressable>
+          </View>
         )}
 
         {/** Hour Rate Section - התיקון כאן */}
@@ -98,7 +99,7 @@ export default function ShiftDatePicker({
               keyboardType="decimal-pad"
               onChangeText={(val) => setHourRate(normalizeDecimal(val))}
               contentStyle={{
-                textAlign: isRTL ? "right" : "left",
+                textAlign: inputTextStart(isRTL),
               }}
               style={styles.input}
               outlineStyle={styles.outline}
@@ -136,7 +137,7 @@ const makeStyle = (theme, isRTL) =>
       textAlign: "center",
     },
     timeRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between", // תיקון שגיאת כתיב
       marginTop: 15,
@@ -151,8 +152,9 @@ const makeStyle = (theme, isRTL) =>
     label: {
       position: "absolute",
       top: -8,
-      left: isRTL ? undefined : 15,
-      right: isRTL ? 15 : undefined,
+      // Logical inset: Yoga puts it on the leading edge in both
+      // directions, so the floating label follows the field.
+      start: 15,
       backgroundColor: theme.colors.surface, // שינוי ל-surface כדי שלא יהיה "חור" בצבע אחר
       paddingHorizontal: 6,
       fontSize: 12,

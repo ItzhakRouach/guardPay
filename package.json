@@ -16,9 +16,8 @@
   },
   "dependencies": {
     "@bottom-tabs/react-navigation": "^1.1.0",
-    "@expo-google-fonts/cormorant-garamond": "^0.4.1",
-    "@expo-google-fonts/frank-ruhl-libre": "^0.4.1",
-    "@expo-google-fonts/manrope": "^0.4.2",
+    "@expo-google-fonts/ibm-plex-sans-arabic": "^0.4.2",
+    "@expo-google-fonts/ibm-plex-sans-hebrew": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",

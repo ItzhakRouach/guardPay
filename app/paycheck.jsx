@@ -17,6 +17,7 @@ import { handleGeneratePDF } from "../lib/GeneratePaycheck";
 import { buildPaycheckModel } from "../lib/paycheckData";
 import { screenContentLayout } from "../lib/responsive";
 import { localeFromLang } from "../lib/utils";
+import { textEnd, textStart } from "../lib/theme";
 
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -43,19 +44,18 @@ function SectionRule({ label, accent = false }) {
   );
 }
 
-function EarningsRow({ row, lang, isRTL }) {
+function EarningsRow({ row, lang }) {
   const theme = useTheme();
   const qty = row.kind === "hours" ? `${row.hours.toFixed(2)}` : `${row.qty}`;
   const label = row.label;
-  // In Hebrew the row visually reads as [amount | qty | rate | label]
-  // left-to-right. row-reverse on the flex container achieves this
-  // while the JSX source order stays the same.
-  const numAlign = isRTL ? "left" : "right";
-  const labelAlign = isRTL ? "right" : "left";
+  // The row reads [label | rate | qty | amount] in source order; the
+  // app-wide layout direction mirrors it for Hebrew and Arabic.
+  const numAlign = textEnd;
+  const labelAlign = textStart;
   return (
     <View
       style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
+        flexDirection: "row",
         alignItems: "center",
         paddingVertical: 10,
         borderBottomWidth: 1,
@@ -71,24 +71,18 @@ function EarningsRow({ row, lang, isRTL }) {
         {label}
       </Type>
       <Type
-        variant="numeric"
+        variant="small"
+        numeric
         color={theme.colors.inkSoft}
-        style={{
-          flex: 1,
-          textAlign: numAlign,
-          fontFamily: "Manrope_500Medium",
-        }}
+        style={{ flex: 1, textAlign: numAlign }}
       >
         {fmt(row.rate)}
       </Type>
       <Type
-        variant="numeric"
+        variant="small"
+        numeric
         color={theme.colors.inkSoft}
-        style={{
-          flex: 0.8,
-          textAlign: numAlign,
-          fontFamily: "Manrope_500Medium",
-        }}
+        style={{ flex: 0.8, textAlign: numAlign }}
       >
         {qty}
       </Type>
@@ -103,16 +97,16 @@ function EarningsRow({ row, lang, isRTL }) {
   );
 }
 
-function EarningsTable({ model, lang, isRTL }) {
+function EarningsTable({ model, lang }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const numAlign = isRTL ? "left" : "right";
-  const labelAlign = isRTL ? "right" : "left";
+  const numAlign = textEnd;
+  const labelAlign = textStart;
   return (
     <View style={{ marginTop: 4 }}>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingBottom: 8,
           borderBottomWidth: 1,
           borderBottomColor: theme.colors.border,
@@ -148,11 +142,11 @@ function EarningsTable({ model, lang, isRTL }) {
         </Type>
       </View>
       {model.earnings.map((r) => (
-        <EarningsRow key={r.key} row={r} lang={lang} isRTL={isRTL} />
+        <EarningsRow key={r.key} row={r} lang={lang} />
       ))}
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingTop: 14,
           marginTop: 6,
           borderTopWidth: 1.5,
@@ -173,7 +167,7 @@ function EarningsTable({ model, lang, isRTL }) {
         <Type
           variant="body"
           color={theme.colors.muted}
-          style={isRTL ? { marginRight: 4 } : { marginLeft: 4 }}
+          style={{ marginStart: 4 }}
         >
           ₪
         </Type>
@@ -185,9 +179,9 @@ function EarningsTable({ model, lang, isRTL }) {
 // Credits (tax credit points, settlement benefit) reduce the tax. The PDF
 // always printed them; the screen computed them and then never rendered
 // them, so the two disagreed.
-function CreditsTable({ model, lang, isRTL }) {
+function CreditsTable({ model, lang }) {
   const theme = useTheme();
-  const labelAlign = isRTL ? "right" : "left";
+  const labelAlign = textStart;
   if (!model.credits || model.credits.length === 0) return null;
   return (
     <View style={{ marginTop: 4 }}>
@@ -195,7 +189,7 @@ function CreditsTable({ model, lang, isRTL }) {
         <View key={row.label}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 12,
@@ -220,17 +214,17 @@ function CreditsTable({ model, lang, isRTL }) {
   );
 }
 
-function DeductionsTable({ model, lang, isRTL }) {
+function DeductionsTable({ model, lang }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const labelAlign = isRTL ? "right" : "left";
+  const labelAlign = textStart;
   return (
     <View style={{ marginTop: 4 }}>
       {model.summary.map((row, i) => (
         <View key={row.key}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 12,
@@ -253,7 +247,7 @@ function DeductionsTable({ model, lang, isRTL }) {
       ))}
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingTop: 14,
           marginTop: 6,
           borderTopWidth: 1.5,
@@ -276,24 +270,24 @@ function DeductionsTable({ model, lang, isRTL }) {
   );
 }
 
-function NetPayCard({ neto, bruto, isRTL }) {
+function NetPayCard({ neto, bruto }) {
   const theme = useTheme();
   const { t } = useTranslation();
   return (
     <AnchorCard radius={20} style={{ marginTop: 24, padding: 24 }}>
       <Eyebrow
         color={theme.colors.anchorMuted}
-        style={{ textAlign: isRTL ? "right" : "left" }}
+        style={{ textAlign: textStart }}
       >
         {t("paycheck.netPay")}
       </Eyebrow>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "baseline",
           marginTop: 8,
           gap: 6,
-          justifyContent: isRTL ? "flex-end" : "flex-start",
+          justifyContent: "flex-start",
         }}
       >
         <Type variant="netPay" color={theme.colors.anchorInk}>
@@ -310,7 +304,7 @@ function NetPayCard({ neto, bruto, isRTL }) {
       <Type
         variant="helperItalic"
         color={theme.colors.anchorMuted}
-        style={{ marginTop: 8, textAlign: isRTL ? "right" : "left" }}
+        style={{ marginTop: 8, textAlign: textStart }}
       >
         {`${t("paycheck.of")} ${fmt(bruto)} ₪ ${t("paycheck.gross")}`}
       </Type>
@@ -388,7 +382,7 @@ export default function PaycheckScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           paddingTop: insets.top + 8,
@@ -471,19 +465,19 @@ export default function PaycheckScreen() {
           <Hairline />
 
           <SectionRule label={t("paycheck.earnings")} />
-          <EarningsTable model={model} lang={lang} isRTL={isRTL} />
+          <EarningsTable model={model} lang={lang} />
 
           <SectionRule label={t("paycheck.deductions")} accent />
-          <DeductionsTable model={model} lang={lang} isRTL={isRTL} />
+          <DeductionsTable model={model} lang={lang} />
 
           {model.credits && model.credits.length > 0 ? (
             <>
               <SectionRule label={t("paycheck.credits")} />
-              <CreditsTable model={model} lang={lang} isRTL={isRTL} />
+              <CreditsTable model={model} lang={lang} />
             </>
           ) : null}
 
-          <NetPayCard neto={model.neto} bruto={model.bruto} isRTL={isRTL} />
+          <NetPayCard neto={model.neto} bruto={model.bruto} />
 
           <View style={{ flexDirection: "row", gap: 12, marginTop: 24 }}>
             <OutlinedButton

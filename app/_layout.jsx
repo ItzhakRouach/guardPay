@@ -1,29 +1,28 @@
 import {
-  CormorantGaramond_400Regular,
-  CormorantGaramond_400Regular_Italic,
-  CormorantGaramond_500Medium,
-  CormorantGaramond_500Medium_Italic,
-  CormorantGaramond_600SemiBold,
-} from "@expo-google-fonts/cormorant-garamond";
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold,
+} from "@expo-google-fonts/ibm-plex-sans-arabic";
 import {
-  FrankRuhlLibre_400Regular,
-  FrankRuhlLibre_500Medium,
-  FrankRuhlLibre_700Bold,
-} from "@expo-google-fonts/frank-ruhl-libre";
-import {
-  Manrope_400Regular,
-  Manrope_500Medium,
-  Manrope_600SemiBold,
-  Manrope_700Bold,
-} from "@expo-google-fonts/manrope";
+  IBMPlexSansHebrew_400Regular,
+  IBMPlexSansHebrew_500Medium,
+  IBMPlexSansHebrew_600SemiBold,
+  IBMPlexSansHebrew_700Bold,
+} from "@expo-google-fonts/ibm-plex-sans-hebrew";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import { I18nManager } from "react-native";
+import { useEffect, useMemo } from "react";
+import { I18nManager, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
+import {
+  configureFonts,
+  MD3DarkTheme,
+  MD3LightTheme,
+  PaperProvider,
+} from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import ErrorBoundary from "../components/layout/ErrorBoundary";
@@ -44,8 +43,65 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// The 25 screens and components that render react-native-paper inherit the
+// redesign from here: one font config and one roundness, rather than 25
+// rewrites. Paper stays the interaction layer (TextInput, Modal, Switch,
+// SegmentedButtons) because the custom primitives have no equivalent.
+//
+// Two things a flat `config: { fontFamily }` gets wrong, so the config is
+// built per variant instead:
+//
+//  1. MD3 keeps each variant's own `fontWeight`, and titleMedium,
+//     titleSmall and the three label variants carry "500". A named iOS
+//     face plus a conflicting numeric weight is the classic case where
+//     the family silently falls back to San Francisco. Each variant is
+//     therefore paired with the real face for its weight and pinned to
+//     `fontWeight: "normal"`, so nothing is left to synthesise.
+//  2. IBM Plex Sans Hebrew has no Arabic glyphs. Arabic needs its own
+//     sibling face, the same rule `components/common/Type.jsx` follows.
+const FACES = {
+  he: {
+    400: "IBMPlexSansHebrew_400Regular",
+    500: "IBMPlexSansHebrew_500Medium",
+    600: "IBMPlexSansHebrew_600SemiBold",
+    700: "IBMPlexSansHebrew_700Bold",
+  },
+  ar: {
+    400: "IBMPlexSansArabic_400Regular",
+    500: "IBMPlexSansArabic_500Medium",
+    600: "IBMPlexSansArabic_600SemiBold",
+    700: "IBMPlexSansArabic_700Bold",
+  },
+};
+
+const buildPaperFonts = (lang) => {
+  const faces = lang === "ar" ? FACES.ar : FACES.he;
+  const base = configureFonts({ config: {} });
+  const config = Object.fromEntries(
+    Object.entries(base).map(([variant, props]) => {
+      const weight = String(props.fontWeight ?? "400");
+      return [
+        variant,
+        {
+          fontFamily: faces[weight] || faces[400],
+          fontWeight: "normal",
+        },
+      ];
+    }),
+  );
+  return configureFonts({ config });
+};
+
+const paperFontsByLang = {
+  he: buildPaperFonts("he"),
+  ar: buildPaperFonts("ar"),
+};
+const paperFonts = paperFontsByLang.he;
+
 const lightTheme = {
   ...MD3LightTheme,
+  fonts: paperFonts,
+  roundness: 11,
   colors: {
     ...MD3LightTheme.colors,
     ...lightTokens,
@@ -65,6 +121,8 @@ const lightTheme = {
 
 const darkTheme = {
   ...MD3DarkTheme,
+  fonts: paperFonts,
+  roundness: 11,
   colors: {
     ...MD3DarkTheme.colors,
     ...darkTokens,
@@ -152,9 +210,16 @@ try {
 
 function ThemedApp() {
   const { scheme, loaded: themeLoaded } = useThemeMode();
-  const { loading: langLoading } = useLanguage();
+  const { isRTL, lang, loading: langLoading } = useLanguage();
   const isDark = scheme === "dark";
-  const theme = isDark ? darkTheme : lightTheme;
+  const base = isDark ? darkTheme : lightTheme;
+  // Arabic swaps the whole Paper typescale onto the Arabic face. Memoised
+  // so a re-render does not hand PaperProvider a fresh object every time.
+  const theme = useMemo(
+    () =>
+      lang === "ar" ? { ...base, fonts: paperFontsByLang.ar } : base,
+    [base, lang],
+  );
   // Hold the first paint until the saved language and colour scheme are
   // read from storage (a few ms). Rendering before that flashed English
   // and the system theme on every cold start for users who chose
@@ -167,54 +232,66 @@ function ThemedApp() {
     );
   }
   return (
-    <PaperProvider theme={theme}>
-      <SafeAreaProvider>
-        <StatusBar style={isDark ? "light" : "dark"} />
-        <RouteGuard>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <ErrorBoundary>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: {
-                    backgroundColor: theme.colors.bg,
-                  },
-                }}
-              >
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="add-shift"
-                  options={{ presentation: "modal" }}
-                />
-                <Stack.Screen
-                  name="paycheck"
-                  options={{ presentation: "modal" }}
-                />
-              </Stack>
-              <UpdateBanner />
-            </ErrorBoundary>
-          </GestureHandlerRootView>
-        </RouteGuard>
-      </SafeAreaProvider>
-    </PaperProvider>
+    // One place sets the layout direction for the entire app. Yoga
+    // propagates it down every subtree, including react-native-paper's
+    // portals, so rows, grids and logical insets mirror themselves in
+    // Hebrew and Arabic. This replaced 52 hand-written row-reverse flips.
+    //
+    // Deliberately NOT I18nManager.forceRTL: that is a native, app-restart
+    // switch that can leave a launch half-flipped. This is per-subtree and
+    // takes effect on the next render.
+    //
+    // `direction` is typed @platform ios in React Native's own Flow types.
+    // It works on Android only because app.json sets newArchEnabled — Fabric
+    // parses it in C++ (YogaStylableProps), while the old architecture's
+    // LayoutShadowNode.java has no `direction` prop at all. If the app ever
+    // falls back to the old architecture, Android RTL disappears silently.
+    <View style={{ flex: 1, direction: isRTL ? "rtl" : "ltr" }}>
+      <PaperProvider theme={theme}>
+        <SafeAreaProvider>
+          <StatusBar style={isDark ? "light" : "dark"} />
+          <RouteGuard>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <ErrorBoundary>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: {
+                      backgroundColor: theme.colors.bg,
+                    },
+                  }}
+                >
+                  <Stack.Screen name="(auth)" />
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="add-shift"
+                    options={{ presentation: "modal" }}
+                  />
+                  <Stack.Screen
+                    name="paycheck"
+                    options={{ presentation: "modal" }}
+                  />
+                </Stack>
+                <UpdateBanner />
+              </ErrorBoundary>
+            </GestureHandlerRootView>
+          </RouteGuard>
+        </SafeAreaProvider>
+      </PaperProvider>
+    </View>
   );
 }
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    CormorantGaramond_400Regular,
-    CormorantGaramond_400Regular_Italic,
-    CormorantGaramond_500Medium,
-    CormorantGaramond_500Medium_Italic,
-    CormorantGaramond_600SemiBold,
-    FrankRuhlLibre_400Regular,
-    FrankRuhlLibre_500Medium,
-    FrankRuhlLibre_700Bold,
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
+    IBMPlexSansHebrew_400Regular,
+    IBMPlexSansHebrew_500Medium,
+    IBMPlexSansHebrew_600SemiBold,
+    IBMPlexSansHebrew_700Bold,
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+    IBMPlexSansArabic_600SemiBold,
+    IBMPlexSansArabic_700Bold,
   });
 
   if (!fontsLoaded) {

@@ -15,6 +15,7 @@ import ShiftNoteModal from "../components/shifts/ShiftNoteModal";
 import { useLanguage } from "../hooks/lang-context";
 import { buildShiftBreakdown } from "../lib/shiftBreakdown";
 import { formatShiftDate, formatShiftTime } from "../lib/utils";
+import { radius, textEnd, textStart } from "../lib/theme";
 
 const money = (n) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -322,14 +323,14 @@ const makeStyle = (theme, isRTL) =>
       backgroundColor: theme.colors.background,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 10,
       paddingVertical: 10,
     },
     headerLeft: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
     },
     backText: {
@@ -343,7 +344,9 @@ const makeStyle = (theme, isRTL) =>
     },
     scrollContent: { padding: 16, paddingBottom: 40 },
     card: {
-      borderRadius: 24,
+      // Explicit: Paper multiplies theme.roundness by 3 for Card, which
+      // would give 33. The design scale says cards are radius.card.
+      borderRadius: radius.card,
       elevation: 0,
       backgroundColor: theme.colors.surface,
       borderWidth: 1,
@@ -372,13 +375,11 @@ const makeStyle = (theme, isRTL) =>
     sectionLabel: {
       color: theme.colors.summary,
       marginBottom: 15,
-      textAlign: isRTL ? "right" : "left",
-      textTransform: "uppercase",
+      textAlign: textStart,
       fontSize: 12,
-      letterSpacing: 1.2,
     },
     detailRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       marginVertical: 10,
     },
@@ -397,7 +398,7 @@ const makeStyle = (theme, isRTL) =>
     ruleText: {
       color: theme.colors.onSurface,
       opacity: 0.6,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       marginBottom: 12,
     },
     bTable: {
@@ -408,7 +409,7 @@ const makeStyle = (theme, isRTL) =>
       marginTop: 4,
     },
     bRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       paddingVertical: 10,
       paddingHorizontal: 12,
@@ -421,17 +422,15 @@ const makeStyle = (theme, isRTL) =>
     },
     bHeaderText: {
       color: theme.colors.onSecondaryContainer,
-      textTransform: "uppercase",
-      letterSpacing: 0.6,
     },
     bLabelCell: { flex: 2.1 },
     bLabel: {
       color: theme.colors.onSurface,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
     bNum: {
       color: theme.colors.onSurface,
-      textAlign: isRTL ? "left" : "right",
+      textAlign: textEnd,
       fontVariant: ["tabular-nums"],
     },
     bHours: { flex: 0.8 },
@@ -446,7 +445,7 @@ const makeStyle = (theme, isRTL) =>
       paddingTop: 20,
       borderTopWidth: 2,
       borderTopColor: theme.colors.outlineVariant,
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
@@ -465,7 +464,7 @@ const makeStyle = (theme, isRTL) =>
     },
     trainingText: { color: theme.colors.error, fontWeight: "bold" },
     noteRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "flex-start",
       justifyContent: "space-between",
       backgroundColor: theme.colors.outlineVariant + "55",
@@ -475,9 +474,9 @@ const makeStyle = (theme, isRTL) =>
     noteText: {
       flex: 1,
       color: theme.colors.onSurface,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
     addNoteBtn: {
-      alignSelf: isRTL ? "flex-end" : "flex-start",
+      alignSelf: "flex-start",
     },
   });

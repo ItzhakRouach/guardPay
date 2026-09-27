@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Surface, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
+import { textStart } from "../../lib/theme";
 
 export default function ShiftSummary({ shiftSummary }) {
   const { t } = useTranslation();
@@ -40,10 +41,10 @@ const makeStyle = (theme, isRTL) =>
       marginBottom: 30,
     },
     summaryRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     warningText: {
@@ -53,6 +54,6 @@ const makeStyle = (theme, isRTL) =>
       paddingStart: 10,
       fontWeight: "500",
       writingDirection: isRTL ? "rtl" : "ltr",
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
   });

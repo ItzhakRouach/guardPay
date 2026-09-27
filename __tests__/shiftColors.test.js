@@ -192,3 +192,47 @@ describe("serialiseUserColors", () => {
     expect(serialiseUserColors(colors)).toBe("{}");
   });
 });
+
+// The calendar grid marks each shift with a dot coloured by type. The card
+// tints above are near-white washes that vanish at 5px, and `resolveTint`
+// returns null for an ordinary weekday shift — so a tint-driven grid would
+// have been mostly blank. Dots are their own scale.
+describe("resolveDot — the calendar's per-type marks", () => {
+  const { resolveDot, DOT_COLORS } = require("../utils/shiftColors");
+  const { TYPE_ICON } = require("../utils/shiftType");
+
+  test("every type deriveShiftType can return has a dot", () => {
+    for (const type of Object.keys(TYPE_ICON)) {
+      expect(typeof resolveDot(type, "light")).toBe("string");
+      expect(resolveDot(type, "light")).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    }
+  });
+
+  test("ordinary weekday shifts get a colour, unlike resolveTint", () => {
+    for (const type of ["morning", "evening", "night"]) {
+      expect(resolveDot(type, "light")).toBeTruthy();
+    }
+  });
+
+  test("dark mode returns a lighter counterpart, never the same value", () => {
+    for (const type of Object.keys(DOT_COLORS)) {
+      expect(resolveDot(type, "dark")).not.toBe(resolveDot(type, "light"));
+    }
+  });
+
+  test("an unknown or missing type falls back instead of returning undefined", () => {
+    expect(resolveDot("not-a-type", "light")).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(resolveDot(undefined, "dark")).toMatch(/^#[0-9A-Fa-f]{6}$/);
+  });
+
+  test("the nine dot hues are distinguishable by lightness, not hue alone", () => {
+    const lum = (hex) => {
+      const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+      const f = (c) =>
+        c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      return 0.2126 * f(v[0]) + 0.7152 * f(v[1]) + 0.0722 * f(v[2]);
+    };
+    const ls = Object.keys(DOT_COLORS).map((k) => lum(resolveDot(k, "light")));
+    expect(Math.max(...ls) - Math.min(...ls)).toBeGreaterThan(0.1);
+  });
+});

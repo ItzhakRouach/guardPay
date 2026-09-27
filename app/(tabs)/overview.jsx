@@ -13,49 +13,19 @@ import MonthHeader from "../../components/common/MonthHeader";
 import Type from "../../components/common/Type";
 import ComplianceCard from "../../components/overview/ComplianceCard";
 import { useAuth } from "../../hooks/auth-context";
-import { useLanguage } from "../../hooks/lang-context";
 import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
 import { useShift } from "../../hooks/useShift";
+import { bucketByWeek } from "../../lib/monthGrid";
 import { docBruto } from "../../lib/monthlyTotals";
 import { screenContentLayout } from "../../lib/responsive";
 import { localeFromLang } from "../../lib/utils";
+import { radius } from "../../lib/theme";
 
 const fmtCurrency = (n) => Math.round(Number(n) || 0).toLocaleString("en-US");
 
-// Sum earnings into calendar weeks (Sunday→Saturday) of the month. The
-// bucket count matches the number of Sunday-weeks the month actually spans
-// (5 or 6), so the chart's W1..Wn bars line up with the Shifts-tab grouping.
-function bucketByWeek(shifts) {
-  const valid = (shifts || []).filter((s) => {
-    const d = new Date(s.start_time || s.date);
-    return !Number.isNaN(d.getTime());
-  });
-  if (valid.length === 0) return [0, 0, 0, 0, 0];
-
-  // All shifts in this view belong to one month — derive its shape once.
-  const ref = new Date(valid[0].start_time || valid[0].date);
-  const firstWeekday = new Date(ref.getFullYear(), ref.getMonth(), 1).getDay();
-  const daysInMonth = new Date(
-    ref.getFullYear(),
-    ref.getMonth() + 1,
-    0,
-  ).getDate();
-  const weeksInMonth = Math.ceil((daysInMonth + firstWeekday) / 7);
-
-  const buckets = new Array(weeksInMonth).fill(0);
-  valid.forEach((s) => {
-    const d = new Date(s.start_time || s.date);
-    const wk = Math.ceil((d.getDate() + firstWeekday) / 7) - 1; // 0-indexed
-    if (wk >= 0 && wk < buckets.length) {
-      buckets[wk] += docBruto(s);
-    }
-  });
-  return buckets;
-}
-
-function HeroSection({ neto, trendPct, isRTL, loading }) {
+function HeroSection({ neto, trendPct, loading }) {
   const theme = useTheme();
   const { t } = useTranslation();
   // Single Animated.Value drives 0→1 progress. `display` is derived from
@@ -113,7 +83,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
       <Eyebrow color={theme.colors.muted}>{t("overview.heroLabel")}</Eyebrow>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "baseline",
           marginTop: 14,
           minHeight: 60,
@@ -123,7 +93,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
           <ActivityIndicator
             color={theme.colors.accent}
             size="large"
-            style={{ alignSelf: isRTL ? "flex-end" : "flex-start" }}
+            style={{ alignSelf: "flex-start" }}
           />
         ) : (
           <>
@@ -137,7 +107,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
             <Type
               variant="sectionTitle"
               color={theme.colors.muted}
-              style={isRTL ? { marginRight: 6 } : { marginLeft: 6 }}
+              style={{ marginStart: 6 }}
             >
               ₪
             </Type>
@@ -147,11 +117,11 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
       {trendPct != null ? (
         <View
           style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
+            flexDirection: "row",
             alignItems: "center",
             gap: 5,
             marginTop: 12,
-            alignSelf: isRTL ? "flex-end" : "flex-start",
+            alignSelf: "flex-start",
             paddingHorizontal: 10,
             paddingVertical: 5,
             borderRadius: 999,
@@ -172,14 +142,14 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
   );
 }
 
-function StatTile({ label, value, suffix, isRTL }) {
+function StatTile({ label, value, suffix }) {
   const theme = useTheme();
   return (
     <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 18 }}>
       <Eyebrow color={theme.colors.muted}>{label}</Eyebrow>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "baseline",
           gap: 4,
           marginTop: 6,
@@ -198,49 +168,44 @@ function StatTile({ label, value, suffix, isRTL }) {
   );
 }
 
-function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
+function StatsGrid({ bruto, totalHours, totalShifts, deductions }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const dir = isRTL ? "row-reverse" : "row";
   return (
     <View
       style={{
         marginTop: 16,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
         overflow: "hidden",
       }}
     >
-      <View style={{ flexDirection: dir }}>
+      <View style={{ flexDirection: "row" }}>
         <StatTile
           label={t("overview.stats.bruto")}
           value={fmtCurrency(bruto)}
           suffix="₪"
-          isRTL={isRTL}
         />
         <Hairline vertical />
         <StatTile
           label={t("overview.stats.hours")}
           value={Number(totalHours || 0).toFixed(1)}
           suffix="h"
-          isRTL={isRTL}
         />
       </View>
       <Hairline />
-      <View style={{ flexDirection: dir }}>
+      <View style={{ flexDirection: "row" }}>
         <StatTile
           label={t("overview.stats.shifts")}
           value={String(totalShifts || 0)}
-          isRTL={isRTL}
         />
         <Hairline vertical />
         <StatTile
           label={t("overview.stats.deductions")}
           value={fmtCurrency(deductions)}
           suffix="₪"
-          isRTL={isRTL}
         />
       </View>
     </View>
@@ -278,7 +243,7 @@ function WeeklyChart({ buckets }) {
       style={{
         marginTop: 16,
         padding: 20,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -339,7 +304,7 @@ function WeeklyChart({ buckets }) {
   );
 }
 
-function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
+function InsightsCard({ shiftsCount, avgShift, bestDay, projected }) {
   const theme = useTheme();
   const { t } = useTranslation();
   if (!shiftsCount) return null;
@@ -362,7 +327,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
     <View
       style={{
         marginTop: 16,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -374,7 +339,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
         <View key={r.label}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 16,
@@ -382,7 +347,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
           >
             <View
               style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
+                flexDirection: "row",
                 alignItems: "center",
                 gap: 10,
               }}
@@ -407,7 +372,6 @@ export default function OverviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
   const {
     shifts,
@@ -423,7 +387,10 @@ export default function OverviewScreen() {
   const prevBruto = usePrevMonthBruto(user, currentDate);
   const { t, i18n } = useTranslation();
 
-  const weeklyBuckets = useMemo(() => bucketByWeek(shifts), [shifts]);
+  const weeklyBuckets = useMemo(
+    () => bucketByWeek(shifts, currentDate.getFullYear(), currentDate.getMonth()),
+    [shifts, currentDate],
+  );
 
   const trendPct = useMemo(() => {
     if (!monthlyReport) return null;
@@ -524,7 +491,6 @@ export default function OverviewScreen() {
           <HeroSection
             neto={monthlyReport?.neto || 0}
             trendPct={trendPct}
-            isRTL={isRTL}
             loading={!monthlyReport && salaryLoading}
           />
           <StatsGrid
@@ -532,7 +498,6 @@ export default function OverviewScreen() {
             totalHours={totals.totalHours || 0}
             totalShifts={totals.totalShifts || 0}
             deductions={monthlyReport?.totalDeductions || 0}
-            isRTL={isRTL}
           />
           <WeeklyChart buckets={weeklyBuckets} />
           <InsightsCard
@@ -540,7 +505,6 @@ export default function OverviewScreen() {
             avgShift={avgShift}
             bestDay={bestDay}
             projected={projected}
-            isRTL={isRTL}
           />
           <ComplianceCard shifts={shifts} />
           <View style={{ height: 24 }} />

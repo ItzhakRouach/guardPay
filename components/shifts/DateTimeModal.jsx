@@ -39,12 +39,12 @@ export default function DateTimeModal({
               activeField === "date"
                 ? date
                 : activeField === "start"
-                ? startTime
-                : activeField === "sickEnd"
-                ? sickEndDate || new Date()
-                : activeField === "vacEnd"
-                ? vacEndDate || new Date()
-                : endTime
+                  ? startTime
+                  : activeField === "sickEnd"
+                    ? sickEndDate || new Date()
+                    : activeField === "vacEnd"
+                      ? vacEndDate || new Date()
+                      : endTime
             }
             mode={pickerMode}
             is24Hour={true}
@@ -85,7 +85,7 @@ const makeStyle = (theme, isRTL) =>
       elevation: 5,
     },
     pickerHeader: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
       paddingHorizontal: 20,

@@ -27,6 +27,7 @@ import GuardRateChips from "../../components/common/GuardRateChips";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
+import { inputTextStart } from "../../lib/theme";
 // The DatePickerModal below uses locale="en-GB" (for DD/MM/YYYY date
 // order) but react-native-paper-dates doesn't ship a separate en-GB
 // translation. Reuse the en strings under the en-GB key so the picker
@@ -313,8 +314,10 @@ const makeStyle = (theme, isRTL) =>
     stepsContainer: {
       marginTop: 20,
     },
+    // TextInput content is not mirrored by the layout direction, so this
+    // one needs the physical edge rather than the logical `textStart`.
     contentStyle: {
-      textAlign: isRTL ? "right" : "left",
+      textAlign: inputTextStart(isRTL),
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     title: {

@@ -41,6 +41,7 @@ import {
 import { parseOvertimeRules } from "../../lib/overtimeRules";
 import { formatHHMM, parseReminderTime } from "../../lib/reminderTime";
 import { screenContentLayout } from "../../lib/responsive";
+import { radius, textStart } from "../../lib/theme";
 
 function SettingsRow({
   icon,
@@ -55,11 +56,11 @@ function SettingsRow({
   const theme = useTheme();
   const chevName = isRTL ? "chev-left" : "chev-right";
   const iconSpacing = isRTL ? { marginLeft: 12 } : { marginRight: 12 };
-  const labelAlign = isRTL ? "right" : "left";
+  const labelAlign = textStart;
   const body = (
     <View
       style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
+        flexDirection: "row",
         alignItems: "center",
         paddingVertical: tall ? 18 : 14,
         paddingHorizontal: 18,
@@ -366,24 +367,22 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 22,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,
               overflow: "hidden",
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
             }}
           >
             <StatsTile
               label={t("profile.totalShifts")}
               value={totalShifts == null ? "—" : String(totalShifts)}
-              align={isRTL ? "right" : "left"}
             />
             <Hairline vertical />
             <StatsTile
               label={t("profile.activeMonths")}
               value={activeMonths == null ? "—" : String(activeMonths)}
-              align={isRTL ? "right" : "left"}
             />
           </View>
 
@@ -393,7 +392,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 10,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,
@@ -465,7 +464,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 10,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,
@@ -541,7 +540,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 10,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,

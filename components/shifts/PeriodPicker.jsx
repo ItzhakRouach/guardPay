@@ -82,8 +82,9 @@ const makeStyle = (theme, isRTL) =>
     label: {
       position: "absolute",
       top: -8,
-      left: isRTL ? undefined : 15,
-      right: isRTL ? 15 : undefined,
+      // Logical inset: Yoga puts it on the leading edge in both
+      // directions, so the floating label follows the field.
+      start: 15,
       backgroundColor: theme.colors.surface,
       paddingHorizontal: 6,
       fontSize: 12,

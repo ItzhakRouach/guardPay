@@ -23,6 +23,8 @@ import {
 import { recomputeRange } from "../../lib/weeklyOt";
 import { useShiftsStore } from "../../hooks/shifts-store";
 import LoadingSpinner from "../common/LoadingSpinnner";
+import { shapeSegmentedButtons } from "../../lib/segmentedShape";
+import { radius, textStart } from "../../lib/theme";
 
 // Three controls, all explained in one line each. Saving recomputes the
 // CURRENT month's weeks under the new rules (owner decision); earlier
@@ -128,10 +130,15 @@ export default function OvertimeSettingsModal({ visible, onDismiss }) {
           <SegmentedButtons
             value={String(rules.daily)}
             onValueChange={(v) => setRules((r) => ({ ...r, daily: Number(v) }))}
-            buttons={[
-              { value: "8", label: "8" },
-              { value: "8.6", label: "8.6" },
-            ]}
+            theme={{ roundness: radius.control / 5 }}
+            buttons={shapeSegmentedButtons(
+              [
+                { value: "8", label: "8" },
+                { value: "8.6", label: "8.6" },
+              ],
+              isRTL,
+              radius.control,
+            )}
           />
           <Text variant="bodySmall" style={styles.hint}>
             {t("overtime.daily_hint")}
@@ -145,10 +152,18 @@ export default function OvertimeSettingsModal({ visible, onDismiss }) {
             onValueChange={(v) =>
               setRules((r) => ({ ...r, midnightSplit: v === "split" }))
             }
-            buttons={[
-              { value: "continuous", label: t("overtime.midnight_continuous") },
-              { value: "split", label: t("overtime.midnight_split") },
-            ]}
+            theme={{ roundness: radius.control / 5 }}
+            buttons={shapeSegmentedButtons(
+              [
+                {
+                  value: "continuous",
+                  label: t("overtime.midnight_continuous"),
+                },
+                { value: "split", label: t("overtime.midnight_split") },
+              ],
+              isRTL,
+              radius.control,
+            )}
           />
           <Text variant="bodySmall" style={styles.hint}>
             {t("overtime.midnight_hint")}
@@ -178,30 +193,30 @@ const makeStyle = (theme, isRTL) =>
     modal: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
     },
     inner: { padding: 24 },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
     title: { fontSize: 22, fontWeight: "bold", color: theme.colors.onSurface },
     divider: { marginVertical: 12, opacity: 0.5 },
     rowBetween: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       gap: 12,
     },
     label: {
       color: theme.colors.onSurface,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       marginBottom: 6,
     },
     hint: {
       color: theme.colors.onSurfaceVariant,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       marginTop: 6,
     },
     save: { marginTop: 20, borderRadius: 14 },

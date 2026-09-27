@@ -24,6 +24,7 @@ import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
 import LoadingSpinner from "../common/LoadingSpinnner";
 import GuardRateChips from "../common/GuardRateChips";
+import { radius, textStart } from "../../lib/theme";
 
 // normalizeDecimal returns a cleaned STRING ("52,5" → "52.5"); turn it into
 // a number, with empty → NaN so validation catches it.
@@ -186,6 +187,7 @@ export default function PreferencesChange({ visable, hideModal }) {
                   <Chip
                     key={p.key}
                     compact
+                    style={styles.creditChip}
                     selected={
                       toNumber(formData.credit_points) === Number(p.value)
                     }
@@ -233,14 +235,14 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
     },
     innerContainer: {
       padding: 24,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: 8,
@@ -264,7 +266,7 @@ const makeStyle = (theme, isRTL) =>
     inputLabel: {
       marginBottom: 6,
       color: theme.colors.secondary,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       paddingHorizontal: 4,
     },
     input: {
@@ -276,15 +278,17 @@ const makeStyle = (theme, isRTL) =>
       borderWidth: 1.5,
     },
     chipRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       gap: 8,
       marginTop: 8,
     },
+    // Paper multiplies theme.roundness by 2 for Chip, which would give 22.
+    creditChip: { borderRadius: radius.control },
     hint: {
       marginTop: 8,
       paddingHorizontal: 4,
       color: theme.colors.onSurfaceVariant,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
     actions: {
       gap: 8,

@@ -49,7 +49,9 @@ export function PrimaryButton({
       ]}
     >
       <View style={baseRow(10)}>
-        {icon ? <Icon name={icon} size={20} color={theme.colors.ctaInk} /> : null}
+        {icon ? (
+          <Icon name={icon} size={20} color={theme.colors.ctaInk} />
+        ) : null}
         <Type variant="button" color={theme.colors.ctaInk}>
           {label}
         </Type>

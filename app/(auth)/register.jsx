@@ -22,6 +22,7 @@ import { PrivacyConsent } from "../../components/common/privacyConsent";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 
+
 export default function RegisterScreen() {
   // import the signIn function we allready created
   const { signInWithGoogle, signInWithApple } = useAuth();
@@ -173,7 +174,7 @@ const makeStyle = (theme, isRTL) =>
     },
 
     headerContent: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
       gap: 10,
@@ -181,10 +182,6 @@ const makeStyle = (theme, isRTL) =>
     contentWrapper: {
       padding: 20,
       gap: 15,
-    },
-    contentStyle: {
-      textAlign: isRTL ? "right" : "left",
-      writingDirection: isRTL ? "rtl" : "ltr",
     },
     input: {
       flexDirection: "row",

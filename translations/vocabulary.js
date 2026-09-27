@@ -3,6 +3,7 @@ export const resources = {
     translation: {
       common: {
         cancel: "ביטול",
+        undo: "שחזר",
         delete: "מחק",
         edit: "ערוך",
         on: "פעיל",
@@ -176,6 +177,11 @@ export const resources = {
         msg_err: "שגיאה! לא יכל לעדכן",
       },
       shifts: {
+        view_calendar: "לוח חודשי",
+        view_list: "רשימה",
+        day_a11y: "{{day}} בחודש, משמרות: {{n}}",
+        day_none: "אין משמרות ביום זה",
+        add_on_day: "הוספת משמרת ליום זה",
         week_partial: "חלק מהמשמרות בשבוע זה לא עודכנו לפי כלל 42 השעות. נסו לשמור שוב או לפתוח את הגדרות השעות הנוספות.",
         restreak_partial: "חלק מימי המחלה לא עודכנו. הרשימה רועננה מהשרת — בדקו את הימים הסמוכים.",
         month_pay: "משכורת חודשית",
@@ -183,7 +189,9 @@ export const resources = {
         amount: "סכום",
         hours: "שעות",
         delete_confirm_title: "מחיקת משמרת",
-        delete_confirm_body: "האם למחוק את המשמרת לצמיתות? לא ניתן לשחזר.",
+        delete_confirm_body: "האם למחוק את המשמרת? ניתן לשחזר מיד לאחר המחיקה.",
+        deleted: "המשמרת נמחקה",
+        undo_failed: "לא ניתן לשחזר את המשמרת. נסה שוב.",
         count: "משמרות",
         hoursUnit: "שעות",
         week: "שבוע",
@@ -227,7 +235,7 @@ export const resources = {
         sick_end: "סיום מחלה",
         vacation_start: "תחילת חופשה",
         vacation_end: "סיום חופשה",
-        rate_per_hour: "תעריך שעתי",
+        rate_per_hour: "תעריף שעתי",
         total_d: "סך שעות עבודה",
         save: "שמור משמרת",
         update: "עדכן משמרת",
@@ -424,6 +432,7 @@ export const resources = {
     translation: {
       common: {
         cancel: "Cancel",
+        undo: "Undo",
         delete: "Delete",
         edit: "Edit",
         on: "On",
@@ -612,6 +621,11 @@ export const resources = {
         msg_err: "Unable To Update",
       },
       shifts: {
+        view_calendar: "Calendar",
+        view_list: "List",
+        day_a11y: "{{day}} of the month, shifts: {{n}}",
+        day_none: "No shifts on this day",
+        add_on_day: "Add a shift on this day",
         week_partial: "Some shifts in this week could not be updated under the 42-hour rule. Try saving again or open the overtime settings.",
         restreak_partial: "Some sick days could not be updated. The list was refreshed from the server — please check the nearby days.",
         month_pay: "MONTHLY PAY",
@@ -620,7 +634,9 @@ export const resources = {
         hours: "Hours",
         delete_confirm_title: "Delete shift?",
         delete_confirm_body:
-          "This shift will be permanently deleted and can't be recovered.",
+          "This shift will be deleted. You can restore it right afterwards.",
+        deleted: "Shift deleted",
+        undo_failed: "Couldn't restore the shift. Try again.",
         count: "shifts",
         hoursUnit: "hrs",
         week: "Week",
@@ -851,6 +867,7 @@ export const resources = {
     translation: {
       common: {
         cancel: "إلغاء",
+        undo: "تراجع",
         delete: "حذف",
         edit: "تعديل",
         on: "مفعّل",
@@ -1024,6 +1041,11 @@ export const resources = {
         msg_err: "حدث خطأ! تعذّر التحديث",
       },
       shifts: {
+        view_calendar: "تقويم شهري",
+        view_list: "قائمة",
+        day_a11y: "{{day}} من الشهر، عدد الورديات: {{n}}",
+        day_none: "لا توجد ورديات في هذا اليوم",
+        add_on_day: "إضافة وردية في هذا اليوم",
         week_partial: "تعذّر تحديث بعض ورديات هذا الأسبوع وفق قاعدة 42 ساعة. حاول الحفظ مجدداً أو افتح إعدادات الساعات الإضافية.",
         restreak_partial: "تعذّر تحديث بعض الأيام المرضية. تم تحديث القائمة من الخادم — يرجى مراجعة الأيام المجاورة.",
         month_pay: "الراتب الشهري",
@@ -1032,7 +1054,9 @@ export const resources = {
         hours: "ساعات",
         delete_confirm_title: "حذف الوردية",
         delete_confirm_body:
-          "هل تريد حذف هذه الوردية نهائياً؟ لا يمكن استرجاعها.",
+          "هل تريد حذف هذه الوردية؟ يمكنك استرجاعها مباشرة بعد الحذف.",
+        deleted: "تم حذف الوردية",
+        undo_failed: "تعذّر استرجاع الوردية. يرجى المحاولة مجدداً.",
         count: "ورديات",
         hoursUnit: "ساعة",
         week: "أسبوع",

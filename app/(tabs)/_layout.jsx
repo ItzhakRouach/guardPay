@@ -74,11 +74,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
               <Type
                 variant="tabLabel"
                 color={color}
-                style={{
-                  fontFamily: focused
-                    ? "Manrope_700Bold"
-                    : "Manrope_500Medium",
-                }}
+                weight={focused ? "600" : "500"}
               >
                 {t(labelKey(route.name))}
               </Type>

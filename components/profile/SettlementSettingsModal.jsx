@@ -15,6 +15,7 @@ import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import settlementsData from "../../utils/settlements.json";
+import { radius, textStart } from "../../lib/theme";
 
 // Picker launched from the Profile → Preferences "settlement" row. Lets
 // the user search the 391 tax-credited settlements and pick one; the
@@ -46,7 +47,12 @@ export default function SettlementSettingsModal({ visible, onDismiss }) {
   const persist = async (fields) => {
     if (!profile?.$id) return false;
     try {
-      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, fields);
+      await databases.updateDocument(
+        DATABASE_ID,
+        USERS_PREFS,
+        profile.$id,
+        fields,
+      );
       await fetchUserProfile(user);
       return true;
     } catch (err) {
@@ -116,7 +122,10 @@ export default function SettlementSettingsModal({ visible, onDismiss }) {
             />
           </View>
 
-          <ScrollView style={styles.results} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={styles.results}
+            keyboardShouldPersistTaps="handled"
+          >
             {filtered.map((item) => (
               <List.Item
                 key={item.name}
@@ -166,16 +175,16 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
     },
     clipWrap: {
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
       paddingTop: 8,
       paddingBottom: 8,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 18,
@@ -190,7 +199,7 @@ const makeStyle = (theme, isRTL) =>
       paddingHorizontal: 18,
       paddingBottom: 8,
       color: theme.colors.summary,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     searchBox: {
@@ -206,19 +215,19 @@ const makeStyle = (theme, isRTL) =>
       fontSize: 16,
       color: theme.colors.onSurface,
       paddingVertical: 0,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     results: {
       maxHeight: 300,
     },
     itemTitle: {
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       color: theme.colors.onSurface,
     },
     itemDesc: {
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       color: theme.colors.secondary,
     },
@@ -228,7 +237,7 @@ const makeStyle = (theme, isRTL) =>
       width: "100%",
     },
     row: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       paddingHorizontal: 10,
       paddingVertical: 8,
@@ -240,7 +249,7 @@ const makeStyle = (theme, isRTL) =>
     rowLabel: {
       flex: 1,
       fontSize: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingHorizontal: 4,
     },
