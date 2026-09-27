@@ -1,8 +1,14 @@
-import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Linking, Pressable, ScrollView, Switch, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  Switch,
+  View,
+} from "react-native";
 import { Query } from "react-native-appwrite";
 import { ActivityIndicator, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,10 +36,23 @@ import {
   functions,
   USERS_PREFS,
 } from "../../lib/appwrite";
-import { scheduleWeeklyReminder } from "../../lib/notfication";
+import {
+  cancelWeeklyReminder,
+  scheduleWeeklyReminder,
+} from "../../lib/notfication";
+import { formatHHMM, parseReminderTime } from "../../lib/reminderTime";
 import { screenContentLayout } from "../../lib/responsive";
 
-function SettingsRow({ icon, label, value, onPress, right, last, isRTL, tall }) {
+function SettingsRow({
+  icon,
+  label,
+  value,
+  onPress,
+  right,
+  last,
+  isRTL,
+  tall,
+}) {
   const theme = useTheme();
   const chevName = isRTL ? "chev-left" : "chev-right";
   const iconSpacing = isRTL ? { marginLeft: 12 } : { marginRight: 12 };
@@ -199,16 +218,39 @@ export default function ProfileScreen() {
 
   const onToggleReminder = async (value) => {
     if (!profile) return;
+    const parsed = parseReminderTime(profile.reminder_time);
+    // Turning it on with no day/time yet: the switch used to flip to "On"
+    // while nothing was scheduled. Open the picker instead; saving there
+    // enables the reminder.
+    if (value && (!profile.reminder_day || !parsed)) {
+      setReminderOpen(true);
+      return;
+    }
     try {
+      if (value) {
+        // Schedule first: it asks for permission and has no side effects
+        // when denied, so we persist exactly once and only on success.
+        const outcome = await scheduleWeeklyReminder(
+          profile.reminder_day,
+          parsed.hour,
+          parsed.minute,
+        );
+        if (outcome === "denied") {
+          Alert.alert(t("weekly_reminder.perm_denied"));
+          return;
+        }
+      } else {
+        await cancelWeeklyReminder();
+      }
       setProfile((p) => ({ ...p, reminder_enable: value }));
-      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
-        reminder_enable: value,
-      });
-      if (!value) {
-        await Notifications.cancelAllScheduledNotificationsAsync();
-      } else if (profile.reminder_day && profile.reminder_time) {
-        const [h, m] = profile.reminder_time.split(":").map(Number);
-        await scheduleWeeklyReminder(profile.reminder_day, h, m);
+      try {
+        await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
+          reminder_enable: value,
+        });
+      } catch (writeErr) {
+        // Keep device and profile in agreement.
+        if (value) await cancelWeeklyReminder();
+        throw writeErr;
       }
     } catch (err) {
       console.error("ProfileScreen: toggle reminder failed", err);
@@ -218,25 +260,37 @@ export default function ProfileScreen() {
   };
 
   const onSaveReminder = async () => {
-    const timeString = tempTime.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    // Plain HH:MM — toLocaleTimeString produced "6:05 PM" / "24:00" on some
+    // locales, which then failed to parse back into a schedulable time.
+    const timeString = formatHHMM(tempTime);
     try {
+      const outcome = await scheduleWeeklyReminder(
+        tempDay,
+        tempTime.getHours(),
+        tempTime.getMinutes(),
+      );
+      if (outcome === "denied") {
+        Alert.alert(t("weekly_reminder.perm_denied"));
+        return;
+      }
+      try {
+        await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
+          reminder_day: tempDay,
+          reminder_time: timeString,
+          reminder_enable: true,
+        });
+      } catch (writeErr) {
+        // Profile write failed: don't leave a reminder the profile doesn't
+        // know about.
+        await cancelWeeklyReminder();
+        throw writeErr;
+      }
       setProfile((p) => ({
         ...p,
         reminder_day: tempDay,
         reminder_time: timeString,
         reminder_enable: true,
       }));
-      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
-        reminder_day: tempDay,
-        reminder_time: timeString,
-        reminder_enable: true,
-      });
-      const [h, m] = timeString.split(":").map(Number);
-      await scheduleWeeklyReminder(tempDay, h, m);
       setReminderOpen(false);
     } catch (err) {
       console.error("ProfileScreen: save reminder failed", err);
@@ -384,6 +438,13 @@ export default function ProfileScreen() {
               icon="tag"
               label={t("index.ride_rate")}
               value={`${profile?.price_per_ride ?? "—"} ₪`}
+              onPress={() => setPrefsOpen(true)}
+            />
+            <SettingsRow
+              isRTL={isRTL}
+              icon="star"
+              label={t("index.credit_points")}
+              value={String(Number(profile?.credit_points) || 2.25)}
               onPress={() => setPrefsOpen(true)}
             />
             <SettingsRow
@@ -562,10 +623,7 @@ export default function ProfileScreen() {
         onDismiss={() => setSettlementOpen(false)}
       />
       {pdfOpen ? (
-        <SecurityLawPDF
-          visable={pdfOpen}
-          hideModal={() => setPdfOpen(false)}
-        />
+        <SecurityLawPDF visable={pdfOpen} hideModal={() => setPdfOpen(false)} />
       ) : null}
       {reminderOpen ? (
         <WeeklyReminder
@@ -600,11 +658,7 @@ export default function ProfileScreen() {
           pointerEvents="auto"
         >
           <ActivityIndicator color={theme.colors.accent} size="large" />
-          <Type
-            variant="body"
-            color="#FFFFFF"
-            style={{ marginTop: 16 }}
-          >
+          <Type variant="body" color="#FFFFFF" style={{ marginTop: 16 }}>
             {t("settings.delete_title")}
           </Type>
         </View>

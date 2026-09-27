@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Localization from "expo-localization";
 import { createContext, useContext, useEffect, useState } from "react";
+import { pickDefaultLanguage } from "../lib/defaultLanguage";
 import i18n from "../translations/il18n";
 
 const LanguageContext = createContext();
@@ -19,7 +21,12 @@ export const LanguageProvider = ({ children }) => {
     const loadSavedLanguage = async () => {
       try {
         const savedLang = await AsyncStorage.getItem("user-language");
-        const langToUse = savedLang || "en";
+        // Saved choice wins; otherwise follow the phone (he / ar), else en.
+        // Previously an unset choice forced English on Hebrew phones.
+        const langToUse = pickDefaultLanguage(
+          savedLang,
+          Localization.getLocales()?.[0]?.languageCode,
+        );
         await i18n.changeLanguage(langToUse);
         setLang(langToUse);
         setIsRTL(isRtlLanguage(langToUse));

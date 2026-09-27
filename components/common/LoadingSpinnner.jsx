@@ -7,7 +7,7 @@ export default function LoadingSpinner() {
   return (
     <View style={[styles.container, { justifyContent: "center" }]}>
       <ActivityIndicator
-        size="70"
+        size={70}
         color={theme.colors.primary}
         animating={true}
       />
@@ -19,7 +19,7 @@ const makeStyle = (theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.backgroundColor,
+      backgroundColor: theme.colors.background,
       padding: 30,
       alignSelf: "center",
       justifyContent: "center",

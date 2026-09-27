@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
+import { docBruto } from "../../lib/monthlyTotals";
 import { resolveTint } from "../../lib/shiftColors";
 import { deriveShiftType, TYPE_ICON } from "../../lib/shiftType";
 import { localeFromLang } from "../../lib/utils";
@@ -104,9 +105,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
           }}
         >
           <Type variant="rowAmount" color={theme.colors.ink}>
-            {Math.round(Number(shift.total_amount || 0)).toLocaleString(
-              "en-US",
-            )}
+            {Math.round(docBruto(shift)).toLocaleString("en-US")}
           </Type>
           <Type variant="small" color={theme.colors.muted}>
             ₪

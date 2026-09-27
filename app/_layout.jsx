@@ -28,7 +28,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import ServiceUnavailable from "../components/layout/ServiceUnavailable";
 import { AuthProvider, useAuth } from "../hooks/auth-context";
-import { LanguageProvider } from "../hooks/lang-context";
+import { LanguageProvider, useLanguage } from "../hooks/lang-context";
 import { ThemeProvider, useThemeMode } from "../hooks/theme-context";
 import { darkTokens, legacyAlias, lightTokens } from "../lib/theme";
 import "../translations/il18n";
@@ -148,9 +148,21 @@ try {
 }
 
 function ThemedApp() {
-  const { scheme } = useThemeMode();
+  const { scheme, loaded: themeLoaded } = useThemeMode();
+  const { loading: langLoading } = useLanguage();
   const isDark = scheme === "dark";
   const theme = isDark ? darkTheme : lightTheme;
+  // Hold the first paint until the saved language and colour scheme are
+  // read from storage (a few ms). Rendering before that flashed English
+  // and the system theme on every cold start for users who chose
+  // otherwise.
+  if (!themeLoaded || langLoading) {
+    return (
+      <PaperProvider theme={theme}>
+        <LoadingSpinner />
+      </PaperProvider>
+    );
+  }
   return (
     <PaperProvider theme={theme}>
       <SafeAreaProvider>

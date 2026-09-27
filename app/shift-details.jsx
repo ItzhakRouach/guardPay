@@ -13,7 +13,18 @@ import {
 } from "react-native-paper";
 import ShiftNoteModal from "../components/shifts/ShiftNoteModal";
 import { useLanguage } from "../hooks/lang-context";
+import { buildShiftBreakdown } from "../lib/shiftBreakdown";
 import { formatShiftDate, formatShiftTime } from "../lib/utils";
+
+const money = (n) =>
+  Number(n || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+const hrs = (n) => {
+  const v = Number(n || 0);
+  return Number.isInteger(v) ? String(v) : v.toFixed(2);
+};
 
 export default function ShiftDetails() {
   const { shiftData } = useLocalSearchParams();
@@ -31,14 +42,12 @@ export default function ShiftDetails() {
 
   if (!shift) return null;
 
-  // Label by the flag, not by which field the hours landed in — the same rule
-  // the payslip uses (lib/paycheckData.js pickLabel). 150/175/200 hours sit in
-  // the *_shabat / *_extra_hours fields for a Shabbat shift and in the
-  // *_holiday fields for a חג one added here; a חג shift imported from
-  // מִשְׁמֶרֶת has them in the former WITH is_holiday true, because importWeek
-  // folds them there so the monthly total counts them. Summing both members of
-  // a pair is count-once: the writer never fills both.
-  const isHoliday = !!shift.is_holiday;
+  // All the numbers below come from the stored document via
+  // buildShiftBreakdown — nothing is recomputed here, so this screen cannot
+  // disagree with the month total or the payslip. Labels key off is_holiday
+  // (an imported חג shift keeps its hours in the Shabbat fields).
+  const b = buildShiftBreakdown(shift);
+  const isWorked = b.kind === "worked";
 
   const DetailRow = ({ label, value, suffix = "" }) => {
     if (!value || value === 0 || value === "0") return null;
@@ -54,6 +63,49 @@ export default function ShiftDetails() {
       </View>
     );
   };
+
+  // One "hours × rate = amount" line per pay bracket.
+  const BreakdownRow = ({ row }) => (
+    <View style={styles.bRow}>
+      <View style={styles.bLabelCell}>
+        <Text variant="bodyMedium" style={styles.bLabel}>
+          {t(row.labelKey)}
+        </Text>
+      </View>
+      <Text variant="bodyMedium" style={[styles.bNum, styles.bHours]}>
+        {hrs(row.hours)}
+      </Text>
+      <Text variant="bodyMedium" style={[styles.bNum, styles.bRate]}>
+        {money(row.rate)}
+      </Text>
+      <Text variant="bodyMedium" style={[styles.bNum, styles.bAmount]}>
+        {money(row.amount)}
+      </Text>
+    </View>
+  );
+
+  const SubtotalRow = ({ label, hours, amount }) => (
+    <View style={[styles.bRow, styles.bSubtotal]}>
+      <View style={styles.bLabelCell}>
+        <Text variant="bodyMedium" style={styles.bSubtotalLabel}>
+          {label}
+        </Text>
+      </View>
+      <Text
+        variant="bodyMedium"
+        style={[styles.bNum, styles.bHours, styles.bSubtotalLabel]}
+      >
+        {hrs(hours)}
+      </Text>
+      <Text variant="bodyMedium" style={[styles.bNum, styles.bRate]} />
+      <Text
+        variant="bodyMedium"
+        style={[styles.bNum, styles.bAmount, styles.bSubtotalLabel]}
+      >
+        {money(amount)}
+      </Text>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -103,55 +155,96 @@ export default function ShiftDetails() {
               {t("shiftDetails.sectionHours")}
             </Text>
 
-            {/* פירוט כל סוגי השעות הנוספות */}
-            <DetailRow
-              label={t("shiftDetails.regHours")}
-              value={shift.h100_hours}
-              suffix=" h"
-            />
-            <DetailRow
-              label={t("shiftDetails.h125")}
-              value={shift.h125_extra_hours}
-              suffix=" h"
-            />
-            <DetailRow
-              label={t("shiftDetails.h150")}
-              value={shift.h150_extra_hours}
-              suffix=" h"
-            />
-            {/* שבת/חג — לפי הדגל, לא לפי השדה שבו נשמרו השעות */}
-            <DetailRow
-              label={t(isHoliday ? "shiftDetails.h150Holiday" : "shiftDetails.h150Shabat")}
-              value={Number(shift.h150_shabat || 0) + Number(shift.h150_holiday || 0)}
-              suffix=" h"
-            />
-            <DetailRow
-              label={t(isHoliday ? "shiftDetails.h175Holiday" : "shiftDetails.h175")}
-              value={Number(shift.h175_extra_hours || 0) + Number(shift.h175_holiday || 0)}
-              suffix=" h"
-            />
-            <DetailRow
-              label={t(isHoliday ? "shiftDetails.h200Holiday" : "shiftDetails.h200")}
-              value={Number(shift.h200_extra_hours || 0) + Number(shift.h200_holiday || 0)}
-              suffix=" h"
-            />
+            {/* Shift length + the rule that applied */}
+            {isWorked ? (
+              <>
+                <DetailRow
+                  label={t("shiftDetails.duration")}
+                  value={hrs(b.durationHours)}
+                  suffix={` ${t("shiftDetails.hoursUnit")}`}
+                />
+                <Text variant="bodySmall" style={styles.ruleText}>
+                  {t(b.isNight ? "shiftDetails.night" : "shiftDetails.day")}
+                </Text>
+              </>
+            ) : null}
+
+            {isWorked ? (
+              <View style={styles.bTable}>
+                <View style={[styles.bRow, styles.bHeader]}>
+                  <View style={styles.bLabelCell} />
+                  <Text
+                    variant="labelSmall"
+                    style={[styles.bNum, styles.bHours, styles.bHeaderText]}
+                  >
+                    {t("shiftDetails.colHours")}
+                  </Text>
+                  <Text
+                    variant="labelSmall"
+                    style={[styles.bNum, styles.bRate, styles.bHeaderText]}
+                  >
+                    {t("shiftDetails.colRate")}
+                  </Text>
+                  <Text
+                    variant="labelSmall"
+                    style={[styles.bNum, styles.bAmount, styles.bHeaderText]}
+                  >
+                    {t("shiftDetails.colAmount")}
+                  </Text>
+                </View>
+
+                {b.hourRows
+                  .filter((r) => r.regular)
+                  .map((r) => (
+                    <BreakdownRow key={r.key} row={r} />
+                  ))}
+                <SubtotalRow
+                  label={t("shiftDetails.regularSubtotal")}
+                  hours={b.regularHours}
+                  amount={b.regularPay}
+                />
+
+                {b.overtimeHours > 0 ? (
+                  <>
+                    {b.hourRows
+                      .filter((r) => !r.regular)
+                      .map((r) => (
+                        <BreakdownRow key={r.key} row={r} />
+                      ))}
+                    <SubtotalRow
+                      label={t("shiftDetails.overtimeSubtotal")}
+                      hours={b.overtimeHours}
+                      amount={b.overtimePay}
+                    />
+                  </>
+                ) : null}
+              </View>
+            ) : (
+              <>
+                <DetailRow
+                  label={t(
+                    b.kind === "sick"
+                      ? "shiftDetails.sick"
+                      : b.kind === "vacation"
+                        ? "shiftDetails.vacation"
+                        : "shiftDetails.training",
+                  )}
+                  value={t("shiftDetails.flatDay")}
+                />
+                {b.kind === "sick" ? (
+                  <DetailRow
+                    label={t("shiftDetails.sickPercent")}
+                    value={`${Math.round((b.sickPercent || 0) * 100)}%`}
+                  />
+                ) : null}
+              </>
+            )}
 
             <Divider style={styles.divider} />
 
-            {/* פירוט כספי */}
-            <DetailRow
-              label={t("shiftDetails.basePay")}
-              value={shift.reg_pay_amount}
-              suffix=" ₪"
-            />
-            <DetailRow
-              label={t("shiftDetails.extraPay")}
-              value={shift.extra_pay_amount}
-              suffix=" ₪"
-            />
             <DetailRow
               label={t("shiftDetails.travel")}
-              value={shift.travel_pay_amount}
+              value={b.travelPay > 0 ? money(b.travelPay) : 0}
               suffix=" ₪"
             />
 
@@ -170,11 +263,7 @@ export default function ShiftDetails() {
             </Text>
             {shift.comment && shift.comment.trim().length > 0 ? (
               <View style={styles.noteRow}>
-                <Text
-                  variant="bodyLarge"
-                  style={styles.noteText}
-                  selectable
-                >
+                <Text variant="bodyLarge" style={styles.noteText} selectable>
                   {shift.comment}
                 </Text>
                 <IconButton
@@ -201,7 +290,7 @@ export default function ShiftDetails() {
                 {t("shiftDetails.totalBruto")}
               </Text>
               <Text variant="headlineSmall" style={styles.totalValue}>
-                ₪{shift.total_amount}
+                ₪{money(b.total)}
               </Text>
             </View>
           </Card.Content>
@@ -287,6 +376,53 @@ const makeStyle = (theme, isRTL) =>
     },
     label: { color: theme.colors.onSurface, opacity: 0.7 },
     value: { fontWeight: "bold", color: theme.colors.onSurface },
+    ruleText: {
+      color: theme.colors.onSurface,
+      opacity: 0.6,
+      textAlign: isRTL ? "right" : "left",
+      marginBottom: 12,
+    },
+    bTable: {
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+      borderRadius: 12,
+      overflow: "hidden",
+      marginTop: 4,
+    },
+    bRow: {
+      flexDirection: isRTL ? "row-reverse" : "row",
+      alignItems: "center",
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.outlineVariant,
+    },
+    bHeader: {
+      backgroundColor: theme.colors.secondaryContainer,
+      paddingVertical: 8,
+    },
+    bHeaderText: {
+      color: theme.colors.onSecondaryContainer,
+      textTransform: "uppercase",
+      letterSpacing: 0.6,
+    },
+    bLabelCell: { flex: 2.1 },
+    bLabel: {
+      color: theme.colors.onSurface,
+      textAlign: isRTL ? "right" : "left",
+    },
+    bNum: {
+      color: theme.colors.onSurface,
+      textAlign: isRTL ? "left" : "right",
+      fontVariant: ["tabular-nums"],
+    },
+    bHours: { flex: 0.8 },
+    bRate: { flex: 1.1, opacity: 0.7 },
+    bAmount: { flex: 1.3, fontWeight: "600" },
+    bSubtotal: {
+      backgroundColor: theme.colors.outlineVariant + "40",
+    },
+    bSubtotalLabel: { fontWeight: "700", color: theme.colors.onSurface },
     totalContainer: {
       marginTop: 25,
       paddingTop: 20,

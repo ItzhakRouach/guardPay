@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -8,6 +9,7 @@ import {
 } from "react-native";
 import {
   Button,
+  Chip,
   Divider,
   IconButton,
   Modal,
@@ -19,7 +21,20 @@ import {
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
+import { normalizeDecimal } from "../../lib/utils";
 import LoadingSpinner from "../common/LoadingSpinnner";
+
+// normalizeDecimal returns a cleaned STRING ("52,5" → "52.5"); turn it into
+// a number, with empty → NaN so validation catches it.
+const toNumber = (v) => {
+  const cleaned = normalizeDecimal(v);
+  return cleaned === "" ? NaN : Number(cleaned);
+};
+
+const CREDIT_PRESETS = [
+  { key: "credit_man", value: "2.25" },
+  { key: "credit_woman", value: "2.75" },
+];
 
 export default function PreferencesChange({ visable, hideModal }) {
   const theme = useTheme();
@@ -31,6 +46,7 @@ export default function PreferencesChange({ visable, hideModal }) {
   const [formData, setFormData] = useState({
     price_per_hour: "",
     price_per_ride: "",
+    credit_points: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -40,22 +56,44 @@ export default function PreferencesChange({ visable, hideModal }) {
       setFormData({
         price_per_hour: String(profile.price_per_hour || ""),
         price_per_ride: String(profile.price_per_ride || ""),
+        // Credit points default to 2.25 everywhere the calculation reads
+        // them; show that default rather than an empty field.
+        credit_points: String(Number(profile.credit_points) || 2.25),
       });
     }
   }, [visable, profile]);
 
   const handleSaveBtn = async () => {
     if (!formData.price_per_hour || !formData.price_per_ride) return;
+    // Same normalisation as the setup wizard: "52,5" → 52.5. parseFloat
+    // alone silently saved 52.
+    const hour = toNumber(formData.price_per_hour);
+    const ride = toNumber(formData.price_per_ride);
+    const credit = toNumber(formData.credit_points);
+    if (
+      !Number.isFinite(hour) ||
+      !Number.isFinite(ride) ||
+      !Number.isFinite(credit) ||
+      hour < 0 ||
+      ride < 0 ||
+      credit <= 0 ||
+      credit > 20
+    ) {
+      Alert.alert(t("edit_pref.invalid_number"));
+      return;
+    }
     setLoading(true);
     try {
       await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
-        price_per_hour: parseFloat(formData.price_per_hour),
-        price_per_ride: parseFloat(formData.price_per_ride),
+        price_per_hour: hour,
+        price_per_ride: ride,
+        credit_points: credit,
       });
       await fetchUserProfile(user);
       hideModal();
     } catch (err) {
-      console.log(err);
+      console.log("Failed to update preferences:", err);
+      Alert.alert(t("edit_pref.msg_err"));
     } finally {
       setLoading(false);
     }
@@ -118,6 +156,46 @@ export default function PreferencesChange({ visable, hideModal }) {
                 style={styles.input}
                 outlineStyle={styles.inputOutline}
               />
+
+              <Text
+                variant="labelMedium"
+                style={[styles.inputLabel, { marginTop: 10 }]}
+              >
+                {t("edit_pref.label_credit")}
+              </Text>
+              <TextInput
+                mode="outlined"
+                keyboardType="decimal-pad"
+                left={<TextInput.Icon icon="star-outline" />}
+                value={formData.credit_points}
+                onChangeText={(val) =>
+                  setFormData((prev) => ({ ...prev, credit_points: val }))
+                }
+                style={styles.input}
+                outlineStyle={styles.inputOutline}
+              />
+              <View style={styles.chipRow}>
+                {CREDIT_PRESETS.map((p) => (
+                  <Chip
+                    key={p.key}
+                    compact
+                    selected={
+                      toNumber(formData.credit_points) === Number(p.value)
+                    }
+                    onPress={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        credit_points: p.value,
+                      }))
+                    }
+                  >
+                    {t(`edit_pref.${p.key}`)}
+                  </Chip>
+                ))}
+              </View>
+              <Text variant="bodySmall" style={styles.hint}>
+                {t("edit_pref.credit_hint")}
+              </Text>
             </View>
 
             <View style={styles.actions}>
@@ -189,6 +267,17 @@ const makeStyle = (theme, isRTL) =>
     inputOutline: {
       borderRadius: 12,
       borderWidth: 1.5,
+    },
+    chipRow: {
+      flexDirection: isRTL ? "row-reverse" : "row",
+      gap: 8,
+      marginTop: 8,
+    },
+    hint: {
+      marginTop: 8,
+      paddingHorizontal: 4,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: isRTL ? "right" : "left",
     },
     actions: {
       gap: 8,

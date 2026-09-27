@@ -39,20 +39,20 @@ describe("parseHHMM", () => {
 
 describe("formatTimeRange", () => {
   test("zero-pads single-digit hours and minutes", () => {
-    expect(
-      formatTimeRange({ startH: 7, startM: 0, endH: 15, endM: 0 }),
-    ).toBe("07:00 - 15:00");
-    expect(
-      formatTimeRange({ startH: 0, startM: 5, endH: 9, endM: 30 }),
-    ).toBe("00:05 - 09:30");
+    expect(formatTimeRange({ startH: 7, startM: 0, endH: 15, endM: 0 })).toBe(
+      "07:00 - 15:00",
+    );
+    expect(formatTimeRange({ startH: 0, startM: 5, endH: 9, endM: 30 })).toBe(
+      "00:05 - 09:30",
+    );
   });
 });
 
 describe("isValidTimeObject", () => {
   test("accepts well-formed times", () => {
-    expect(
-      isValidTimeObject({ startH: 7, startM: 0, endH: 15, endM: 0 }),
-    ).toBe(true);
+    expect(isValidTimeObject({ startH: 7, startM: 0, endH: 15, endM: 0 })).toBe(
+      true,
+    );
   });
 
   test("rejects malformed or out-of-range times", () => {
@@ -138,9 +138,7 @@ describe("serialiseUserShiftTimes", () => {
 
 describe("getShiftTimes", () => {
   test("returns the default for a known type with no user prefs", () => {
-    expect(getShiftTimes("morning", null)).toEqual(
-      DEFAULT_SHIFT_TIMES.morning,
-    );
+    expect(getShiftTimes("morning", null)).toEqual(DEFAULT_SHIFT_TIMES.morning);
   });
 
   test("returns the user's custom value when set", () => {

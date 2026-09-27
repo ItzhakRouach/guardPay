@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import { ActivityIndicator, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AnchorCard from "../components/common/AnchorCard";
@@ -182,6 +182,44 @@ function EarningsTable({ model, lang, isRTL }) {
   );
 }
 
+// Credits (tax credit points, settlement benefit) reduce the tax. The PDF
+// always printed them; the screen computed them and then never rendered
+// them, so the two disagreed.
+function CreditsTable({ model, lang, isRTL }) {
+  const theme = useTheme();
+  const labelAlign = isRTL ? "right" : "left";
+  if (!model.credits || model.credits.length === 0) return null;
+  return (
+    <View style={{ marginTop: 4 }}>
+      {model.credits.map((row, i) => (
+        <View key={row.label}>
+          <View
+            style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingVertical: 12,
+            }}
+          >
+            <Type
+              variant="body"
+              color={theme.colors.inkSoft}
+              lang={lang}
+              style={{ textAlign: labelAlign }}
+            >
+              {row.label}
+            </Type>
+            <Type variant="rowAmount" color={theme.colors.pos}>
+              {`+${fmt(Math.abs(row.amount))}`}
+            </Type>
+          </View>
+          {i < model.credits.length - 1 ? <Hairline soft /> : null}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function DeductionsTable({ model, lang, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -324,17 +362,26 @@ export default function PaycheckScreen() {
   // Never export a payslip built from a month whose fetch failed — after a
   // month switch `shifts` is reset to [] before the fetch, so the PDF
   // would be an empty or partial month presented as real.
-  const exportBlocked = !!shiftsError;
-  const onExport = () => {
+  const [exporting, setExporting] = useState(false);
+  const exportBlocked = !!shiftsError || exporting;
+  const onExport = async () => {
     if (!model || exportBlocked) return;
-    handleGeneratePDF(
-      totals,
-      profile,
-      currentDate,
-      shifts,
-      monthlyReport,
-      lang,
-    );
+    setExporting(true);
+    try {
+      await handleGeneratePDF(
+        totals,
+        profile,
+        currentDate,
+        shifts,
+        monthlyReport,
+        lang,
+      );
+    } catch (err) {
+      console.log("Paycheck export failed:", err?.message);
+      Alert.alert(t("paycheck.export_err"));
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -428,6 +475,13 @@ export default function PaycheckScreen() {
 
           <SectionRule label={t("paycheck.deductions")} accent />
           <DeductionsTable model={model} lang={lang} isRTL={isRTL} />
+
+          {model.credits && model.credits.length > 0 ? (
+            <>
+              <SectionRule label={t("paycheck.credits")} />
+              <CreditsTable model={model} lang={lang} isRTL={isRTL} />
+            </>
+          ) : null}
 
           <NetPayCard neto={model.neto} bruto={model.bruto} isRTL={isRTL} />
 

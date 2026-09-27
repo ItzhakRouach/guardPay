@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -15,11 +16,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
-import {
-  DATABASE_ID,
-  SHIFTS_HISTORY,
-  databases,
-} from "../../lib/appwrite";
+import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../../lib/appwrite";
 
 // Edit-comment modal launched from Shift Details. Writes shift.comment
 // straight to the shifts_history document; caller passes the shift and an
@@ -55,6 +52,7 @@ export default function ShiftNoteModal({ visible, onDismiss, shift, onSaved }) {
       onDismiss();
     } catch (err) {
       console.log("Failed to save shift note:", err);
+      Alert.alert(t("edit_pref.msg_err"));
     } finally {
       setSaving(false);
     }

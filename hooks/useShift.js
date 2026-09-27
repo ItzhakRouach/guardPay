@@ -1,11 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Query } from "react-native-appwrite";
-import {
-  client,
-  DATABASE_ID,
-  databases,
-  SHIFTS_HISTORY,
-} from "../lib/appwrite";
+import { client, DATABASE_ID, SHIFTS_HISTORY } from "../lib/appwrite";
+import { listAllDocuments } from "../lib/appwriteList";
 
 export const useShift = (user, currentDate) => {
   // Default `loading: true` so the first render accurately reflects
@@ -35,8 +31,13 @@ export const useShift = (user, currentDate) => {
     setLoading(true);
   }
 
+  // Request token: a slow fetch for month A must not land after the user
+  // has switched to month B (pagination made fetches multi-round-trip).
+  const requestRef = useRef(0);
+
   const fetchShifts = useCallback(async () => {
     if (!user) return;
+    const token = ++requestRef.current;
     setLoading(true);
     try {
       const startOfMonth = new Date(
@@ -53,23 +54,22 @@ export const useShift = (user, currentDate) => {
         59,
       ).toISOString();
 
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        SHIFTS_HISTORY,
-        [
-          Query.equal("user_id", user.$id),
-          Query.between("start_time", startOfMonth, endOfMonth),
-          Query.orderAsc("start_time"),
-          Query.limit(60),
-        ],
-      );
-      setShifts(response.documents || []);
+      // Paginated: a month can exceed the old 60-document cap (a 31-day
+      // sick range alone is 31 docs), which silently truncated the month.
+      const documents = await listAllDocuments(DATABASE_ID, SHIFTS_HISTORY, [
+        Query.equal("user_id", user.$id),
+        Query.between("start_time", startOfMonth, endOfMonth),
+        Query.orderAsc("start_time"),
+      ]);
+      if (token !== requestRef.current) return;
+      setShifts(documents);
       setError(null);
     } catch (err) {
+      if (token !== requestRef.current) return;
       console.log("[useShift] fetch failed:", err?.message);
       setError(err);
     } finally {
-      setLoading(false);
+      if (token === requestRef.current) setLoading(false);
     }
   }, [user, currentDate]);
 

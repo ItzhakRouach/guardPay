@@ -85,10 +85,42 @@ describe("buildPaycheckModel — חג earnings rows", () => {
     // The money-safety pin: hour buckets must never feed the authoritative
     // salary figures. calculateSalary's inputs are pay fields only.
     const withChag = build([shift(...CHAG, { holiday: true })]);
-    const withoutChag = build([shift("2026-04-07T07:00:00", "2026-04-07T15:00:00")]);
+    const withoutChag = build([
+      shift("2026-04-07T07:00:00", "2026-04-07T15:00:00"),
+    ]);
     expect(withChag.bruto).toBe(1234);
     expect(withChag.neto).toBe(1000);
     expect(withChag.bruto).toBe(withoutChag.bruto);
     expect(withChag.neto).toBe(withoutChag.neto);
+  });
+});
+
+// R7 (2026-09 audit): the PDF printed sick-day rows bucketed by sick_percent,
+// but the on-screen model did not, so the modal's rows never summed to the
+// bruto printed under them in a month with sick leave.
+describe("buildPaycheckModel — sick-day rows", () => {
+  const { buildSickDocs } = require("../utils/sickDays");
+
+  test("sick days appear as one row per percent bucket", () => {
+    const sick = buildSickDocs({
+      startDate: new Date(2026, 3, 6),
+      endDate: new Date(2026, 3, 9), // 4 days: 0%, 50%, 50%, 100%
+      dailyPay: 400,
+      userId: "u",
+      baseRate: 50,
+    });
+    const model = build(sick);
+    const sickRows = model.earnings.filter((r) => r.kind === "sick");
+    const byPct = Object.fromEntries(sickRows.map((r) => [r.sickPercent, r]));
+    expect(byPct[0]).toMatchObject({ qty: 1, amount: 0 });
+    expect(byPct[0.5]).toMatchObject({ qty: 2, amount: 400 });
+    expect(byPct[1]).toMatchObject({ qty: 1, amount: 400 });
+    // Rate column shows the daily rate at that percent.
+    expect(byPct[0.5].rate).toBe(200);
+  });
+
+  test("no sick days → no sick rows", () => {
+    const model = build([shift("2026-04-06T07:00:00", "2026-04-06T15:00:00")]);
+    expect(model.earnings.some((r) => r.kind === "sick")).toBe(false);
   });
 });

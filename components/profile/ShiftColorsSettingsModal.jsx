@@ -53,6 +53,7 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
       await fetchUserProfile(user);
     } catch (err) {
       console.log("Failed to update shift colors:", err);
+      Alert.alert(t("edit_pref.msg_err"));
     }
   };
 
@@ -115,9 +116,17 @@ export default function ShiftColorsSettingsModal({ visible, onDismiss }) {
             />
           </View>
 
-          <Row labelKey="friday" colorKey="friday" icon="calendar-weekend-outline" />
+          <Row
+            labelKey="friday"
+            colorKey="friday"
+            icon="calendar-weekend-outline"
+          />
           <Divider style={styles.dividerStyle} bold={false} />
-          <Row labelKey="saturday" colorKey="saturday" icon="calendar-weekend" />
+          <Row
+            labelKey="saturday"
+            colorKey="saturday"
+            icon="calendar-weekend"
+          />
           <Divider style={styles.dividerStyle} bold={false} />
           <Row labelKey="training" colorKey="training" icon="karate" />
           <Divider style={styles.dividerStyle} bold={false} />

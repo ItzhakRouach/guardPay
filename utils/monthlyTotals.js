@@ -28,6 +28,16 @@ const HOUR_PAIRS = {
   h200s: ["h200_extra_hours", "h200_holiday"],
 };
 
+/** What one document contributes to bruto. `total_amount` already includes
+ *  travel for worked shifts, but a training day's travel is stored beside a
+ *  flat baseRate×8 total — so every place that sums documents (month
+ *  reducer, overview charts, previous-month trend, shift rows) must add it
+ *  through this one helper or they drift apart. */
+function docBruto(s) {
+  const total = Number(s?.total_amount || 0);
+  return s?.is_training ? total + Number(s.travel_pay_amount || 0) : total;
+}
+
 function emptyTotals() {
   return {
     h100: 0,
@@ -59,12 +69,20 @@ function aggregateMonthlyTotals(shifts) {
 
   const totals = list.reduce((acc, s) => {
     for (const [bucket, [counted, holiday]] of Object.entries(HOUR_PAIRS)) {
-      acc[bucket] += Number(s[counted] || 0) + (holiday ? Number(s[holiday] || 0) : 0);
+      acc[bucket] +=
+        Number(s[counted] || 0) + (holiday ? Number(s[holiday] || 0) : 0);
     }
 
     if (s.is_training) {
       acc.trainingAmount += Number(s.total_amount || 0);
       acc.trainingDays++;
+      // A training day carries the travel allowance (computeShiftDoc writes
+      // travel_pay_amount for training only) but total_amount is the flat
+      // baseRate×8, so the travel has to be booked here or it never reaches
+      // bruto. Reader-side on purpose: historical docs correct themselves.
+      const trainingTravel = Number(s.travel_pay_amount || 0);
+      acc.travelPay += trainingTravel;
+      if (trainingTravel > 0) acc.travelCount++;
     } else if (s.is_vacation) {
       acc.vacationAmount += Number(s.total_amount || 0);
       acc.vacationDays++;
@@ -89,7 +107,12 @@ function aggregateMonthlyTotals(shifts) {
   // h150 hours (שבת or חג) are priced inside the regular cap and land in
   // reg_pay_amount, so they belong to totalReg — the 175/200 tiers are extra.
   const totalHours =
-    totals.h100 + totals.h125e + totals.h150e + totals.h150s + totals.h175s + totals.h200s;
+    totals.h100 +
+    totals.h125e +
+    totals.h150e +
+    totals.h150s +
+    totals.h175s +
+    totals.h200s;
   const totalReg = totals.h100 + totals.h150s;
   const totalExtra = totals.h125e + totals.h150e + totals.h175s + totals.h200s;
   const totalShifts = list.length - totals.vacationDays - totals.sickDays;
@@ -97,4 +120,4 @@ function aggregateMonthlyTotals(shifts) {
   return { ...totals, totalHours, totalReg, totalExtra, totalShifts };
 }
 
-module.exports = { aggregateMonthlyTotals, HOUR_PAIRS };
+module.exports = { aggregateMonthlyTotals, docBruto, HOUR_PAIRS };

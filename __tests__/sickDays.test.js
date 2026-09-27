@@ -162,9 +162,7 @@ describe("restreakSickDocs", () => {
     // doc without $id can't be diffed — it should be dropped from the
     // update set, not crash. Covered indirectly by other tests; here we
     // just verify the spread preserves everything else.
-    const docs = [
-      { ...mkDoc("2026-03-02"), comment: "flu" },
-    ];
+    const docs = [{ ...mkDoc("2026-03-02"), comment: "flu" }];
     const [out] = restreakSickDocs(docs, DAILY_PAY);
     expect(out.comment).toBe("flu");
   });
@@ -182,10 +180,7 @@ describe("restreakSickDocs", () => {
   });
 
   test("falls back to passed dailyPay when base_rate is missing", () => {
-    const docs = [
-      mkDoc("2026-03-02"),
-      mkDoc("2026-03-03"),
-    ];
+    const docs = [mkDoc("2026-03-02"), mkDoc("2026-03-03")];
     const out = restreakSickDocs(docs, 400); // fallback dailyPay
     expect(out[0].total_amount).toBe(0);
     expect(out[1].total_amount).toBe(400 * 0.5);
@@ -254,10 +249,10 @@ describe("restreakSickUpdates (diff helper)", () => {
     // Survivors carry their OLD percents/amounts (the bug we're fixing).
     // After restreak: positions become 1,2,1,2 → percents 0, 0.5, 0, 0.5.
     const surviving = [
-      mkDoc("2026-03-02", "A", 0),    // day1 → still pos1 → 0  (no change)
-      mkDoc("2026-03-03", "B", 0.5),  // day2 → still pos2 → 0.5 (no change)
-      mkDoc("2026-03-05", "D", 1),    // day4 → now pos1 (after gap) → 0   (CHANGE)
-      mkDoc("2026-03-06", "E", 1),    // day5 → now pos2 → 0.5   (CHANGE)
+      mkDoc("2026-03-02", "A", 0), // day1 → still pos1 → 0  (no change)
+      mkDoc("2026-03-03", "B", 0.5), // day2 → still pos2 → 0.5 (no change)
+      mkDoc("2026-03-05", "D", 1), // day4 → now pos1 (after gap) → 0   (CHANGE)
+      mkDoc("2026-03-06", "E", 1), // day5 → now pos2 → 0.5   (CHANGE)
     ];
     const updates = restreakSickUpdates(surviving, DAILY_PAY);
     expect(updates).toHaveLength(2);

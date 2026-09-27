@@ -17,6 +17,7 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
 import { useShift } from "../../hooks/useShift";
+import { docBruto } from "../../lib/monthlyTotals";
 import { screenContentLayout } from "../../lib/responsive";
 import { localeFromLang } from "../../lib/utils";
 
@@ -47,7 +48,7 @@ function bucketByWeek(shifts) {
     const d = new Date(s.start_time || s.date);
     const wk = Math.ceil((d.getDate() + firstWeekday) / 7) - 1; // 0-indexed
     if (wk >= 0 && wk < buckets.length) {
-      buckets[wk] += Number(s.total_amount || 0);
+      buckets[wk] += docBruto(s);
     }
   });
   return buckets;
@@ -440,7 +441,7 @@ export default function OverviewScreen() {
     shifts.forEach((s) => {
       const d = new Date(s.start_time || s.date);
       if (Number.isNaN(d.getTime())) return;
-      byDow[d.getDay()] += Number(s.total_amount || 0);
+      byDow[d.getDay()] += docBruto(s);
     });
     const maxIdx = byDow.indexOf(Math.max(...byDow));
     if (byDow[maxIdx] <= 0) return null;

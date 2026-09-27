@@ -53,11 +53,11 @@ export default function ShiftTimesSettingsModal({ visible, onDismiss }) {
       await fetchUserProfile(user);
     } catch (err) {
       console.log("Failed to update default shift times:", err);
+      Alert.alert(t("edit_pref.msg_err"));
     }
   };
 
-  const updateOne = (type) => (next) =>
-    persist({ ...times, [type]: next });
+  const updateOne = (type) => (next) => persist({ ...times, [type]: next });
 
   const onReset = () => {
     Alert.alert(

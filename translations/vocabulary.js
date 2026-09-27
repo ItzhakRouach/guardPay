@@ -76,6 +76,7 @@ export const resources = {
         overview: "סיכום חודשי",
       },
       index: {
+        credit_points: "נקודות זיכוי",
         general: "כללי",
         email: "אימייל",
         name: "שם",
@@ -113,12 +114,22 @@ export const resources = {
         tue: "שלישי",
       },
       weekly_reminder: {
+        perm_denied:
+          "כדי לקבל תזכורת יש לאפשר התראות ל-GuardPay בהגדרות המכשיר.",
+        notif_title: "GuardPay: תזכורת שבועית",
+        notif_body: "אל תשכחו לרשום את המשמרות של השבוע!",
         reminder_setting: "הגדרות תזכורת",
         select_day: "בחר יום",
         select_time: "בחר זמן",
         update: "עדכן את התזכורת",
       },
       edit_pref: {
+        label_credit: "נקודות זיכוי",
+        credit_hint:
+          "מופיע בתלוש השכר. ברירת מחדל: 2.25 לגבר, 2.75 לאישה. הורים ובעלי תואר זכאים ליותר.",
+        credit_man: "גבר · 2.25",
+        credit_woman: "אישה · 2.75",
+        invalid_number: "נא להזין מספר תקין",
         title: "ערוך העדפות",
         label_hour: "תעריף שעתי",
         label_ride: "תעריף לנסיעה",
@@ -162,6 +173,13 @@ export const resources = {
           "לעדכון תקופת מחלה - מחק את הימים והוסף תקופה חדשה.",
       },
       add_shift: {
+        select_type: "בחרו סוג משמרת לפני השמירה",
+        zero_length: "שעת הסיום זהה לשעת ההתחלה. בחרו שעת סיום.",
+        dup_exact: "משמרת זהה (אותו תאריך ושעות) כבר רשומה.",
+        overlap_title: "חפיפה עם משמרת קיימת",
+        overlap_body: "המשמרת חופפת למשמרת שכבר נרשמה. לשמור בכל זאת?",
+        save_anyway: "שמור בכל זאת",
+        err_save: "לא ניתן היה לשמור את המשמרת. נסו שוב מאוחר יותר.",
         add: "הוסף משמרת חדשה",
         start_t: "זמן התחלה",
         end_t: "זמן סיום",
@@ -228,10 +246,13 @@ export const resources = {
       welcome: {
         eyebrow: "ברוכים הבאים",
         subtitle: "כל דקה נספרת.",
-        pitch: "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי.",
+        pitch:
+          "תפסיקו לדאוג משעות חסרות או מטעויות בתלוש. GuardPay עוקבת אחרי כל משמרת בדיוק מקסימלי.",
         secured: "מאובטח · הצפנה מקצה לקצה",
       },
       paycheck: {
+        credits: "זיכויים",
+        export_err: "יצירת ה-PDF נכשלה. נסו שוב.",
         title: "תלוש שכר",
         statement: "פירוט שכר",
         earnings: "תשלומים",
@@ -280,6 +301,19 @@ export const resources = {
         text: "לא נוספו משמרות לחודש",
       },
       shiftDetails: {
+        duration: "משך המשמרת",
+        hoursUnit: "שעות",
+        night: "משמרת לילה — עד 7 שעות בתעריף רגיל, אחר כך שעות נוספות",
+        day: "עד 8 שעות בתעריף רגיל, אחר כך שעות נוספות",
+        colHours: "שעות",
+        colRate: "תעריף",
+        colAmount: "סכום",
+        regularSubtotal: "שעות רגילות",
+        overtimeSubtotal: "שעות נוספות",
+        flatDay: "תשלום יומי (8 שעות × תעריף)",
+        vacation: "יום חופש",
+        sick: "יום מחלה",
+        sickPercent: "אחוז תשלום לפי חוק דמי מחלה",
         title: "סיכום משמרת",
         back: "משמרות",
         baseRate: "תעריף בסיס",
@@ -424,6 +458,7 @@ export const resources = {
         overview: "Overview",
       },
       index: {
+        credit_points: "Credit points",
         general: "General",
         email: "Email",
         name: "Name",
@@ -475,12 +510,22 @@ export const resources = {
         11: "December",
       },
       weekly_reminder: {
+        perm_denied:
+          "To get a reminder, allow notifications for GuardPay in your device settings.",
+        notif_title: "GuardPay: weekly reminder",
+        notif_body: "Don't forget to log this week's shifts!",
         reminder_setting: "Reminder Settings",
         select_day: "Select Day",
         select_time: "Select Time",
         update: "Update Reminder",
       },
       edit_pref: {
+        label_credit: "Tax credit points",
+        credit_hint:
+          "Shown on your payslip. Default: 2.25 for men, 2.75 for women. Parents and degree holders get more.",
+        credit_man: "Man · 2.25",
+        credit_woman: "Woman · 2.75",
+        invalid_number: "Please enter a valid number",
         title: "Edit Preferences",
         label_hour: "Price Per Hour",
         label_ride: "Price Per Ride",
@@ -494,7 +539,8 @@ export const resources = {
         amount: "Amount",
         hours: "Hours",
         delete_confirm_title: "Delete shift?",
-        delete_confirm_body: "This shift will be permanently deleted and can't be recovered.",
+        delete_confirm_body:
+          "This shift will be permanently deleted and can't be recovered.",
         count: "shifts",
         hoursUnit: "hrs",
         week: "Week",
@@ -524,6 +570,15 @@ export const resources = {
           "To change a sick period, delete the days and add a new one.",
       },
       add_shift: {
+        select_type: "Choose a shift type before saving",
+        zero_length: "End time equals start time. Choose an end time.",
+        dup_exact:
+          "An identical shift (same date and hours) is already logged.",
+        overlap_title: "Overlaps an existing shift",
+        overlap_body:
+          "This shift overlaps one you already logged. Save anyway?",
+        save_anyway: "Save anyway",
+        err_save: "Couldn't save the shift. Please try again later.",
         add: "Add New Shift",
         start_t: "Start Time",
         end_t: "End Time",
@@ -581,6 +636,8 @@ export const resources = {
         secured: "Secured · end-to-end encrypted",
       },
       paycheck: {
+        credits: "Credits",
+        export_err: "Couldn't create the PDF. Please try again.",
         title: "PAYCHECK",
         statement: "Pay Statement",
         earnings: "Earnings",
@@ -629,6 +686,20 @@ export const resources = {
         text: "No Shifts Added For",
       },
       shiftDetails: {
+        duration: "Shift length",
+        hoursUnit: "hours",
+        night:
+          "Night shift — up to 7 hours at the regular rate, overtime after",
+        day: "Up to 8 hours at the regular rate, overtime after",
+        colHours: "Hours",
+        colRate: "Rate",
+        colAmount: "Amount",
+        regularSubtotal: "Regular hours",
+        overtimeSubtotal: "Overtime hours",
+        flatDay: "Daily pay (8 hours × rate)",
+        vacation: "Vacation day",
+        sick: "Sick day",
+        sickPercent: "Paid percent under sick-leave law",
         title: "Shift Summary",
         back: "Shifts",
         baseRate: "Base Rate",
@@ -660,7 +731,8 @@ export const resources = {
         invalid_format: "Invalid format. Use HH:MM (e.g. 07:30)",
         reset: "Reset to defaults",
         reset_confirm_title: "Reset shift times?",
-        reset_confirm_body: "All three presets will return to the app defaults.",
+        reset_confirm_body:
+          "All three presets will return to the app defaults.",
       },
       settlement: {
         row_label: "Tax-credited settlement",
@@ -772,6 +844,7 @@ export const resources = {
         overview: "الملخص الشهري",
       },
       index: {
+        credit_points: "نقاط الإعفاء",
         general: "عام",
         email: "البريد الإلكتروني",
         name: "الاسم",
@@ -809,12 +882,22 @@ export const resources = {
         tue: "الثلاثاء",
       },
       weekly_reminder: {
+        perm_denied:
+          "لتلقي التذكير، اسمح بالإشعارات لتطبيق GuardPay في إعدادات الجهاز.",
+        notif_title: "GuardPay: تذكير أسبوعي",
+        notif_body: "لا تنسَ تسجيل ورديات هذا الأسبوع!",
         reminder_setting: "إعدادات التذكير",
         select_day: "اختر اليوم",
         select_time: "اختر الوقت",
         update: "تحديث التذكير",
       },
       edit_pref: {
+        label_credit: "نقاط الإعفاء الضريبي",
+        credit_hint:
+          "تظهر في قسيمة الراتب. الافتراضي: 2.25 للرجل، 2.75 للمرأة. الأهل وحاملو الشهادات يحصلون على المزيد.",
+        credit_man: "رجل · 2.25",
+        credit_woman: "امرأة · 2.75",
+        invalid_number: "يرجى إدخال رقم صحيح",
         title: "تعديل التفضيلات",
         label_hour: "الأجر بالساعة",
         label_ride: "بدل المواصلات",
@@ -859,6 +942,14 @@ export const resources = {
           "لتحديث فترة المرض، احذف الأيام وأضف فترة جديدة.",
       },
       add_shift: {
+        select_type: "اختر نوع الوردية قبل الحفظ",
+        zero_length: "وقت الانتهاء مطابق لوقت البدء. اختر وقت انتهاء.",
+        dup_exact: "توجد وردية مطابقة (نفس التاريخ والساعات) مسجّلة مسبقاً.",
+        overlap_title: "تداخل مع وردية موجودة",
+        overlap_body:
+          "هذه الوردية تتداخل مع وردية سجّلتها سابقاً. هل تريد الحفظ على أي حال؟",
+        save_anyway: "احفظ على أي حال",
+        err_save: "تعذّر حفظ الوردية. يرجى المحاولة لاحقاً.",
         add: "إضافة وردية جديدة",
         start_t: "وقت البداية",
         end_t: "وقت النهاية",
@@ -930,6 +1021,8 @@ export const resources = {
         secured: "آمن · تشفير من الطرف إلى الطرف",
       },
       paycheck: {
+        credits: "إعفاءات",
+        export_err: "تعذّر إنشاء ملف PDF. يرجى المحاولة مجدداً.",
         title: "قسيمة الراتب",
         statement: "تفصيل الراتب",
         earnings: "المستحقات",
@@ -978,6 +1071,19 @@ export const resources = {
         text: "لم تتم إضافة ورديات لهذا الشهر",
       },
       shiftDetails: {
+        duration: "مدة الوردية",
+        hoursUnit: "ساعات",
+        night: "وردية ليلية — حتى 7 ساعات بالأجر العادي، ثم ساعات إضافية",
+        day: "حتى 8 ساعات بالأجر العادي، ثم ساعات إضافية",
+        colHours: "ساعات",
+        colRate: "الأجر",
+        colAmount: "المبلغ",
+        regularSubtotal: "ساعات عادية",
+        overtimeSubtotal: "ساعات إضافية",
+        flatDay: "أجر يومي (8 ساعات × الأجر)",
+        vacation: "يوم إجازة",
+        sick: "يوم مرضي",
+        sickPercent: "نسبة الدفع حسب قانون الإجازة المرضية",
         title: "ملخص الوردية",
         back: "الورديات",
         baseRate: "الأجر الأساسي",
@@ -1030,8 +1136,7 @@ export const resources = {
         holiday: "يوم عطلة",
         reset: "إعادة الضبط الافتراضي",
         reset_confirm_title: "إعادة ضبط ألوان الورديات؟",
-        reset_confirm_body:
-          "ستعود الألوان إلى الإعدادات الافتراضية للتطبيق.",
+        reset_confirm_body: "ستعود الألوان إلى الإعدادات الافتراضية للتطبيق.",
         choose_color: "اختر لوناً",
         swatch: {
           sky: "سماوي",

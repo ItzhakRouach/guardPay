@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { ID } from "react-native-appwrite";
+import { ID, Query } from "react-native-appwrite";
 import { Button, Text, useTheme } from "react-native-paper";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import DateTimeModal from "../components/shifts/DateTimeModal";
@@ -22,6 +22,7 @@ import { useAuth } from "../hooks/auth-context";
 import { useLanguage } from "../hooks/lang-context";
 import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../lib/appwrite";
 import { computeShiftDoc } from "../lib/salaryLogic";
+import { findShiftConflicts, sameDayWindow } from "../lib/shiftOverlap";
 import { getShiftTimes } from "../lib/shiftTimes";
 import { shiftTypeTimes } from "../lib/utils";
 import { buildSickDocs } from "../utils/sickDays";
@@ -134,7 +135,35 @@ export default function AddShift() {
     if (Platform.OS === "android") setShow(false);
   };
 
+  // Alert.alert with buttons, as a promise, so the save flow can await the
+  // user's answer without nesting callbacks.
+  const confirmAsync = (title, body) =>
+    new Promise((resolve) => {
+      Alert.alert(
+        title,
+        body,
+        [
+          {
+            text: t("common.cancel"),
+            style: "cancel",
+            onPress: () => resolve(false),
+          },
+          { text: t("add_shift.save_anyway"), onPress: () => resolve(true) },
+        ],
+        // Android back-button dismiss calls neither button; without this the
+        // promise never settles and Save stays disabled.
+        { cancelable: true, onDismiss: () => resolve(false) },
+      );
+    });
+
   const handleSave = async () => {
+    // Double-tap guard (the Save button is also disabled while loading, but
+    // two taps can land before the re-render).
+    if (loading) return;
+    if (!value) {
+      Alert.alert(t("add_shift.select_type"));
+      return;
+    }
     setLoading(true);
     try {
       const finalBaseRate =
@@ -147,7 +176,10 @@ export default function AddShift() {
       // selected period and bulk-create them in shifts_history.
       if (value === "sick") {
         if (sickEndDate < date) {
-          Alert.alert("שגיאה", "תאריך סיום המחלה חייב להיות אחרי תאריך ההתחלה.");
+          Alert.alert(
+            "שגיאה",
+            "תאריך סיום המחלה חייב להיות אחרי תאריך ההתחלה.",
+          );
           return;
         }
         const dailyPay = Number(finalBaseRate) * 8;
@@ -160,12 +192,10 @@ export default function AddShift() {
         });
         await Promise.all(
           docs.map((d) =>
-            databases.createDocument(
-              DATABASE_ID,
-              SHIFTS_HISTORY,
-              ID.unique(),
-              { ...d, comment: comment.trim() },
-            ),
+            databases.createDocument(DATABASE_ID, SHIFTS_HISTORY, ID.unique(), {
+              ...d,
+              comment: comment.trim(),
+            }),
           ),
         );
         router.back();
@@ -188,14 +218,16 @@ export default function AddShift() {
           vacEndDate.getDate(),
         );
         if (endDay < startDay) {
-          Alert.alert("שגיאה", "תאריך סיום החופשה חייב להיות אחרי תאריך ההתחלה.");
+          Alert.alert(
+            "שגיאה",
+            "תאריך סיום החופשה חייב להיות אחרי תאריך ההתחלה.",
+          );
           return;
         }
 
         const config = shiftTypeTimes.vacation;
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-        const numDays =
-          Math.round((endDay - startDay) / ONE_DAY_MS) + 1;
+        const numDays = Math.round((endDay - startDay) / ONE_DAY_MS) + 1;
 
         const days = Array.from({ length: numDays }, (_, i) => {
           const day = new Date(startDay.getTime() + i * ONE_DAY_MS);
@@ -235,6 +267,50 @@ export default function AddShift() {
 
       const finalEnd = new Date(date);
       finalEnd.setHours(endTime.getHours(), endTime.getMinutes());
+      // Overnight shift: the picker rolled endTime to the next day, but the
+      // line above rebuilt it on the shift's date. Roll it forward so the
+      // stored end_time is after start_time. (Pay was already right —
+      // calculateShiftPay compensates internally — only the stored value
+      // was wrong.)
+      if (finalEnd.getTime() === finalStart.getTime()) {
+        Alert.alert(t("add_shift.zero_length"));
+        return;
+      }
+      if (finalEnd < finalStart) finalEnd.setDate(finalEnd.getDate() + 1);
+
+      // Duplicate / overlap check against the worked shifts already logged
+      // around this date. Exact duplicates are blocked; overlaps ask.
+      // Training is a calendar day, not a time range (and existing training
+      // docs are ignored by the check), so it is skipped symmetrically.
+      if (value !== "training") {
+        const { from, to } = sameDayWindow(finalStart);
+        const nearby = await databases.listDocuments(
+          DATABASE_ID,
+          SHIFTS_HISTORY,
+          [
+            Query.equal("user_id", user.$id),
+            Query.between("start_time", from, to),
+            Query.limit(50),
+          ],
+        );
+        const conflicts = findShiftConflicts(
+          finalStart.toISOString(),
+          finalEnd.toISOString(),
+          nearby.documents,
+          { excludeId: isEditMode ? params.shiftId : undefined },
+        );
+        if (conflicts.exact) {
+          Alert.alert(t("add_shift.dup_exact"));
+          return;
+        }
+        if (conflicts.overlapping.length > 0) {
+          const proceed = await confirmAsync(
+            t("add_shift.overlap_title"),
+            t("add_shift.overlap_body"),
+          );
+          if (!proceed) return;
+        }
+      }
 
       // Compute the shift document locally — same result the cloud
       // CALCULATE_SHIFT produced, with no network round-trip.
@@ -269,7 +345,7 @@ export default function AddShift() {
       router.back();
     } catch (err) {
       console.error(err);
-      Alert.alert("שגיאה", "לא ניתן היה לחשב את המשמרת. נסה שוב מאוחר יותר.");
+      Alert.alert(t("add_shift.err_save"));
     } finally {
       setLoading(false);
     }
@@ -364,6 +440,7 @@ export default function AddShift() {
           style={styles.saveBtn}
           contentStyle={{ paddingVertical: 8 }}
           onPress={() => handleSave()}
+          disabled={loading}
         >
           {t(`add_shift.${buttonLabel}`)}
         </Button>
