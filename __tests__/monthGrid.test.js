@@ -5,6 +5,7 @@ const {
   weekIndexOfDay,
   bucketByDay,
   dayTotals,
+  bucketByWeek,
 } = require("../utils/monthGrid");
 const { computeShiftDoc } = require("../utils/salaryLogic");
 
@@ -166,5 +167,63 @@ describe("dayTotals", () => {
   test("no shifts is a zeroed total, never undefined", () => {
     expect(dayTotals([])).toEqual({ count: 0, hours: 0, bruto: 0 });
     expect(dayTotals(undefined)).toEqual({ count: 0, hours: 0, bruto: 0 });
+  });
+});
+
+describe("bucketByWeek", () => {
+  const shift = (iso, amount) => ({
+    $id: iso,
+    start_time: iso,
+    total_amount: amount,
+    reg_pay_amount: amount,
+    extra_pay_amount: 0,
+    travel_pay_amount: 0,
+  });
+
+  test("bucket count follows the month, not a fixed five", () => {
+    // August 2026 starts on a Saturday, so it spans six Sunday-weeks.
+    expect(bucketByWeek([], 2026, 7)).toHaveLength(6);
+    // September 2026 starts on a Tuesday and spans five.
+    expect(bucketByWeek([], 2026, 8)).toHaveLength(5);
+    // February 2027 starts on a Monday: 28 days, five weeks.
+    expect(bucketByWeek([], 2027, 1)).toHaveLength(5);
+  });
+
+  test("an empty month is zeroed, not dropped", () => {
+    expect(bucketByWeek([], 2026, 8)).toEqual([0, 0, 0, 0, 0]);
+    expect(bucketByWeek(undefined, 2026, 8)).toEqual([0, 0, 0, 0, 0]);
+  });
+
+  test("earnings land in the same week the Shifts tab labels them", () => {
+    // Sep 2026: 1st is a Tuesday (firstWeekday 2), so W1 is Sep 1-5.
+    const shifts = [shift("2026-09-01T07:00:00", 100), shift("2026-09-05T07:00:00", 50)];
+    const b = bucketByWeek(shifts, 2026, 8);
+    expect(b[0]).toBeCloseTo(150, 6);
+    expect(b.slice(1)).toEqual([0, 0, 0, 0]);
+    // Sep 6 is the next Sunday, so it opens W2 — and weekOfMonth agrees.
+    expect(bucketByWeek([shift("2026-09-06T07:00:00", 70)], 2026, 8)[1]).toBeCloseTo(70, 6);
+    expect(weekOfMonth(new Date(2026, 8, 6))).toBe(2);
+  });
+
+  test("every bucket index agrees with weekOfMonth for every day of the month", () => {
+    const { daysInMonth } = monthShape(2026, 7);
+    for (let d = 1; d <= daysInMonth; d += 1) {
+      const iso = `2026-08-${String(d).padStart(2, "0")}T07:00:00`;
+      const b = bucketByWeek([shift(iso, 10)], 2026, 7);
+      const idx = b.findIndex((v) => v > 0);
+      expect(idx).toBe(weekOfMonth(new Date(2026, 7, d)) - 1);
+    }
+  });
+
+  test("a document from another month is ignored rather than mis-bucketed", () => {
+    expect(bucketByWeek([shift("2026-08-31T07:00:00", 99)], 2026, 8)).toEqual([
+      0, 0, 0, 0, 0,
+    ]);
+  });
+
+  test("an unparseable start_time is skipped", () => {
+    expect(bucketByWeek([shift("not-a-date", 99)], 2026, 8)).toEqual([
+      0, 0, 0, 0, 0,
+    ]);
   });
 });

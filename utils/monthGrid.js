@@ -91,10 +91,39 @@ function dayTotals(docs) {
   };
 }
 
+/**
+ * Sum a month's earnings into its calendar weeks (Sunday→Saturday).
+ *
+ * The bucket count follows `monthShape`, so the Overview chart's W1..Wn
+ * bars line up with the Shifts tab's week grouping and with the calendar
+ * grid's rows. The month is passed in rather than sniffed from the first
+ * document, so an empty month still returns the right number of zeroed
+ * bars and a stray document from a neighbouring month cannot shift the
+ * whole chart.
+ *
+ * @param {object[]} shifts
+ * @param {number} year
+ * @param {number} monthIndex 0-based, as Date uses.
+ * @returns {number[]} one bruto total per week, 0-indexed.
+ */
+function bucketByWeek(shifts, year, monthIndex) {
+  const { firstWeekday, weeksInMonth } = monthShape(year, monthIndex);
+  const buckets = new Array(weeksInMonth).fill(0);
+  for (const s of shifts || []) {
+    const d = new Date((s && s.start_time) || (s && s.date));
+    if (Number.isNaN(d.getTime())) continue;
+    if (d.getFullYear() !== year || d.getMonth() !== monthIndex) continue;
+    const wk = weekIndexOfDay(d.getDate(), firstWeekday);
+    if (wk >= 0 && wk < buckets.length) buckets[wk] += docBruto(s);
+  }
+  return buckets;
+}
+
 module.exports = {
   monthShape,
   weekOfMonth,
   weekIndexOfDay,
   bucketByDay,
+  bucketByWeek,
   dayTotals,
 };

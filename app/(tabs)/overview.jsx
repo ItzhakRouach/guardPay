@@ -18,43 +18,13 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
 import { useShift } from "../../hooks/useShift";
+import { bucketByWeek } from "../../lib/monthGrid";
 import { docBruto } from "../../lib/monthlyTotals";
 import { screenContentLayout } from "../../lib/responsive";
 import { localeFromLang } from "../../lib/utils";
 import { radius } from "../../lib/theme";
 
 const fmtCurrency = (n) => Math.round(Number(n) || 0).toLocaleString("en-US");
-
-// Sum earnings into calendar weeks (Sunday→Saturday) of the month. The
-// bucket count matches the number of Sunday-weeks the month actually spans
-// (5 or 6), so the chart's W1..Wn bars line up with the Shifts-tab grouping.
-function bucketByWeek(shifts) {
-  const valid = (shifts || []).filter((s) => {
-    const d = new Date(s.start_time || s.date);
-    return !Number.isNaN(d.getTime());
-  });
-  if (valid.length === 0) return [0, 0, 0, 0, 0];
-
-  // All shifts in this view belong to one month — derive its shape once.
-  const ref = new Date(valid[0].start_time || valid[0].date);
-  const firstWeekday = new Date(ref.getFullYear(), ref.getMonth(), 1).getDay();
-  const daysInMonth = new Date(
-    ref.getFullYear(),
-    ref.getMonth() + 1,
-    0,
-  ).getDate();
-  const weeksInMonth = Math.ceil((daysInMonth + firstWeekday) / 7);
-
-  const buckets = new Array(weeksInMonth).fill(0);
-  valid.forEach((s) => {
-    const d = new Date(s.start_time || s.date);
-    const wk = Math.ceil((d.getDate() + firstWeekday) / 7) - 1; // 0-indexed
-    if (wk >= 0 && wk < buckets.length) {
-      buckets[wk] += docBruto(s);
-    }
-  });
-  return buckets;
-}
 
 function HeroSection({ neto, trendPct, isRTL, loading }) {
   const theme = useTheme();
@@ -423,7 +393,10 @@ export default function OverviewScreen() {
   const prevBruto = usePrevMonthBruto(user, currentDate);
   const { t, i18n } = useTranslation();
 
-  const weeklyBuckets = useMemo(() => bucketByWeek(shifts), [shifts]);
+  const weeklyBuckets = useMemo(
+    () => bucketByWeek(shifts, currentDate.getFullYear(), currentDate.getMonth()),
+    [shifts, currentDate],
+  );
 
   const trendPct = useMemo(() => {
     if (!monthlyReport) return null;

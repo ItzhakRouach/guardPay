@@ -3,9 +3,14 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, ScrollView, View } from "react-native";
-import { Query } from "react-native-appwrite";
+import { ID, Query } from "react-native-appwrite";
 import { Swipeable } from "react-native-gesture-handler";
-import { ActivityIndicator, useTheme } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Portal,
+  Snackbar,
+  useTheme,
+} from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Eyebrow from "../../components/common/Eyebrow";
 import HeroCard from "../../components/common/HeroCard";
@@ -48,7 +53,7 @@ function groupByWeek(shifts) {
     .map(([wk, rows]) => ({ wk: Number(wk), rows }));
 }
 
-function ViewToggle({ value, onChange, isRTL }) {
+function ViewToggle({ value, onChange }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const item = (key, icon, label) => {
@@ -100,6 +105,29 @@ function ViewToggle({ value, onChange, isRTL }) {
   );
 }
 
+// Appwrite's own metadata cannot be written back on create, so a restored
+// shift carries only the collection's real attributes. Listing the system
+// keys to drop (rather than allow-listing the attributes) means a new
+// column added to shifts_history is restored automatically instead of
+// being silently lost on undo.
+const SYSTEM_KEYS = [
+  "$id",
+  "$sequence",
+  "$collectionId",
+  "$databaseId",
+  "$createdAt",
+  "$updatedAt",
+  "$permissions",
+];
+
+const restorablePayload = (doc) => {
+  const out = {};
+  for (const [k, v] of Object.entries(doc)) {
+    if (!SYSTEM_KEYS.includes(k)) out[k] = v;
+  }
+  return out;
+};
+
 function EmptyState() {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -131,7 +159,7 @@ function EmptyState() {
   );
 }
 
-function FAB({ onPress, isRTL }) {
+function FAB({ onPress }) {
   const theme = useTheme();
   // Anchor the FAB to the centered content edge on iPad so it doesn't
   // drift across an empty gutter. On phones the inset is 0 and the
@@ -148,7 +176,9 @@ function FAB({ onPress, isRTL }) {
         end: inset + 20,
         width: 60,
         height: 60,
-        borderRadius: 30,
+        // pill clamps to half the box, so the FAB stays a circle
+        // whatever size it is given.
+        borderRadius: radius.pill,
         backgroundColor: theme.colors.cta,
         alignItems: "center",
         justifyContent: "center",
@@ -323,6 +353,43 @@ export default function ShiftsScreen() {
     }
   };
 
+  // The payload of the last deleted shift, held only while its Snackbar
+  // is up. Null means there is nothing to restore.
+  const [undoDoc, setUndoDoc] = useState(null);
+  const [restoring, setRestoring] = useState(false);
+
+  const handleUndo = async () => {
+    if (!undoDoc || restoring) return;
+    setRestoring(true);
+    try {
+      const created = await databases.createDocument(
+        DATABASE_ID,
+        SHIFTS_HISTORY,
+        ID.unique(),
+        undoDoc,
+      );
+      setShifts((prev) => [...prev, created]);
+      setUndoDoc(null);
+      // Both recomputes that ran on delete have to run again on restore,
+      // or the month would keep the totals it had while the shift was gone.
+      if (created.is_sick) await restreakAfterSickDelete();
+      const otRules = parseOvertimeRules(profile?.overtime_rules);
+      if (otRules.weekly && isWorkedDoc(created)) {
+        const weekDocs = await fetchWeekDocs(user.$id, created.start_time);
+        const { failed } = await applyWeekUpdates(
+          recomputeWeek(weekDocs, otRules),
+        );
+        if (failed) Alert.alert(t("shifts.week_partial"));
+      }
+      refetch();
+    } catch (err) {
+      console.error("ShiftsScreen: undo failed", err);
+      Alert.alert(t("shifts.undo_failed"), String(err?.message || err));
+    } finally {
+      setRestoring(false);
+    }
+  };
+
   const performDelete = async (shiftId) => {
     const doc = shifts.find((s) => s.$id === shiftId);
     const needsRestreak = !!doc?.is_sick;
@@ -330,6 +397,12 @@ export default function ShiftsScreen() {
     try {
       await databases.deleteDocument(DATABASE_ID, SHIFTS_HISTORY, shiftId);
       setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
+      // The delete is real, so undo re-creates the document rather than
+      // deferring the delete behind a timer. A deferred delete would leave
+      // the row in limbo if the app were backgrounded or killed inside the
+      // window, and this is a pay record. Restoring writes a new $id;
+      // nothing persists a shift id across sessions, so that is safe.
+      if (doc) setUndoDoc(restorablePayload(doc));
       if (needsRestreak) {
         await restreakAfterSickDelete();
       }
@@ -474,7 +547,7 @@ export default function ShiftsScreen() {
           onNext={next}
         />
         <View style={{ height: spacing.section }} />
-        <ViewToggle value={view} onChange={chooseView} isRTL={isRTL} />
+        <ViewToggle value={view} onChange={chooseView} />
         <View style={{ height: spacing.section }} />
 
         <HeroCard>
@@ -672,7 +745,17 @@ export default function ShiftsScreen() {
           ))
         )}
       </ScrollView>
-      <FAB onPress={openAddShift} isRTL={isRTL} />
+      <FAB onPress={openAddShift} />
+      <Portal>
+        <Snackbar
+          visible={!!undoDoc}
+          onDismiss={() => setUndoDoc(null)}
+          duration={6000}
+          action={{ label: t("common.undo"), onPress: handleUndo }}
+        >
+          {t("shifts.deleted")}
+        </Snackbar>
+      </Portal>
     </View>
   );
 }
