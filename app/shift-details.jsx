@@ -166,6 +166,14 @@ export default function ShiftDetails() {
                 <Text variant="bodySmall" style={styles.ruleText}>
                   {t(b.isNight ? "shiftDetails.night" : "shiftDetails.day")}
                 </Text>
+                {shift.weekly_regular_before !== undefined &&
+                shift.weekly_regular_before !== null ? (
+                  <Text variant="bodySmall" style={styles.ruleText}>
+                    {t("shiftDetails.weekly_before", {
+                      hours: hrs(shift.weekly_regular_before),
+                    })}
+                  </Text>
+                ) : null}
               </>
             ) : null}
 

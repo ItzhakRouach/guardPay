@@ -339,6 +339,7 @@ export const resources = {
         text: "לא נוספו משמרות לחודש",
       },
       shiftDetails: {
+        weekly_before: "לפני משמרת זו נצברו {{hours}} שעות רגילות השבוע; מעבר ל-42 השעות משולמות כשעות נוספות.",
         duration: "משך המשמרת",
         hoursUnit: "שעות",
         night: "משמרת לילה — עד 7 שעות בתעריף רגיל, אחר כך שעות נוספות",
@@ -762,6 +763,7 @@ export const resources = {
         text: "No Shifts Added For",
       },
       shiftDetails: {
+        weekly_before: "{{hours}} regular hours were already used this week before this shift; beyond 42 they are paid as overtime.",
         duration: "Shift length",
         hoursUnit: "hours",
         night:
@@ -1185,6 +1187,7 @@ export const resources = {
         text: "لم تتم إضافة ورديات لهذا الشهر",
       },
       shiftDetails: {
+        weekly_before: "تم استخدام {{hours}} ساعة عادية هذا الأسبوع قبل هذه الوردية؛ بعد 42 ساعة تُدفع كساعات إضافية.",
         duration: "مدة الوردية",
         hoursUnit: "ساعات",
         night: "وردية ليلية — حتى 7 ساعات بالأجر العادي، ثم ساعات إضافية",
