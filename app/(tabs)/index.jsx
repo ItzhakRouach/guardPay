@@ -19,6 +19,7 @@ import Pill from "../../components/common/Pill";
 import Type from "../../components/common/Type";
 import WeeklyReminder from "../../components/layout/WeeklyReminder";
 import SecurityLawPDF from "../../components/legal/SecurityLawPDF";
+import OvertimeSettingsModal from "../../components/profile/OvertimeSettingsModal";
 import PreferencesChange from "../../components/profile/PreferencesChange";
 import SettlementSettingsModal from "../../components/profile/SettlementSettingsModal";
 import ShiftColorsSettingsModal from "../../components/profile/ShiftColorsSettingsModal";
@@ -37,6 +38,7 @@ import {
   cancelWeeklyReminder,
   scheduleWeeklyReminder,
 } from "../../lib/notfication";
+import { parseOvertimeRules } from "../../lib/overtimeRules";
 import { formatHHMM, parseReminderTime } from "../../lib/reminderTime";
 import { screenContentLayout } from "../../lib/responsive";
 
@@ -162,6 +164,7 @@ export default function ProfileScreen() {
 
   // Sub-screen modal toggles — wired one-to-one with the legacy ProfileSummary.
   const [prefsOpen, setPrefsOpen] = useState(false);
+  const [otOpen, setOtOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [timesOpen, setTimesOpen] = useState(false);
@@ -420,6 +423,18 @@ export default function ProfileScreen() {
             />
             <SettingsRow
               isRTL={isRTL}
+              icon="clock"
+              label={t("index.overtime")}
+              value={(() => {
+                const r = parseOvertimeRules(profile?.overtime_rules);
+                return r.weekly
+                  ? t("index.overtime_weekly", { daily: r.daily })
+                  : t("index.overtime_daily");
+              })()}
+              onPress={() => setOtOpen(true)}
+            />
+            <SettingsRow
+              isRTL={isRTL}
               icon="sun"
               label={t("index.shift_colors")}
               onPress={() => setColorsOpen(true)}
@@ -586,6 +601,10 @@ export default function ProfileScreen() {
       <SettlementSettingsModal
         visible={settlementOpen}
         onDismiss={() => setSettlementOpen(false)}
+      />
+      <OvertimeSettingsModal
+        visible={otOpen}
+        onDismiss={() => setOtOpen(false)}
       />
       {pdfOpen ? (
         <SecurityLawPDF visable={pdfOpen} hideModal={() => setPdfOpen(false)} />
