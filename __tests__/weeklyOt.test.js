@@ -388,3 +388,26 @@ describe("calculateShiftPay — defaults equal the golden reference on random sh
     );
   });
 });
+
+describe("recomputeWeek — hygiene", () => {
+  test("a doc with an unparseable date is skipped, never zeroed, and still advances the week", () => {
+    const broken = {
+      ...doc("bad", "2026-04-05T07:00:00", "2026-04-05T15:00:00"),
+      start_time: "not a date",
+    };
+    const fri = doc("fri", "2026-04-10T07:00:00", "2026-04-10T15:00:00");
+    const updates = recomputeWeek([broken, fri], WEEKLY);
+    expect(updates.find((u) => u.$id === "bad")).toBeUndefined();
+    expect(updates.find((u) => u.$id === "fri").weekly_regular_before).toBe(8);
+  });
+  test("weekly_regular_before is stored rounded to 2 decimals", () => {
+    const a = doc("a", "2026-04-05T07:00:00", "2026-04-05T15:36:00"); // 8.6 h
+    const b = doc("b", "2026-04-06T07:00:00", "2026-04-06T15:36:00");
+    const c = doc("c", "2026-04-07T07:00:00", "2026-04-07T15:36:00");
+    const d4 = doc("d", "2026-04-08T07:00:00", "2026-04-08T15:00:00");
+    const updates = recomputeWeek([a, b, c, d4], { ...WEEKLY, daily: 8.6 });
+    const before = updates.find((u) => u.$id === "d").weekly_regular_before;
+    expect(before).toBe(25.8);
+    expect(String(before)).toBe("25.8");
+  });
+});

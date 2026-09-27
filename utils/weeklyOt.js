@@ -74,12 +74,16 @@ const recomputeWeek = (weekDocs, rules) => {
   const updates = [];
   for (const d of sorted) {
     const baseRate = Number(d.base_rate);
-    if (!(baseRate > 0)) {
-      // Too old to recompute; still counts toward the week.
+    const parseable =
+      !Number.isNaN(new Date(d.start_time).getTime()) &&
+      !Number.isNaN(new Date(d.end_time).getTime());
+    if (!(baseRate > 0) || !parseable) {
+      // Too old or malformed to recompute safely (the calculator would
+      // return zeros); still counts toward the week.
       running += numOr0(d.reg_hours);
       continue;
     }
-    const before = r.weekly ? running : null;
+    const before = r.weekly ? Math.round(running * 100) / 100 : null;
     const fresh = calculateShiftPay(
       d.start_time,
       d.end_time,

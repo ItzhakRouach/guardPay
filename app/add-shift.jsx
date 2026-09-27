@@ -364,6 +364,11 @@ export default function AddShift() {
       });
       docData.user_id = user.$id;
       docData.comment = comment.trim();
+      // Editing with the weekly rule off (or as a non-worked type) must not
+      // leave a stale weekly_regular_before from an earlier computation.
+      if (isEditMode && !(otRules.weekly && isWorkedType)) {
+        docData.weekly_regular_before = null;
+      }
 
       let saved;
       if (isEditMode && params.shiftId) {
@@ -382,25 +387,30 @@ export default function AddShift() {
         );
       }
 
-      // Later shifts in the week may now cross the cap earlier (or later).
-      if (otRules.weekly && isWorkedType) {
-        const others = weekDocs.filter((d) => d.$id !== saved.$id);
-        const updates = recomputeWeek([...others, saved], otRules).filter(
-          (u) => u.$id !== saved.$id,
-        );
-        if (updates.length) {
-          const { failed } = await applyWeekUpdates(updates);
-          if (failed) Alert.alert(t("shifts.week_partial"));
+      if (otRules.weekly) {
+        // Later shifts in the week may now cross the cap earlier (or later).
+        // The saved doc stays in the set: with a start-time tie, or earlier
+        // docs never computed under the rule, its own numbers can move too
+        // (recomputeWeek only returns real differences).
+        if (isWorkedType) {
+          const others = weekDocs.filter((d) => d.$id !== saved.$id);
+          const updates = recomputeWeek([...others, saved], otRules);
+          if (updates.length) {
+            const { failed } = await applyWeekUpdates(updates);
+            if (failed) Alert.alert(t("shifts.week_partial"));
+          }
         }
-        // An edit that moved the shift to a different week leaves a gap in
-        // the week it came from: recompute that week too.
+        // An edit that moved the shift to a different week, or turned a
+        // worked shift into a training day, leaves a gap in the week it
+        // came from: recompute that week too.
         if (isEditMode && params.existingData) {
           try {
             const previous = JSON.parse(params.existingData);
-            if (
+            const leftWeek =
               previous?.start_time &&
-              weekKeyOf(previous.start_time) !== weekKeyOf(finalStart)
-            ) {
+              (weekKeyOf(previous.start_time) !== weekKeyOf(finalStart) ||
+                !isWorkedType);
+            if (leftWeek) {
               const oldWeek = await fetchWeekDocs(
                 user.$id,
                 previous.start_time,

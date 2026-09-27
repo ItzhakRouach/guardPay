@@ -122,7 +122,9 @@ export function ShiftsProvider({ children }) {
     coalesceTimer.current = null;
     const keys = [...pendingKeys.current];
     pendingKeys.current.clear();
-    keys.forEach((k) => fetchMonth(k));
+    // force: a fetch that started before the burst of writes must not be
+    // reused as "fresh".
+    keys.forEach((k) => fetchMonth(k, { force: true }));
   }, [fetchMonth]);
 
   const scheduleRefetch = useCallback(

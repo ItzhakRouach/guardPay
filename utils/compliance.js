@@ -10,6 +10,13 @@ const LIMITS = Object.freeze({
   restMinWorkedDays: 6, // the 36h rest is only judged on weeks with 6+ worked days
 });
 
+// The weekly rest usually falls at the END of the work week (Friday
+// afternoon -> Sunday morning), i.e. in the gap to the FOLLOWING shift, which
+// may sit in the next week. So the rest is judged on every gap that touches
+// the week - internal gaps, the gap from the previous shift and the gap to
+// the next shift - across the whole document set, not week by week. A week
+// whose following shift is unknown (last data we have) is never flagged.
+
 const range = (d) => {
   const s = new Date(d.start_time);
   const e = new Date(d.end_time);
@@ -35,21 +42,31 @@ const computeComplianceFlags = (docs) => {
     w.days.add(`${r.s.getFullYear()}-${r.s.getMonth()}-${r.s.getDate()}`);
   }
 
+  const all = worked
+    .map((d) => ({ r: range(d), weekKey: weekKeyOf(d.start_time) }))
+    .filter((x) => x.r)
+    .sort((a, b) => a.r.s - b.r.s);
+
   const otWeeks = [];
   const shortRestWeeks = [];
   for (const [weekKey, w] of weeks) {
     if (w.ot > LIMITS.weeklyOtHours) {
       otWeeks.push({ weekKey, hours: Number(w.ot.toFixed(2)) });
     }
-    if (w.days.size >= LIMITS.restMinWorkedDays) {
-      const sorted = [...w.ranges].sort((a, b) => a.s - b.s);
-      let longestGap = 0;
-      for (let i = 1; i < sorted.length; i += 1) {
-        const gap = (sorted[i].s - sorted[i - 1].e) / 36e5;
-        if (gap > longestGap) longestGap = gap;
-      }
-      if (longestGap < LIMITS.restHours) shortRestWeeks.push(weekKey);
+    if (w.days.size < LIMITS.restMinWorkedDays) continue;
+    const idx = all
+      .map((x, i) => (x.weekKey === weekKey ? i : -1))
+      .filter((i) => i >= 0);
+    const last = idx[idx.length - 1];
+    if (last >= all.length - 1) continue; // following rest unknown: never accuse
+    let longestGap = 0;
+    const first = idx[0];
+    const from = Math.max(0, first - 1);
+    for (let i = from + 1; i <= last + 1; i += 1) {
+      const gap = (all[i].r.s - all[i - 1].r.e) / 36e5;
+      if (gap > longestGap) longestGap = gap;
     }
+    if (longestGap < LIMITS.restHours) shortRestWeeks.push(weekKey);
   }
   return { longDays, otWeeks, shortRestWeeks };
 };

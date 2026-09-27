@@ -64,9 +64,9 @@ export default function ComplianceCard({ shifts }) {
         <Eyebrow color={theme.colors.muted}>{t("compliance.title")}</Eyebrow>
       </View>
       <View style={{ marginTop: 10, gap: 8 }}>
-        {lines.map((line) => (
+        {lines.map((line, i) => (
           <Type
-            key={line}
+            key={`${i}-${line}`}
             variant="body"
             color={theme.colors.ink}
             style={{ textAlign: isRTL ? "right" : "left" }}

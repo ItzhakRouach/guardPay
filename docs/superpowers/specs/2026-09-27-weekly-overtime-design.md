@@ -22,7 +22,7 @@ Make GuardPay's overtime match Israeli law more closely than any competing app, 
 | Week | Sunday 00:00 → Saturday 24:00 local. A shift belongs to **the week it starts in**. |
 | Overnight | Continuous by default; midnight split as an advanced toggle with an honest "legally contested" note. |
 | Daily norm | 8 (default, today's behaviour) or 8.6. Night 7, fixed. Weekly 42, fixed. |
-| Turning the toggle on/off or changing a rule | **Recomputes the current month** under the new rules (weeks overlapping the month). Earlier months are never touched. |
+| Turning the toggle on/off or changing a rule | **Recomputes the weeks overlapping the current month** under the new rules, each week whole (so the last days of the previous month and the first days of the next can change when a week crosses a month edge). Months further back are never touched. |
 | Warnings | Overview card only; nothing on rows. |
 
 ## 3. How it works today (facts that constrain the design)
@@ -52,21 +52,24 @@ Make GuardPay's overtime match Israeli law more closely than any competing app, 
 
 **Backward compatibility is the gate:** with `rules` omitted (or all defaults and `weeklyRegularBefore: null`) the function must reproduce all 51 existing assertions byte-for-byte. A dedicated test asserts equality of the full output object for every existing fixture with and without an explicit default `rules`.
 
-Per 15-minute block the logic becomes (portions, not whole blocks, so 8.6 and fractional weekly remainders are exact):
+Per 15-minute block the logic becomes (portions, not whole blocks, so 8.6 and fractional weekly remainders are exact; positions are read on the 15-minute grid so an off-grid start behaves exactly as before):
 
 ```
-d = 0.25
-regularRoom  = max(0, regLimit - hoursIntoDay)           // daily cap (per segment if midnightSplit)
-weeklyRoom   = weeklyOn ? max(0, 42 - regularSoFar) : ∞   // regularSoFar starts at weeklyRegularBefore
-r            = min(d, regularRoom, weeklyRoom)             // regular-rate portion
+d            = 0.25
+gridPos      = floor(hoursIntoDay / 0.25) * 0.25          // hours into the work day, on the block grid
+dailyAllowed = min(d, max(0, regLimit - gridPos))          // what the daily cap alone would allow
+weeklyRoom   = weeklyOn ? max(0, 42 - regularSoFar) : ∞    // regularSoFar starts at weeklyRegularBefore
+r            = min(dailyAllowed, weeklyRoom)               // regular-rate portion
 ot           = d - r
-tier1        = min(ot, max(0, 2 - otSoFarThisDay))         // 125% / 175%
+otRef        = weeklyDeniedSoFar + max(0, gridPos - regLimit)   // OT so far today: weekly-denied (counted) + past the daily cap (by position)
+tier1        = min(ot, max(0, 2 - otRef))                  // 125% / 175%
 tier2        = ot - tier1                                  // 150% / 200%
-regularSoFar += r ; otSoFarThisDay += ot
+regularSoFar += r ; weeklyDeniedSoFar += dailyAllowed - r
 ```
 
 - `regLimit` = `nightRegularHours` if the whole shift is a night shift (existing ≥2 h rule), else `dailyRegularHours`. Night detection is unchanged.
-- `hoursIntoDay` = hours since shift start; with `midnightSplit` it resets at the first local midnight inside the shift, and `otSoFarThisDay` resets with it.
+- `hoursIntoDay` = hours since shift start; with `midnightSplit` it resets at the first local midnight inside the shift, and `weeklyDeniedSoFar` resets with it.
+- Overtime past the daily cap is tiered **by position** (the historical `currentH < regLimit + 2` test); only overtime that the weekly cap denies before the daily cap is reached is tiered by count. This is what keeps the default path byte-identical for shifts that start off the 15-minute grid and cross the Sunday 04:00 cutoff (a golden-reference fuzz in `__tests__/weeklyOt.test.js` locks it).
 - Weekend/holiday routing per block is unchanged (Fri ≥16:00, Sat, Sun <04:00, `isHoliday`), as is the existing Sunday-04:00 split with `forceWeekday`.
 - With defaults, `r` is always 0 or 0.25 and `tier1` boundary is at `regLimit + 2`, which is exactly today's arithmetic.
 - Output shape is unchanged (same 15 fields). One optional field is **added** to the document by `computeShiftDoc`: `weekly_regular_before` (number or absent), so the details screen can explain the result and a later pass can detect which rule a document was computed under.
@@ -116,7 +119,7 @@ Failure handling: partial failures in `applyWeekUpdates` are reported with the e
 
 - `long_day`: any shift longer than 12 h (duration from stored times, legacy end<start tolerated). Lists the dates.
 - `weekly_ot`: any start-week whose summed `extra_hours` exceeds 16. Lists the week (e.g. "שבוע 3").
-- `short_rest`: within any start-week, the longest gap between the end of one worked shift and the start of the next is under 36 h **and** the week has 6+ worked days. (The 36-hour rest is the legal minimum; requiring 6 worked days avoids flagging normal weeks with days off. Documented as a heuristic in the card copy.)
+- `short_rest`: for a start-week with 6+ worked days, the longest gap **touching the week** — internal gaps, the gap from the previous shift and the gap to the next shift, across the whole month's documents — is under 36 h. The weekly rest usually falls at the end of the week (Friday afternoon → Sunday morning), so the gap into the next week must count; a plain Sunday–Friday week is therefore not flagged. A week whose following shift is unknown (the last data we have) is never flagged. (Requiring 6 worked days avoids flagging normal weeks with days off.)
 
 Overview renders a "כדאי לדעת" card **only** when at least one flag exists, with one plain sentence per flag and a short footer that these are legal limits the guard can raise with the employer, not pay changes. Weeks straddling the month edges are evaluated on the month's documents only (known approximation, noted in code).
 

@@ -21,6 +21,7 @@ import {
   serialiseOvertimeRules,
 } from "../../lib/overtimeRules";
 import { recomputeRange } from "../../lib/weeklyOt";
+import { useShiftsStore } from "../../hooks/shifts-store";
 import LoadingSpinner from "../common/LoadingSpinnner";
 
 // Three controls, all explained in one line each. Saving recomputes the
@@ -31,6 +32,7 @@ export default function OvertimeSettingsModal({ visible, onDismiss }) {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const { user, profile, fetchUserProfile } = useAuth();
+  const { fetchMonth } = useShiftsStore();
   const styles = makeStyle(theme, isRTL);
   const [rules, setRules] = useState({ ...DEFAULT_RULES });
   const [saving, setSaving] = useState(false);
@@ -41,10 +43,17 @@ export default function OvertimeSettingsModal({ visible, onDismiss }) {
 
   const onSave = async () => {
     if (!profile?.$id || !user?.$id) return;
+    const next = serialiseOvertimeRules(rules);
+    // Nothing changed -> nothing to write and, above all, nothing to
+    // recompute (a recompute would also normalise old documents).
+    if (next === serialiseOvertimeRules(profile.overtime_rules)) {
+      onDismiss();
+      return;
+    }
     setSaving(true);
     try {
       await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, {
-        overtime_rules: serialiseOvertimeRules(rules),
+        overtime_rules: next,
       });
       const now = new Date();
       const from = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -56,10 +65,21 @@ export default function OvertimeSettingsModal({ visible, onDismiss }) {
         rules,
       );
       await fetchUserProfile(user);
+      // Don't rely on realtime alone to refresh what's on screen.
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const prev = new Date(y, m - 1, 1);
+      const nxt = new Date(y, m + 1, 1);
+      await Promise.allSettled(
+        [
+          `${y}-${m}`,
+          `${prev.getFullYear()}-${prev.getMonth()}`,
+          `${nxt.getFullYear()}-${nxt.getMonth()}`,
+        ].map((k) => fetchMonth(k, { force: true })),
+      );
       onDismiss();
       if (failed) Alert.alert(t("overtime.recompute_partial", { failed }));
-      else if (applied)
-        Alert.alert(t("overtime.recomputed", { count: applied }));
+      else if (applied) Alert.alert(t("overtime.recomputed", { n: applied }));
     } catch (err) {
       console.log("Failed to save overtime rules:", err);
       Alert.alert(t("edit_pref.msg_err"));

@@ -43,26 +43,31 @@ describe("computeComplianceFlags", () => {
     week[0].extra_hours = 2;
     expect(computeComplianceFlags(week).otWeeks).toEqual([]);
   });
-  test("six worked days with no 36 h gap → short rest; five days → not evaluated", () => {
-    const six = [5, 6, 7, 8, 9, 10].map((day) =>
+  const days = (list, month = "04") =>
+    list.map((day) =>
       d(
-        `s${day}`,
-        `2026-04-${String(day).padStart(2, "0")}T07:00:00`,
-        `2026-04-${String(day).padStart(2, "0")}T15:00:00`,
+        `s${month}${day}`,
+        `2026-${month}-${String(day).padStart(2, "0")}T07:00:00`,
+        `2026-${month}-${String(day).padStart(2, "0")}T15:00:00`,
       ),
     );
-    expect(computeComplianceFlags(six).shortRestWeeks).toEqual(["2026-3-5"]);
-    expect(computeComplianceFlags(six.slice(0, 5)).shortRestWeeks).toEqual([]);
+  test("a plain Sun–Fri week is NOT flagged: the weekend gap is the rest", () => {
+    // Sun 5 .. Fri 10, then Sun 12 .. Fri 17: Fri 15:00 → Sun 07:00 = 40 h
+    const twoWeeks = days([5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]);
+    expect(computeComplianceFlags(twoWeeks).shortRestWeeks).toEqual([]);
   });
-  test("six worked days but one 40 h gap → no short-rest flag", () => {
-    const six = [5, 6, 7, 9, 10, 11].map((day) =>
-      d(
-        `s${day}`,
-        `2026-04-${String(day).padStart(2, "0")}T07:00:00`,
-        `2026-04-${String(day).padStart(2, "0")}T15:00:00`,
-      ),
-    );
-    expect(computeComplianceFlags(six).shortRestWeeks).toEqual([]);
+  test("seven days straight into the next week → the first week is flagged", () => {
+    // Sun 5 .. Sat 11 and Sun 12 .. Tue 14: no gap ≥ 36 h touches week 5–11
+    const run = days([5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+    expect(computeComplianceFlags(run).shortRestWeeks).toEqual(["2026-3-5"]);
+  });
+  test("the last week of the data is never flagged (its following rest is unknown)", () => {
+    const run = days([5, 6, 7, 8, 9, 10, 11]);
+    expect(computeComplianceFlags(run).shortRestWeeks).toEqual([]);
+  });
+  test("fewer than six worked days in the week → not evaluated even if dense", () => {
+    const run = days([5, 6, 7, 8, 9, 12, 13, 14, 15, 16]);
+    expect(computeComplianceFlags(run).shortRestWeeks).toEqual([]);
   });
   test("flat-day docs are ignored", () => {
     const f = computeComplianceFlags([

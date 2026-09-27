@@ -143,8 +143,8 @@ export const resources = {
         midnight_continuous: "יום רצוף",
         midnight_split: "פיצול בחצות",
         midnight_hint: "החוק לא חד-משמעי. יום רצוף מיטיב עם העובד; פיצול בחצות הוא פרשנות בתי הדין.",
-        save_note: "שמירה תחשב מחדש את משמרות החודש הנוכחי לפי הכללים החדשים. חודשים קודמים לא ישתנו.",
-        recomputed: "{{count}} משמרות חושבו מחדש.",
+        save_note: "שמירה תחשב מחדש את השבועות של החודש הנוכחי לפי הכללים החדשים (שבוע שחוצה חודש מחושב בשלמותו). חודשים קודמים לא ישתנו.",
+        recomputed: "{{n}} משמרות חושבו מחדש.",
         recompute_partial: "{{failed}} משמרות לא עודכנו. נסו לשמור שוב.",
       },
       compliance: {
@@ -578,8 +578,8 @@ export const resources = {
         midnight_continuous: "One day",
         midnight_split: "Split at midnight",
         midnight_hint: "The law is not settled. One day favours the worker; the midnight split follows the courts' reading.",
-        save_note: "Saving recalculates this month's shifts under the new rules. Earlier months don't change.",
-        recomputed: "{{count}} shifts recalculated.",
+        save_note: "Saving recalculates the weeks of the current month under the new rules (a week that crosses a month edge is recalculated whole). Earlier months don't change.",
+        recomputed: "{{n}} shifts recalculated.",
         recompute_partial: "{{failed}} shifts could not be updated. Try saving again.",
       },
       compliance: {
@@ -989,8 +989,8 @@ export const resources = {
         midnight_continuous: "يوم واحد",
         midnight_split: "تقسيم عند منتصف الليل",
         midnight_hint: "القانون غير محسوم. اليوم الواحد لصالح العامل؛ التقسيم عند منتصف الليل هو تفسير المحاكم.",
-        save_note: "الحفظ يعيد حساب ورديات هذا الشهر وفق القواعد الجديدة. الأشهر السابقة لا تتغير.",
-        recomputed: "تمت إعادة حساب {{count}} وردية.",
+        save_note: "الحفظ يعيد حساب أسابيع الشهر الحالي وفق القواعد الجديدة (الأسبوع الذي يعبر حدّ الشهر يُحسب كاملاً). الأشهر السابقة لا تتغير.",
+        recomputed: "تمت إعادة حساب {{n}} وردية.",
         recompute_partial: "تعذّر تحديث {{failed}} وردية. حاول الحفظ مجدداً.",
       },
       compliance: {

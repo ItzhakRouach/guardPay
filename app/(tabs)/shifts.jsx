@@ -229,7 +229,10 @@ export default function ShiftsScreen() {
         const { failed } = await applyWeekUpdates(
           recomputeWeek(weekDocs, otRules),
         );
-        if (failed) Alert.alert(t("shifts.week_partial"));
+        if (failed) {
+          Alert.alert(t("shifts.week_partial"));
+          refetch();
+        }
       }
     } catch (err) {
       console.error("ShiftsScreen: delete failed", err);
