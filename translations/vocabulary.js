@@ -173,7 +173,6 @@ export const resources = {
           "לעדכון תקופת מחלה - מחק את הימים והוסף תקופה חדשה.",
       },
       add_shift: {
-        select_type: "בחרו סוג משמרת לפני השמירה",
         zero_length: "שעת הסיום זהה לשעת ההתחלה. בחרו שעת סיום.",
         dup_exact: "משמרת זהה (אותו תאריך ושעות) כבר רשומה.",
         overlap_title: "חפיפה עם משמרת קיימת",
@@ -570,7 +569,6 @@ export const resources = {
           "To change a sick period, delete the days and add a new one.",
       },
       add_shift: {
-        select_type: "Choose a shift type before saving",
         zero_length: "End time equals start time. Choose an end time.",
         dup_exact:
           "An identical shift (same date and hours) is already logged.",
@@ -942,7 +940,6 @@ export const resources = {
           "لتحديث فترة المرض، احذف الأيام وأضف فترة جديدة.",
       },
       add_shift: {
-        select_type: "اختر نوع الوردية قبل الحفظ",
         zero_length: "وقت الانتهاء مطابق لوقت البدء. اختر وقت انتهاء.",
         dup_exact: "توجد وردية مطابقة (نفس التاريخ والساعات) مسجّلة مسبقاً.",
         overlap_title: "تداخل مع وردية موجودة",

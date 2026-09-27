@@ -5,7 +5,7 @@
 //
 // CJS so it runs under jest without a babel transform for the ESM
 // re-export in lib/.
-const { deriveShiftType } = require("../utils/shiftType");
+const { classifyTimeOfDay, deriveShiftType } = require("../utils/shiftType");
 
 // Build a Monday at the requested HH:MM (Jan 5 2026 is a Monday).
 // Local-time Date is intentional — deriveShiftType reads getHours() in
@@ -102,5 +102,50 @@ describe("deriveShiftType — degenerate / legacy inputs", () => {
     expect(deriveShiftType(monAt(2, 0), prefs)).toBe("night");
     expect(deriveShiftType(monAt(14, 0), prefs)).toBe("night");
     expect(deriveShiftType(monAt(23, 30), prefs)).toBe("night");
+  });
+});
+
+describe("classifyTimeOfDay — majority of hours (defaults 07-15 / 15-23 / 23-07)", () => {
+  const d = (h, m = 0, day = 6) => new Date(2026, 3, day, h, m); // Mon 2026-04-06
+  test("13:00–22:00 is mostly evening even though it starts in the morning window", () => {
+    expect(classifyTimeOfDay(d(13), d(22))).toBe("evening");
+  });
+  test("07:00–15:00 → morning; 15:00–23:00 → evening; 23:00–07:00 → night", () => {
+    expect(classifyTimeOfDay(d(7), d(15))).toBe("morning");
+    expect(classifyTimeOfDay(d(15), d(23))).toBe("evening");
+    expect(classifyTimeOfDay(d(23), d(7, 0, 7))).toBe("night");
+  });
+  test("22:00–06:00 (starts in evening window) is mostly night", () => {
+    expect(classifyTimeOfDay(d(22), d(6, 0, 7))).toBe("night");
+  });
+  test("legacy end<start document is treated as overnight", () => {
+    expect(classifyTimeOfDay(d(22), d(6))).toBe("night");
+  });
+  test("exact tie goes to the window containing the start", () => {
+    // 11:00–19:00: 4h morning, 4h evening → starts in morning
+    expect(classifyTimeOfDay(d(11), d(19))).toBe("morning");
+  });
+  test("no end time → start-hour rule", () => {
+    expect(classifyTimeOfDay(d(13), null)).toBe("morning");
+    expect(classifyTimeOfDay(d(16), undefined)).toBe("evening");
+  });
+  test("respects custom windows", () => {
+    const prefs = {
+      default_shift_times: JSON.stringify({
+        morning: { startH: 6, startM: 0, endH: 14, endM: 0 },
+        evening: { startH: 14, startM: 0, endH: 22, endM: 0 },
+        night: { startH: 22, startM: 0, endH: 6, endM: 0 },
+      }),
+    };
+    expect(classifyTimeOfDay(d(13), d(21), prefs)).toBe("evening");
+    expect(classifyTimeOfDay(d(6), d(13), prefs)).toBe("morning");
+  });
+  test("deriveShiftType uses the majority rule when end_time is present", () => {
+    expect(
+      deriveShiftType({
+        start_time: d(13).toISOString(),
+        end_time: d(22).toISOString(),
+      }),
+    ).toBe("evening");
   });
 });

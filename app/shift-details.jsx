@@ -374,8 +374,18 @@ const makeStyle = (theme, isRTL) =>
       justifyContent: "space-between",
       marginVertical: 10,
     },
-    label: { color: theme.colors.onSurface, opacity: 0.7 },
-    value: { fontWeight: "bold", color: theme.colors.onSurface },
+    label: {
+      color: theme.colors.onSurface,
+      opacity: 0.7,
+      writingDirection: isRTL ? "rtl" : "ltr",
+    },
+    // Mixed number+word values ("8 שעות") need an explicit direction;
+    // without it the number renders after the word for Hebrew readers.
+    value: {
+      fontWeight: "bold",
+      color: theme.colors.onSurface,
+      writingDirection: isRTL ? "rtl" : "ltr",
+    },
     ruleText: {
       color: theme.colors.onSurface,
       opacity: 0.6,

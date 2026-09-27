@@ -24,6 +24,7 @@ import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../lib/appwrite";
 import { computeShiftDoc } from "../lib/salaryLogic";
 import { findShiftConflicts, sameDayWindow } from "../lib/shiftOverlap";
 import { getShiftTimes } from "../lib/shiftTimes";
+import { classifyTimeOfDay } from "../lib/shiftType";
 import { shiftTypeTimes } from "../lib/utils";
 import { buildSickDocs } from "../utils/sickDays";
 
@@ -105,12 +106,28 @@ export default function AddShift() {
         setEndTime(new Date(shiftData.end_time));
         setHourRate(shiftData.base_rate);
         setComment(shiftData.comment ?? "");
+        // Restore the flag-based types; otherwise saving an edited חג shift
+        // silently dropped is_holiday. Worked shifts are classified from
+        // their times by the effect below.
+        if (shiftData.is_holiday) setValue("holiday");
+        else if (shiftData.is_training) setValue("training");
       } catch (err) {
         console.log("Error parsing shift data:", err);
       }
     }
     fetchUserRates();
   }, [params.existingData, fetchUserRates]);
+
+  // The type follows the hours, not the other way round: whenever the
+  // times change, pick morning / evening / night by where most of the
+  // shift falls in the user's windows. Tapping a type still applies its
+  // preset times (handleShiftTypeChange), which this then agrees with.
+  // Flag types (training / vacation / sick / holiday) are left alone.
+  useEffect(() => {
+    if (value && !["morning", "evening", "night"].includes(value)) return;
+    const next = classifyTimeOfDay(startTime, endTime, profile);
+    if (next !== value) setValue(next);
+  }, [startTime, endTime, profile, value]);
 
   const buttonLabel = isEditMode ? "update" : "save";
 
@@ -160,10 +177,6 @@ export default function AddShift() {
     // Double-tap guard (the Save button is also disabled while loading, but
     // two taps can land before the re-render).
     if (loading) return;
-    if (!value) {
-      Alert.alert(t("add_shift.select_type"));
-      return;
-    }
     setLoading(true);
     try {
       const finalBaseRate =

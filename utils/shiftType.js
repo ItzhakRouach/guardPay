@@ -17,10 +17,7 @@
 // without a babel config — matches utils/decimal.js / utils/shiftColors.js.
 // App code imports from lib/shiftType.js (a thin ESM re-export).
 
-const {
-  DEFAULT_SHIFT_TIMES,
-  parseUserShiftTimes,
-} = require("./shiftTimes");
+const { DEFAULT_SHIFT_TIMES, parseUserShiftTimes } = require("./shiftTimes");
 
 const toMinutes = ({ startH, startM, endH, endM }) => ({
   from: startH * 60 + startM,
@@ -44,6 +41,75 @@ const inWindow = (mins, range) => {
   return mins >= from || mins < to;
 };
 
+// Minutes of [from, to) (minutes since a reference midnight, may exceed
+// 1440 for a shift that crosses midnight) that fall inside a daily window.
+// The window repeats every day, so test the two calendar days the range
+// can touch.
+const overlapMinutes = (from, to, range) => {
+  if (!range) return 0;
+  const segs = [];
+  for (const dayOffset of [0, 1440, 2880]) {
+    if (range.from < range.to) {
+      segs.push([range.from + dayOffset, range.to + dayOffset]);
+    } else if (range.from === range.to) {
+      segs.push([dayOffset, dayOffset + 1440]);
+    } else {
+      segs.push([range.from + dayOffset, 1440 + dayOffset]);
+      segs.push([dayOffset, range.to + dayOffset]);
+    }
+  }
+  let total = 0;
+  for (const [a, b] of segs) {
+    const lo = Math.max(from, a);
+    const hi = Math.min(to, b);
+    if (hi > lo) total += hi - lo;
+  }
+  return total;
+};
+
+/**
+ * Which of morning / evening / night a worked shift is, by where MOST of
+ * its hours fall against the user's windows (start hour alone misfiled a
+ * 13:00–22:00 shift as morning). Ties go to the window containing the start.
+ * With no valid end, falls back to the start-hour rule.
+ */
+const classifyTimeOfDay = (startDate, endDate, userPrefs) => {
+  const start = startDate instanceof Date ? startDate : new Date(startDate);
+  if (Number.isNaN(start.getTime())) return "morning";
+  const times =
+    parseUserShiftTimes(userPrefs && userPrefs.default_shift_times) ||
+    DEFAULT_SHIFT_TIMES;
+  const windows = {
+    night: toMinutes(times.night),
+    evening: toMinutes(times.evening),
+    morning: toMinutes(times.morning),
+  };
+  const startMins = start.getHours() * 60 + start.getMinutes();
+  const byStart = inWindow(startMins, windows.night)
+    ? "night"
+    : inWindow(startMins, windows.evening)
+      ? "evening"
+      : "morning";
+
+  const end =
+    endDate instanceof Date ? endDate : endDate ? new Date(endDate) : null;
+  if (!end || Number.isNaN(end.getTime())) return byStart;
+  let endMins = startMins + Math.round((end - start) / 60000);
+  if (endMins <= startMins) endMins += 1440; // legacy end<start = overnight
+  if (endMins - startMins > 1440) return byStart;
+
+  let best = byStart;
+  let bestMins = -1;
+  for (const type of ["night", "evening", "morning"]) {
+    const m = overlapMinutes(startMins, endMins, windows[type]);
+    if (m > bestMins || (m === bestMins && type === byStart)) {
+      best = type;
+      bestMins = m;
+    }
+  }
+  return bestMins > 0 ? best : byStart;
+};
+
 const deriveShiftType = (shift, userPrefs) => {
   if (!shift) return "morning";
   if (shift.is_sick) return "sick";
@@ -58,16 +124,9 @@ const deriveShiftType = (shift, userPrefs) => {
   if (day === 6) return "shabbat";
   if (day === 5) return "friday";
 
-  const times =
-    parseUserShiftTimes(userPrefs && userPrefs.default_shift_times) ||
-    DEFAULT_SHIFT_TIMES;
-  const mins = start.getHours() * 60 + start.getMinutes();
-
-  // Night check first — its window crosses midnight and would otherwise
-  // be masked by an early-morning fall-through.
-  if (inWindow(mins, toMinutes(times.night))) return "night";
-  if (inWindow(mins, toMinutes(times.evening))) return "evening";
-  return "morning";
+  // Majority-of-hours when the document has an end time; start-hour rule
+  // otherwise (same answer for every preset-shaped shift).
+  return classifyTimeOfDay(start, shift.end_time, userPrefs);
 };
 
 const TYPE_ICON = {
@@ -82,4 +141,4 @@ const TYPE_ICON = {
   vacation: "palm",
 };
 
-module.exports = { deriveShiftType, TYPE_ICON };
+module.exports = { classifyTimeOfDay, deriveShiftType, TYPE_ICON };
