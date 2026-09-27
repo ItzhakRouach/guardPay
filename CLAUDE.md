@@ -76,16 +76,25 @@ Day-type flags on `shifts_history` (mutually exclusive — only one is true per 
 - Every document sum that feeds a money figure goes through `docBruto` in [utils/monthlyTotals.js](utils/monthlyTotals.js) (training-day travel is stored beside `total_amount`).
 - Backend errors are classified by [utils/appwriteErrors.js](utils/appwriteErrors.js); a paused/unreachable Appwrite shows `components/layout/ServiceUnavailable.jsx` rather than onboarding. The Appwrite Free-plan pause and the keep-alive workflow are documented in [docs/ops/appwrite-keepalive.md](docs/ops/appwrite-keepalive.md).
 - OTA: `hooks/useOtaUpdates.js` checks on foreground and `components/layout/UpdateBanner.jsx` offers a restart; `components/layout/ErrorBoundary.jsx` wraps the Stack.
+- A month's shape and its per-day buckets come from [utils/monthGrid.js](utils/monthGrid.js) — the calendar grid, the Shifts week grouping and the Overview chart all read it, so they cannot drift. Do not write a fourth copy of the week arithmetic.
 
 ## i18n & RTL
 
 `react-i18next` with `he`, `en` and `ar` vocabularies in [translations/vocabulary.js](translations/vocabulary.js) — every new key must land in all three blocks. Selected language persists in `AsyncStorage` under `user-language` via [hooks/lang-context.js](hooks/lang-context.js); with no saved choice the default follows the phone (`utils/defaultLanguage.js`). Use the `arabic-localizer` subagent to review Arabic copy.
 
-**Gotcha:** native RTL layout flipping is force-disabled (`I18nManager.forceRTL(false)` in `app/_layout.jsx`, plus `ExpoLocalization_supportsRTL: false` in `app.json`). Switching to Hebrew/Arabic changes copy only — layout direction stays LTR. Components should not assume the layout flips when `isRTL` is true.
+**Layout direction (changed in the v3 redesign).** One `View` at the app root in [app/_layout.jsx](app/_layout.jsx) sets the Yoga `direction` style (`rtl` for `he`/`ar`), and it propagates through every subtree including react-native-paper's portals. **Write plain `flexDirection: "row"`** — it mirrors itself. The 52 `flexDirection: isRTL ? "row-reverse" : "row"` flips that used to do this by hand are gone, and reintroducing one would double-flip that row. Use the logical `start`/`end` insets rather than `left`/`right` (see the FAB in `app/(tabs)/shifts.jsx`).
+
+`I18nManager.forceRTL` stays **false** on purpose: it is a native, app-restart switch that can leave a launch half-flipped, whereas the `direction` style is per-subtree and applies on the next render. `isRTL` from `useLanguage()` is still the right thing for text alignment and for `alignSelf`, which Yoga direction does not cover.
 
 ## Theming
 
-Light/dark palettes are the token sets in [lib/theme.js](lib/theme.js) (`bg`, `surface`, `surfaceAlt`, `ink`, `inkSoft`, `muted`, `border`, `borderSoft`, `accent`, `accentSoft`, `pos`, `neg`, `divider`, `anchor`, `anchorInk`, `anchorMuted`, `cta`, `ctaInk`, `tabActiveBg`), merged over MD3 in [app/_layout.jsx](app/_layout.jsx) and selected via [hooks/theme-context.js](hooks/theme-context.js) (`auto` / `light` / `dark`, persisted under `user-color-scheme`). `legacyAlias` in `lib/theme.js` maps the old names (`card`, `profileSection`, `borderOutline`, `dateText`, `summary`, `editBtn`, `delBtn`) onto them for screens not yet migrated. Read `theme.colors.<token>` from `useTheme()`; never hardcode hex.
+One typeface: **IBM Plex Sans Hebrew** (Hebrew, Latin and the figures) with **IBM Plex Sans Arabic** as its sibling, eight faces, loaded in [app/_layout.jsx](app/_layout.jsx). [components/common/Type.jsx](components/common/Type.jsx) owns the scale; no variant is uppercase or italic. Money variants set `tabular-nums`.
+
+`app/_layout.jsx` also calls Paper's `configureFonts` and sets `roundness`, which is how the ~25 react-native-paper files inherit the redesign without being rewritten. Paper stays the interaction layer (TextInput, Modal, Switch, SegmentedButtons); the custom primitives have no equivalent.
+
+Colour, shape and rhythm are the token sets in [lib/theme.js](lib/theme.js): `bg`, `surface`, `surfaceAlt`, `ink`, `inkSoft`, `muted`, `border`, `borderSoft`, `accent`, `accentFill`, `onAccentFill`, `accentSoft`, `pos`, `neg`, `divider`, `anchor`, `anchorInk`, `anchorMuted`, `cta`, `ctaInk`, `tabActiveBg`, plus `radius` and `spacing`. Dark is not an inversion of light: the ground is near-neutral so the app emits less light on a night shift. Read `theme.colors.<token>` from `useTheme()` and the `radius`/`spacing` maps from `lib/theme`; never hardcode a hex or a one-off radius.
+
+**[__tests__/contrast.test.js](__tests__/contrast.test.js) enforces WCAG AA on every foreground/background token pair in both modes.** Changing a colour without running it is how an unreadable label ships. `accentFill` in particular is pinned between two thresholds: 3:1 against white so the today-marker is visible, and 4.5:1 under `onAccentFill` so the date on it is readable.
 
 ## Environment variables
 
