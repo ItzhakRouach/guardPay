@@ -49,7 +49,7 @@ only said that runtime traffic does not. Treat the result as evidence:
 - **Failure:** the project pauses again (you get the workflow-failure email,
   or a user reports being locked out). Then the honest fix is Pro.
 
-Record the first-run date here: `____-__-__`
+Record the first-run date here: `2026-09-27` (first successful run 00:15 UTC). Check-ins: 2026-10-04, 2026-10-11, 2026-10-18 — if no manual resume was needed by the last one, the experiment succeeded.
 
 ## One-time setup (about 5 minutes)
 
