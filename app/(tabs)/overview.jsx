@@ -11,6 +11,7 @@ import HeroCard from "../../components/common/HeroCard";
 import Icon from "../../components/common/Icon";
 import MonthHeader from "../../components/common/MonthHeader";
 import Type from "../../components/common/Type";
+import ComplianceCard from "../../components/overview/ComplianceCard";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { useMonthlySalary } from "../../hooks/useMonthlySalary";
@@ -541,6 +542,7 @@ export default function OverviewScreen() {
             projected={projected}
             isRTL={isRTL}
           />
+          <ComplianceCard shifts={shifts} />
           <View style={{ height: 24 }} />
           <PrimaryButton
             icon="document"

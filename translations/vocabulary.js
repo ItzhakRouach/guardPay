@@ -130,6 +130,13 @@ export const resources = {
         select_time: "בחר זמן",
         update: "עדכן את התזכורת",
       },
+      compliance: {
+        title: "כדאי לדעת",
+        long_day: "ב-{{date}} עבדתם יותר מ-12 שעות ביום — מעבר למותר בחוק.",
+        weekly_ot: "בשבוע שמתחיל ב-{{week}} נצברו {{hours}} שעות נוספות — יותר מ-16 המותרות.",
+        short_rest: "בשבוע שמתחיל ב-{{week}} לא הייתה מנוחה שבועית של 36 שעות רצופות.",
+        footer: "אלו מגבלות חוקיות שאפשר להעלות מול המעסיק. הן לא משנות את חישוב השכר.",
+      },
       guard_rates: {
         regular: "מאבטח",
         supervisor: "אחראי",
@@ -540,6 +547,13 @@ export const resources = {
         select_time: "Select Time",
         update: "Update Reminder",
       },
+      compliance: {
+        title: "Worth knowing",
+        long_day: "On {{date}} you worked more than 12 hours in a day — above the legal limit.",
+        weekly_ot: "The week starting {{week}} has {{hours}} overtime hours — more than the 16 allowed.",
+        short_rest: "The week starting {{week}} had no 36-hour continuous weekly rest.",
+        footer: "These are legal limits you can raise with your employer. They don't change the pay calculation.",
+      },
       guard_rates: {
         regular: "Guard",
         supervisor: "Supervisor",
@@ -925,6 +939,13 @@ export const resources = {
         select_day: "اختر اليوم",
         select_time: "اختر الوقت",
         update: "تحديث التذكير",
+      },
+      compliance: {
+        title: "جدير بالمعرفة",
+        long_day: "في {{date}} عملت أكثر من 12 ساعة في اليوم — فوق الحد القانوني.",
+        weekly_ot: "الأسبوع الذي يبدأ في {{week}} يتضمن {{hours}} ساعة إضافية — أكثر من 16 المسموح بها.",
+        short_rest: "الأسبوع الذي يبدأ في {{week}} لم يتضمن راحة أسبوعية متواصلة لمدة 36 ساعة.",
+        footer: "هذه حدود قانونية يمكنك طرحها مع صاحب العمل. لا تغيّر حساب الراتب.",
       },
       guard_rates: {
         regular: "حارس",
