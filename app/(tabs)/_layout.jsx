@@ -76,8 +76,8 @@ function CustomTabBar({ state, descriptors, navigation }) {
                 color={color}
                 style={{
                   fontFamily: focused
-                    ? "Manrope_700Bold"
-                    : "Manrope_500Medium",
+                    ? "IBMPlexSansHebrew_600SemiBold"
+                    : "IBMPlexSansHebrew_500Medium",
                 }}
               >
                 {t(labelKey(route.name))}

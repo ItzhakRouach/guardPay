@@ -112,6 +112,7 @@ function FAB({ onPress, isRTL }) {
 }
 
 function SwipeAction({ label, color, icon }) {
+  const theme = useTheme();
   return (
     <View
       style={{
@@ -122,11 +123,11 @@ function SwipeAction({ label, color, icon }) {
         marginVertical: 0,
       }}
     >
-      <Icon name={icon} size={22} color="#FFFFFF" />
+      <Icon name={icon} size={22} color={theme.colors.ctaInk} />
       <Type
         variant="small"
-        color="#FFFFFF"
-        style={{ marginTop: 4, fontFamily: "Manrope_600SemiBold" }}
+        color={theme.colors.ctaInk}
+        style={{ marginTop: 4 }}
       >
         {label}
       </Type>

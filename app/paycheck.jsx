@@ -71,24 +71,18 @@ function EarningsRow({ row, lang, isRTL }) {
         {label}
       </Type>
       <Type
-        variant="numeric"
+        variant="small"
+        numeric
         color={theme.colors.inkSoft}
-        style={{
-          flex: 1,
-          textAlign: numAlign,
-          fontFamily: "Manrope_500Medium",
-        }}
+        style={{ flex: 1, textAlign: numAlign }}
       >
         {fmt(row.rate)}
       </Type>
       <Type
-        variant="numeric"
+        variant="small"
+        numeric
         color={theme.colors.inkSoft}
-        style={{
-          flex: 0.8,
-          textAlign: numAlign,
-          fontFamily: "Manrope_500Medium",
-        }}
+        style={{ flex: 0.8, textAlign: numAlign }}
       >
         {qty}
       </Type>

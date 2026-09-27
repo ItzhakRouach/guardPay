@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { ActivityIndicator, useTheme } from "react-native-paper";
+import { withAlpha } from "../../lib/theme";
 
 // Two modes:
 //   default — fills its parent with the app background (root-level gates:
@@ -17,9 +18,10 @@ export default function LoadingSpinner({ overlay = false }) {
         style={[
           StyleSheet.absoluteFillObject,
           {
-            backgroundColor: theme.dark
-              ? "rgba(15, 26, 46, 0.55)"
-              : "rgba(255, 255, 255, 0.6)",
+            backgroundColor: withAlpha(
+              theme.colors.bg,
+              theme.dark ? 0.72 : 0.7,
+            ),
             alignItems: "center",
             justifyContent: "center",
             zIndex: 10,

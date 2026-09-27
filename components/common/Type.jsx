@@ -4,91 +4,67 @@ import { Text } from "react-native";
 import { useTheme } from "react-native-paper";
 
 const HEBREW_RANGE = /[֐-׿]/;
-
-// Per-variant: family family (resolved at render based on language + content),
-// size, weight, letter spacing, line height. Mirrors the type scale in the
-// design spec.
-const VARIANTS = {
-  hero: { serif: true, size: 56, weight: "500", ls: -2, lh: 56 },
-  netPay: { serif: true, size: 44, weight: "500", ls: -1.5, lh: 44 },
-  welcomeTitle: {
-    serif: true,
-    size: 56,
-    weight: "500",
-    ls: -1.5,
-    lh: 53,
-  },
-  welcomeSub: {
-    serif: true,
-    italic: true,
-    size: 28,
-    weight: "500",
-    ls: -0.5,
-  },
-  h1: { serif: true, size: 28, weight: "500", ls: -0.6 },
-  yearItalic: { serif: true, italic: true, size: 18, weight: "500", ls: -0.2 },
-  sectionTitle: { serif: true, size: 22, weight: "500", ls: -0.4 },
-  statValue: { serif: true, size: 22, weight: "500", ls: -0.4 },
-  rowAmount: { serif: true, size: 19, weight: "500", ls: -0.3 },
-  rowDate: { serif: true, size: 24, weight: "500", lh: 24 },
-  sheetValue: { serif: true, size: 20, weight: "500", ls: -0.3 },
-  helperItalic: { serif: true, italic: true, size: 14, weight: "500" },
-  eyebrow: { serif: false, size: 11, weight: "600", ls: 2, upper: true },
-  smallLabel: { serif: false, size: 10, weight: "600", ls: 1.5, upper: true },
-  body: { serif: false, size: 14, weight: "500", lh: 22 },
-  pitch: { serif: false, size: 15, weight: "400", lh: 23 },
-  tabLabel: { serif: false, size: 11, weight: "500", ls: 0.3 },
-  button: { serif: false, size: 16, weight: "600", ls: 0.2 },
-  small: { serif: false, size: 12, weight: "500" },
-};
-
 const ARABIC_RANGE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
 
-// Pick the font family based on:
-//   - serif vs sans variant
-//   - presence of Hebrew runes (forces Frank Ruhl Libre — has full
-//     Hebrew + Latin coverage)
-//   - presence of Arabic runes (no Arabic serif is bundled — fall back
-//     to Manrope, which iOS / Android substitute with a system Arabic
-//     face when the string contains Arabic codepoints)
-//   - italic
+// One type scale, one family. Sizes and weights are the ones drawn in the
+// redesign mockups; money is the largest thing on any screen and labels
+// recede beneath it rather than shouting in tracked-out capitals.
 //
-// IMPORTANT: Frank Ruhl Libre is Hebrew-only — routing Arabic strings
-// through it produces empty boxes on some devices. Likewise, numeric
-// strings (`13,091`) must stay on Cormorant Garamond so the hero number
-// renders even when the active language is Arabic.
-const pickFamily = (variant, lang, text) => {
-  const v = VARIANTS[variant] || VARIANTS.body;
-  const hasHebrew = typeof text === "string" && HEBREW_RANGE.test(text);
-  const hasArabic = typeof text === "string" && ARABIC_RANGE.test(text);
+// No variant is uppercase and none is italic any more: both were the
+// template chrome the redesign set out to remove. `upper` is still honoured
+// when a caller passes it explicitly.
+const VARIANTS = {
+  // Money and figures
+  hero: { size: 46, weight: "600", ls: -1.8, lh: 46 },
+  netPay: { size: 38, weight: "600", ls: -1.2, lh: 38 },
+  statValue: { size: 21, weight: "600", ls: -0.3, lh: 25 },
+  rowAmount: { size: 16, weight: "600", ls: -0.2, lh: 20 },
+  rowDate: { size: 19, weight: "500", lh: 22 },
+  sheetValue: { size: 15, weight: "500", lh: 20 },
 
-  if (!v.serif) {
-    if (v.weight === "700") return "Manrope_700Bold";
-    if (v.weight === "600") return "Manrope_600SemiBold";
-    if (v.weight === "500") return "Manrope_500Medium";
-    return "Manrope_400Regular";
-  }
-  if (hasHebrew || (lang === "he" && !hasArabic)) {
-    if (v.weight === "700") return "FrankRuhlLibre_700Bold";
-    if (v.weight === "500") return "FrankRuhlLibre_500Medium";
-    return "FrankRuhlLibre_400Regular";
-  }
-  if (hasArabic) {
-    // No Arabic serif loaded — let Manrope's Arabic system fallback
-    // render the glyphs. Slightly heavier weight to keep visual parity
-    // with the Hebrew serif.
-    if (v.weight === "700") return "Manrope_700Bold";
-    if (v.weight === "500") return "Manrope_600SemiBold";
-    return "Manrope_500Medium";
-  }
-  if (v.italic) {
-    return v.weight === "500"
-      ? "CormorantGaramond_500Medium_Italic"
-      : "CormorantGaramond_400Regular_Italic";
-  }
-  if (v.weight === "600") return "CormorantGaramond_600SemiBold";
-  if (v.weight === "500") return "CormorantGaramond_500Medium";
-  return "CormorantGaramond_400Regular";
+  // Headings
+  welcomeTitle: { size: 40, weight: "600", ls: -1.2, lh: 44 },
+  h1: { size: 26, weight: "600", ls: -0.4, lh: 31 },
+  sectionTitle: { size: 17, weight: "600", ls: -0.2, lh: 22 },
+
+  // Body and labels
+  welcomeSub: { size: 19, weight: "400", lh: 28 },
+  body: { size: 15, weight: "400", lh: 22 },
+  pitch: { size: 15, weight: "400", lh: 23 },
+  yearItalic: { size: 17, weight: "400", lh: 22 },
+  eyebrow: { size: 13, weight: "400", lh: 17 },
+  helperItalic: { size: 13, weight: "400", lh: 19 },
+  smallLabel: { size: 12, weight: "500", lh: 16 },
+  small: { size: 12, weight: "400", lh: 16 },
+  button: { size: 15, weight: "600", ls: 0.1, lh: 20 },
+  tabLabel: { size: 11, weight: "500", ls: 0.2, lh: 14 },
+};
+
+// IBM Plex Sans Hebrew carries Hebrew, Latin and the figures, so one face
+// covers he and en. Arabic gets its designed sibling — the two are metric
+// companions, so a mixed screen keeps one voice.
+const HEBREW_FACES = {
+  400: "IBMPlexSansHebrew_400Regular",
+  500: "IBMPlexSansHebrew_500Medium",
+  600: "IBMPlexSansHebrew_600SemiBold",
+  700: "IBMPlexSansHebrew_700Bold",
+};
+const ARABIC_FACES = {
+  400: "IBMPlexSansArabic_400Regular",
+  500: "IBMPlexSansArabic_500Medium",
+  600: "IBMPlexSansArabic_600SemiBold",
+  700: "IBMPlexSansArabic_700Bold",
+};
+
+// Arabic runes in the string, or Arabic is the active language and the
+// string carries no Hebrew: use the Arabic face. Everything else, including
+// bare numbers, uses the Hebrew face, which has full Latin coverage.
+const pickFamily = (weight, lang, text) => {
+  const w = HEBREW_FACES[weight] ? weight : "400";
+  const hasArabic = ARABIC_RANGE.test(text);
+  const hasHebrew = HEBREW_RANGE.test(text);
+  const arabic = hasArabic || (lang === "ar" && !hasHebrew);
+  return (arabic ? ARABIC_FACES : HEBREW_FACES)[w];
 };
 
 export default function Type({
@@ -109,19 +85,20 @@ export default function Type({
   const effectiveLang = lang || i18n.language;
   const text = typeof children === "string" ? children : "";
   const family = useMemo(
-    () => pickFamily(variant, effectiveLang, text),
-    [variant, effectiveLang, text],
+    () => pickFamily(v.weight, effectiveLang, text),
+    [v.weight, effectiveLang, text],
   );
 
   const isNumeric =
     numeric || /value|amount|hero|netPay|rowDate|numeric/.test(variant);
-  // Hebrew content or RTL language → set writingDirection so the text
-  // engine ships Hebrew runes RTL inside the string. Numeric variants
-  // stay LTR so currency and totals don't get mirrored.
-  const hasHebrew = HEBREW_RANGE.test(text);
+  // Hebrew or Arabic content stays RTL inside the string. Numeric variants
+  // stay LTR so a currency total is never mirrored.
   const isRtl =
     !isNumeric &&
-    (hasHebrew || effectiveLang === "he" || effectiveLang === "ar");
+    (HEBREW_RANGE.test(text) ||
+      ARABIC_RANGE.test(text) ||
+      effectiveLang === "he" ||
+      effectiveLang === "ar");
 
   const computed = {
     fontFamily: family,
@@ -132,16 +109,14 @@ export default function Type({
     textAlign: align ?? (isRtl ? "right" : undefined),
     writingDirection: isRtl ? "rtl" : undefined,
     fontVariant: isNumeric ? ["tabular-nums"] : undefined,
-    textTransform: (upper ?? v.upper) ? "uppercase" : "none",
+    textTransform: upper ? "uppercase" : "none",
   };
 
   return (
-    <Text
-      numberOfLines={numberOfLines}
-      style={[computed, style]}
-      {...rest}
-    >
+    <Text numberOfLines={numberOfLines} style={[computed, style]} {...rest}>
       {children}
     </Text>
   );
 }
+
+export { VARIANTS };

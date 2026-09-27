@@ -1,21 +1,15 @@
 import {
-  CormorantGaramond_400Regular,
-  CormorantGaramond_400Regular_Italic,
-  CormorantGaramond_500Medium,
-  CormorantGaramond_500Medium_Italic,
-  CormorantGaramond_600SemiBold,
-} from "@expo-google-fonts/cormorant-garamond";
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold,
+} from "@expo-google-fonts/ibm-plex-sans-arabic";
 import {
-  FrankRuhlLibre_400Regular,
-  FrankRuhlLibre_500Medium,
-  FrankRuhlLibre_700Bold,
-} from "@expo-google-fonts/frank-ruhl-libre";
-import {
-  Manrope_400Regular,
-  Manrope_500Medium,
-  Manrope_600SemiBold,
-  Manrope_700Bold,
-} from "@expo-google-fonts/manrope";
+  IBMPlexSansHebrew_400Regular,
+  IBMPlexSansHebrew_500Medium,
+  IBMPlexSansHebrew_600SemiBold,
+  IBMPlexSansHebrew_700Bold,
+} from "@expo-google-fonts/ibm-plex-sans-hebrew";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
@@ -23,7 +17,12 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { I18nManager } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
+import {
+  configureFonts,
+  MD3DarkTheme,
+  MD3LightTheme,
+  PaperProvider,
+} from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
 import ErrorBoundary from "../components/layout/ErrorBoundary";
@@ -44,8 +43,18 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// The 25 screens and components that render react-native-paper inherit the
+// redesign from here: one font config and one roundness, rather than 25
+// rewrites. Paper stays the interaction layer (TextInput, Modal, Switch,
+// SegmentedButtons) because the custom primitives have no equivalent.
+const paperFonts = configureFonts({
+  config: { fontFamily: "IBMPlexSansHebrew_400Regular" },
+});
+
 const lightTheme = {
   ...MD3LightTheme,
+  fonts: paperFonts,
+  roundness: 11,
   colors: {
     ...MD3LightTheme.colors,
     ...lightTokens,
@@ -65,6 +74,8 @@ const lightTheme = {
 
 const darkTheme = {
   ...MD3DarkTheme,
+  fonts: paperFonts,
+  roundness: 11,
   colors: {
     ...MD3DarkTheme.colors,
     ...darkTokens,
@@ -203,18 +214,14 @@ function ThemedApp() {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    CormorantGaramond_400Regular,
-    CormorantGaramond_400Regular_Italic,
-    CormorantGaramond_500Medium,
-    CormorantGaramond_500Medium_Italic,
-    CormorantGaramond_600SemiBold,
-    FrankRuhlLibre_400Regular,
-    FrankRuhlLibre_500Medium,
-    FrankRuhlLibre_700Bold,
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
+    IBMPlexSansHebrew_400Regular,
+    IBMPlexSansHebrew_500Medium,
+    IBMPlexSansHebrew_600SemiBold,
+    IBMPlexSansHebrew_700Bold,
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+    IBMPlexSansArabic_600SemiBold,
+    IBMPlexSansArabic_700Bold,
   });
 
   if (!fontsLoaded) {

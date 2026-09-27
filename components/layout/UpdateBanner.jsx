@@ -39,7 +39,7 @@ export default function UpdateBanner() {
           paddingHorizontal: 14,
           borderRadius: 14,
           backgroundColor: theme.colors.anchor,
-          shadowColor: "#000",
+          shadowColor: theme.colors.ink,
           shadowOpacity: 0.18,
           shadowRadius: 10,
           shadowOffset: { width: 0, height: 4 },
