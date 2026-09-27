@@ -72,20 +72,29 @@ export default function ShiftNoteModal({ visible, onDismiss, shift, onSaved }) {
               {t("shiftDetails.editNote")}
             </Text>
 
-            <TextInput
-              mode="outlined"
-              label={t("add_shift.note_label")}
-              placeholder={t("add_shift.note_placeholder")}
-              value={value}
-              onChangeText={setValue}
-              multiline
-              numberOfLines={4}
-              maxLength={500}
-              left={<TextInput.Icon icon="note-text-outline" />}
-              contentStyle={{ textAlign: inputTextStart(isRTL) }}
-              style={styles.input}
-              outlineStyle={styles.outline}
-            />
+            {/* Static label, not Paper's floating one: Paper derives the
+                label's translateX from I18nManager.isRTL (kept false here)
+                and adds another offset for the left icon, so under the
+                mirrored layout the label slid out of the field and clipped.
+                Same treatment as ShiftCommentField. */}
+            <View style={styles.fieldWrap}>
+              <TextInput
+                mode="outlined"
+                placeholder={t("add_shift.note_placeholder")}
+                value={value}
+                onChangeText={setValue}
+                multiline
+                numberOfLines={4}
+                maxLength={500}
+                left={<TextInput.Icon icon="note-text-outline" />}
+                contentStyle={{ textAlign: inputTextStart(isRTL) }}
+                style={styles.input}
+                outlineStyle={styles.outline}
+              />
+              <Text style={styles.floatLabel}>
+                {t("add_shift.note_label")}
+              </Text>
+            </View>
 
             <View style={styles.actions}>
               <Button mode="text" onPress={onDismiss} disabled={saving}>
@@ -121,13 +130,30 @@ const makeStyle = (theme, isRTL) =>
       marginBottom: 18,
       textAlign: textStart,
     },
+    // Own positioning context, so the label anchors to the field and not
+    // to the modal body above it.
+    fieldWrap: {
+      marginBottom: 16,
+    },
     input: {
       backgroundColor: theme.colors.surface,
       minHeight: 110,
-      marginBottom: 16,
     },
     outline: {
-      borderRadius: 12,
+      borderRadius: radius.control,
+    },
+    // Sits in the gap in the outline; `start` is logical so it follows the
+    // field's leading edge in both directions.
+    floatLabel: {
+      position: "absolute",
+      top: -8,
+      start: 15,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 6,
+      fontSize: 12,
+      fontWeight: "bold",
+      color: theme.colors.onSurfaceVariant,
+      textAlign: textStart,
     },
     actions: {
       flexDirection: "row",

@@ -21,7 +21,7 @@ import {
 import { PrivacyConsent } from "../../components/common/privacyConsent";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
-import { textStart } from "../../lib/theme";
+
 
 export default function RegisterScreen() {
   // import the signIn function we allready created
@@ -182,10 +182,6 @@ const makeStyle = (theme, isRTL) =>
     contentWrapper: {
       padding: 20,
       gap: 15,
-    },
-    contentStyle: {
-      textAlign: textStart,
-      writingDirection: isRTL ? "rtl" : "ltr",
     },
     input: {
       flexDirection: "row",

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, Text, TextInput, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { normalizeDecimal } from "../../lib/utils";
-import { inputTextStart, textStart } from "../../lib/theme";
+import { inputTextStart } from "../../lib/theme";
 
 export default function ShiftDatePicker({
   startTime,
@@ -99,7 +99,7 @@ export default function ShiftDatePicker({
               keyboardType="decimal-pad"
               onChangeText={(val) => setHourRate(normalizeDecimal(val))}
               contentStyle={{
-                textAlign: textStart,
+                textAlign: inputTextStart(isRTL),
               }}
               style={styles.input}
               outlineStyle={styles.outline}

@@ -1,12 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import { SegmentedButtons, useTheme } from "react-native-paper";
+import { useLanguage } from "../../hooks/lang-context";
+import { shapeSegmentedButtons } from "../../lib/segmentedShape";
 import { radius } from "../../lib/theme";
 
 export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
   const theme = useTheme();
   const styles = makeStyle(theme);
   const { t } = useTranslation();
+  const { isRTL } = useLanguage();
+  // Paper rounds a row's outer corners by array index using physical
+  // corners, which points the wrong way once the row mirrors.
+  const shape = (buttons) =>
+    shapeSegmentedButtons(buttons, isRTL, radius.control);
   return (
     <>
       <SegmentedButtons
@@ -15,7 +22,7 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
         style={styles.segmented}
         onValueChange={handleShiftTypeChange}
         theme={segmentedTheme(theme)}
-        buttons={[
+        buttons={shape([
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "morning",
@@ -40,14 +47,14 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             icon: "weather-night",
             showSelectedCheck: false,
           },
-        ]}
+        ])}
       />
       <SegmentedButtons
         value={value}
         style={styles.segmentedTwo}
         onValueChange={handleShiftTypeChange}
         theme={segmentedTheme(theme)}
-        buttons={[
+        buttons={shape([
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "training",
@@ -64,14 +71,14 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             icon: "home-heart",
             showSelectedCheck: false,
           },
-        ]}
+        ])}
       />
       <SegmentedButtons
         value={value}
         style={styles.segmentedTwo}
         onValueChange={handleShiftTypeChange}
         theme={segmentedTheme(theme)}
-        buttons={[
+        buttons={shape([
           {
             uncheckedColor: theme.colors.onSecondaryContainer,
             value: "sick",
@@ -88,7 +95,7 @@ export default function ShiftTypeSelected({ value, handleShiftTypeChange }) {
             icon: "calendar-star",
             showSelectedCheck: false,
           },
-        ]}
+        ])}
       />
     </>
   );

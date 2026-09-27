@@ -750,7 +750,7 @@ export default function ShiftsScreen() {
         <Snackbar
           visible={!!undoDoc}
           onDismiss={() => setUndoDoc(null)}
-          duration={6000}
+          duration={3000}
           action={{ label: t("common.undo"), onPress: handleUndo }}
         >
           {t("shifts.deleted")}

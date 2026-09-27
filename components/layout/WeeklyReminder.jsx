@@ -10,7 +10,8 @@ import {
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
-import { textStart } from "../../lib/theme";
+import { shapeSegmentedButtons } from "../../lib/segmentedShape";
+import { radius, textStart } from "../../lib/theme";
 
 export default function WeeklyReminder({
   visable,
@@ -41,22 +42,32 @@ export default function WeeklyReminder({
           <SegmentedButtons
             value={tempDay}
             onValueChange={setTempDay}
-            buttons={[
-              { value: 1, label: t("days.sun") },
-              { value: 2, label: t("days.mon") },
-              { value: 3, label: t("days.tue") },
-              { value: 4, label: t("days.wed") },
-            ]}
+            theme={{ roundness: radius.control / 5 }}
+            buttons={shapeSegmentedButtons(
+              [
+                { value: 1, label: t("days.sun") },
+                { value: 2, label: t("days.mon") },
+                { value: 3, label: t("days.tue") },
+                { value: 4, label: t("days.wed") },
+              ],
+              isRTL,
+              radius.control,
+            )}
             style={styles.segmented}
           />
           <SegmentedButtons
             value={tempDay}
             onValueChange={setTempDay}
-            buttons={[
-              { value: 5, label: t("days.thu") },
-              { value: 6, label: t("days.fri") },
-              { value: 7, label: t("days.sat") },
-            ]}
+            theme={{ roundness: radius.control / 5 }}
+            buttons={shapeSegmentedButtons(
+              [
+                { value: 5, label: t("days.thu") },
+                { value: 6, label: t("days.fri") },
+                { value: 7, label: t("days.sat") },
+              ],
+              isRTL,
+              radius.control,
+            )}
             style={styles.segmented}
           />
           <Text style={styles.label}>{t("weekly_reminder.select_time")}:</Text>
