@@ -5,7 +5,7 @@ import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
 import { resolveSwatchHex, SWATCHES } from "../../lib/shiftColors";
-import { radius } from "../../lib/theme";
+import { radius, textStart } from "../../lib/theme";
 
 // Picker modal: shows the 8 swatches in a grid. Caller controls visibility
 // via `visible` and gets the chosen hex back via `onSelect(hex)`.
@@ -100,7 +100,7 @@ const makeStyle = (theme, isRTL) =>
       fontWeight: "bold",
       color: theme.colors.onSurface,
       marginBottom: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
     grid: {
       flexDirection: "row",

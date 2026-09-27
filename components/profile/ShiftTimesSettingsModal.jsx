@@ -21,7 +21,7 @@ import {
   serialiseUserShiftTimes,
 } from "../../lib/shiftTimes";
 import ShiftTimeEditModal from "./ShiftTimeEditModal";
-import { radius } from "../../lib/theme";
+import { radius, textStart } from "../../lib/theme";
 
 const ICONS = {
   morning: "weather-sunset-up",
@@ -200,7 +200,7 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       color: theme.colors.onSurface,
       fontSize: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingHorizontal: 4,
     },

@@ -2,10 +2,10 @@ import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useLanguage } from "../../hooks/lang-context";
 import { useOtaUpdates } from "../../hooks/useOtaUpdates";
 import Icon from "../common/Icon";
 import Type from "../common/Type";
+import { textStart } from "../../lib/theme";
 
 // Small bottom notice shown once an OTA update has been downloaded:
 // "Update ready — Restart / Later". Sits above the tab bar.
@@ -16,7 +16,6 @@ export default function UpdateBanner() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
   if (!ready) return null;
 
   return (
@@ -50,7 +49,7 @@ export default function UpdateBanner() {
         <Type
           variant="body"
           color={theme.colors.anchorInk}
-          style={{ flex: 1, textAlign: isRTL ? "right" : "left" }}
+          style={{ flex: 1, textAlign: textStart }}
         >
           {t("service.update_ready")}
         </Type>

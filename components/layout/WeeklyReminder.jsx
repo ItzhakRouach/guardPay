@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
+import { textStart } from "../../lib/theme";
 
 export default function WeeklyReminder({
   visable,
@@ -120,7 +121,7 @@ const makeStyle = (theme, isRTL) =>
       marginBottom: 8,
       marginTop: 15,
       fontWeight: "600",
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     segmented: {

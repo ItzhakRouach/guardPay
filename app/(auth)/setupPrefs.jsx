@@ -27,6 +27,7 @@ import GuardRateChips from "../../components/common/GuardRateChips";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
+import { textStart } from "../../lib/theme";
 // The DatePickerModal below uses locale="en-GB" (for DD/MM/YYYY date
 // order) but react-native-paper-dates doesn't ship a separate en-GB
 // translation. Reuse the en strings under the en-GB key so the picker
@@ -314,7 +315,7 @@ const makeStyle = (theme, isRTL) =>
       marginTop: 20,
     },
     contentStyle: {
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     title: {

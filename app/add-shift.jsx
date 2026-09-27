@@ -34,6 +34,7 @@ import { getShiftTimes } from "../lib/shiftTimes";
 import { classifyTimeOfDay } from "../lib/shiftType";
 import { shiftTypeTimes } from "../lib/utils";
 import { buildSickDocs } from "../utils/sickDays";
+import { textStart } from "../lib/theme";
 
 export default function AddShift() {
   // use to control the show of the picker or not , default not
@@ -601,7 +602,7 @@ const makeStyle = (theme, isRTL) =>
       fontWeight: "bold",
       marginBottom: 20,
       letterSpacing: -0.5,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingStart: 10,
     },

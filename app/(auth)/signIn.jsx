@@ -162,7 +162,9 @@ const makeStyle = (theme, isRTL) =>
       color: theme.colors.primary,
       fontWeight: 600,
       fontSize: 30,
-      marginRight: 25,
+      // Optical centring against the logo beside it. Logical edge, so the
+      // nudge follows the row when it mirrors in Hebrew and Arabic.
+      marginEnd: 25,
     },
     headerContent: {
       flexDirection: "row",

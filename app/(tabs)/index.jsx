@@ -41,7 +41,7 @@ import {
 import { parseOvertimeRules } from "../../lib/overtimeRules";
 import { formatHHMM, parseReminderTime } from "../../lib/reminderTime";
 import { screenContentLayout } from "../../lib/responsive";
-import { radius } from "../../lib/theme";
+import { radius, textStart } from "../../lib/theme";
 
 function SettingsRow({
   icon,
@@ -56,7 +56,7 @@ function SettingsRow({
   const theme = useTheme();
   const chevName = isRTL ? "chev-left" : "chev-right";
   const iconSpacing = isRTL ? { marginLeft: 12 } : { marginRight: 12 };
-  const labelAlign = isRTL ? "right" : "left";
+  const labelAlign = textStart;
   const body = (
     <View
       style={{
@@ -378,13 +378,11 @@ export default function ProfileScreen() {
             <StatsTile
               label={t("profile.totalShifts")}
               value={totalShifts == null ? "—" : String(totalShifts)}
-              align={isRTL ? "right" : "left"}
             />
             <Hairline vertical />
             <StatsTile
               label={t("profile.activeMonths")}
               value={activeMonths == null ? "—" : String(activeMonths)}
-              align={isRTL ? "right" : "left"}
             />
           </View>
 

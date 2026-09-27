@@ -17,6 +17,7 @@ import { handleGeneratePDF } from "../lib/GeneratePaycheck";
 import { buildPaycheckModel } from "../lib/paycheckData";
 import { screenContentLayout } from "../lib/responsive";
 import { localeFromLang } from "../lib/utils";
+import { textEnd, textStart } from "../lib/theme";
 
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -49,8 +50,8 @@ function EarningsRow({ row, lang, isRTL }) {
   const label = row.label;
   // The row reads [label | rate | qty | amount] in source order; the
   // app-wide layout direction mirrors it for Hebrew and Arabic.
-  const numAlign = isRTL ? "left" : "right";
-  const labelAlign = isRTL ? "right" : "left";
+  const numAlign = textEnd;
+  const labelAlign = textStart;
   return (
     <View
       style={{
@@ -99,8 +100,8 @@ function EarningsRow({ row, lang, isRTL }) {
 function EarningsTable({ model, lang, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const numAlign = isRTL ? "left" : "right";
-  const labelAlign = isRTL ? "right" : "left";
+  const numAlign = textEnd;
+  const labelAlign = textStart;
   return (
     <View style={{ marginTop: 4 }}>
       <View
@@ -180,7 +181,7 @@ function EarningsTable({ model, lang, isRTL }) {
 // them, so the two disagreed.
 function CreditsTable({ model, lang, isRTL }) {
   const theme = useTheme();
-  const labelAlign = isRTL ? "right" : "left";
+  const labelAlign = textStart;
   if (!model.credits || model.credits.length === 0) return null;
   return (
     <View style={{ marginTop: 4 }}>
@@ -216,7 +217,7 @@ function CreditsTable({ model, lang, isRTL }) {
 function DeductionsTable({ model, lang, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const labelAlign = isRTL ? "right" : "left";
+  const labelAlign = textStart;
   return (
     <View style={{ marginTop: 4 }}>
       {model.summary.map((row, i) => (
@@ -276,7 +277,7 @@ function NetPayCard({ neto, bruto, isRTL }) {
     <AnchorCard radius={20} style={{ marginTop: 24, padding: 24 }}>
       <Eyebrow
         color={theme.colors.anchorMuted}
-        style={{ textAlign: isRTL ? "right" : "left" }}
+        style={{ textAlign: textStart }}
       >
         {t("paycheck.netPay")}
       </Eyebrow>
@@ -303,7 +304,7 @@ function NetPayCard({ neto, bruto, isRTL }) {
       <Type
         variant="helperItalic"
         color={theme.colors.anchorMuted}
-        style={{ marginTop: 8, textAlign: isRTL ? "right" : "left" }}
+        style={{ marginTop: 8, textAlign: textStart }}
       >
         {`${t("paycheck.of")} ${fmt(bruto)} ₪ ${t("paycheck.gross")}`}
       </Type>

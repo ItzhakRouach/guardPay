@@ -21,7 +21,7 @@ import {
   serialiseUserColors,
 } from "../../lib/shiftColors";
 import ShiftColorsModal from "./ShiftColorsModal";
-import { radius } from "../../lib/theme";
+import { radius, textStart } from "../../lib/theme";
 
 // Modal launched from the Preferences "Shift colors" row. Lists the 4
 // shift types with their current swatch dot; tapping a row opens the
@@ -213,7 +213,7 @@ const makeStyle = (theme, isRTL) =>
       flex: 1,
       color: theme.colors.onSurface,
       fontSize: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingHorizontal: 4,
     },

@@ -17,7 +17,7 @@ import {
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../../lib/appwrite";
-import { radius } from "../../lib/theme";
+import { inputTextStart, radius, textStart } from "../../lib/theme";
 
 // Edit-comment modal launched from Shift Details. Writes shift.comment
 // straight to the shifts_history document; caller passes the shift and an
@@ -82,7 +82,7 @@ export default function ShiftNoteModal({ visible, onDismiss, shift, onSaved }) {
               numberOfLines={4}
               maxLength={500}
               left={<TextInput.Icon icon="note-text-outline" />}
-              contentStyle={{ textAlign: isRTL ? "right" : "left" }}
+              contentStyle={{ textAlign: inputTextStart(isRTL) }}
               style={styles.input}
               outlineStyle={styles.outline}
             />
@@ -119,7 +119,7 @@ const makeStyle = (theme, isRTL) =>
       fontWeight: "bold",
       color: theme.colors.onSurface,
       marginBottom: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
     },
     input: {
       backgroundColor: theme.colors.surface,

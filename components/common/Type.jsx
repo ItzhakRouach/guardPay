@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Text } from "react-native";
+import { Text, useWindowDimensions } from "react-native";
 import { useTheme } from "react-native-paper";
+import { textStart } from "../../lib/theme";
 
 const HEBREW_RANGE = /[֐-׿]/;
 const ARABIC_RANGE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
@@ -71,6 +72,8 @@ export default function Type({
   variant = "body",
   color,
   align,
+  weight,
+  maxFontSizeMultiplier,
   numeric = false,
   upper,
   style,
@@ -81,39 +84,70 @@ export default function Type({
 }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
+  // React Native scales `fontSize` with the accessibility text size but
+  // leaves `lineHeight` alone, so a variant with a fixed line height
+  // clips its own descenders at the larger settings. Scaling it here by
+  // the same factor keeps every variant legible at the largest size,
+  // and respects a caller's `maxFontSizeMultiplier` cap so a fixed-height
+  // box (the calendar cell) does not grow past what it can show.
+  const { fontScale } = useWindowDimensions();
   const v = VARIANTS[variant] || VARIANTS.body;
+  // `weight` overrides the variant's weight while keeping the family
+  // language-aware. Callers must never hardcode a fontFamily in `style`:
+  // that pins Arabic copy to the Hebrew face, which has no Arabic glyphs.
+  const effWeight = weight || v.weight;
   const effectiveLang = lang || i18n.language;
   const text = typeof children === "string" ? children : "";
   const family = useMemo(
-    () => pickFamily(v.weight, effectiveLang, text),
-    [v.weight, effectiveLang, text],
+    () => pickFamily(effWeight, effectiveLang, text),
+    [effWeight, effectiveLang, text],
   );
 
   const isNumeric =
     numeric || /value|amount|hero|netPay|rowDate|numeric/.test(variant);
-  // Hebrew or Arabic content stays RTL inside the string. Numeric variants
-  // stay LTR so a currency total is never mirrored.
-  const isRtl =
+
+  // Two separate questions, which the old code conflated into one flag:
+  //
+  // 1. Which EDGE does the paragraph sit on? That follows the screen, not
+  //    the string, so a bare number on a Hebrew screen still sits on the
+  //    Hebrew leading edge. `textStart` is "left", which React Native
+  //    mirrors to the right edge under the root `direction` (see lib/theme).
+  //    Alignment is always set explicitly: leaving it undefined falls back
+  //    to natural alignment, which resolves off the first strong character
+  //    and therefore strands a digits-only string on the wrong edge.
+  //
+  // 2. Which ORDER do the characters run in? That follows the string. A
+  //    numeric run keeps `ltr` so "07:00 – 15:00" is never reordered into
+  //    "15:00 – 07:00" by the bidi algorithm on a Hebrew screen.
+  const rtlText =
     !isNumeric &&
     (HEBREW_RANGE.test(text) ||
       ARABIC_RANGE.test(text) ||
       effectiveLang === "he" ||
       effectiveLang === "ar");
 
+  const cap = maxFontSizeMultiplier ?? Infinity;
+  const scale = Math.max(1, Math.min(fontScale || 1, cap));
+
   const computed = {
     fontFamily: family,
     fontSize: v.size,
     letterSpacing: v.ls,
-    lineHeight: v.lh,
+    lineHeight: v.lh ? Math.round(v.lh * scale) : undefined,
     color: color || theme.colors.ink,
-    textAlign: align ?? (isRtl ? "right" : undefined),
-    writingDirection: isRtl ? "rtl" : undefined,
+    textAlign: align ?? textStart,
+    writingDirection: rtlText ? "rtl" : "ltr",
     fontVariant: isNumeric ? ["tabular-nums"] : undefined,
     textTransform: upper ? "uppercase" : "none",
   };
 
   return (
-    <Text numberOfLines={numberOfLines} style={[computed, style]} {...rest}>
+    <Text
+      numberOfLines={numberOfLines}
+      maxFontSizeMultiplier={maxFontSizeMultiplier}
+      style={[computed, style]}
+      {...rest}
+    >
       {children}
     </Text>
   );

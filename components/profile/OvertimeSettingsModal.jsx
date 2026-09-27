@@ -23,7 +23,7 @@ import {
 import { recomputeRange } from "../../lib/weeklyOt";
 import { useShiftsStore } from "../../hooks/shifts-store";
 import LoadingSpinner from "../common/LoadingSpinnner";
-import { radius } from "../../lib/theme";
+import { radius, textStart } from "../../lib/theme";
 
 // Three controls, all explained in one line each. Saving recomputes the
 // CURRENT month's weeks under the new rules (owner decision); earlier
@@ -197,12 +197,12 @@ const makeStyle = (theme, isRTL) =>
     },
     label: {
       color: theme.colors.onSurface,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       marginBottom: 6,
     },
     hint: {
       color: theme.colors.onSurfaceVariant,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       marginTop: 6,
     },
     save: { marginTop: 20, borderRadius: 14 },

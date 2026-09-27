@@ -15,7 +15,7 @@ import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import settlementsData from "../../utils/settlements.json";
-import { radius } from "../../lib/theme";
+import { radius, textStart } from "../../lib/theme";
 
 // Picker launched from the Profile → Preferences "settlement" row. Lets
 // the user search the 391 tax-credited settlements and pick one; the
@@ -199,7 +199,7 @@ const makeStyle = (theme, isRTL) =>
       paddingHorizontal: 18,
       paddingBottom: 8,
       color: theme.colors.summary,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     searchBox: {
@@ -215,19 +215,19 @@ const makeStyle = (theme, isRTL) =>
       fontSize: 16,
       color: theme.colors.onSurface,
       paddingVertical: 0,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
     },
     results: {
       maxHeight: 300,
     },
     itemTitle: {
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       color: theme.colors.onSurface,
     },
     itemDesc: {
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       color: theme.colors.secondary,
     },
@@ -249,7 +249,7 @@ const makeStyle = (theme, isRTL) =>
     rowLabel: {
       flex: 1,
       fontSize: 18,
-      textAlign: isRTL ? "right" : "left",
+      textAlign: textStart,
       writingDirection: isRTL ? "rtl" : "ltr",
       paddingHorizontal: 4,
     },
