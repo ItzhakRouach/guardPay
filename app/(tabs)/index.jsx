@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -9,7 +9,6 @@ import {
   Switch,
   View,
 } from "react-native";
-import { Query } from "react-native-appwrite";
 import { ActivityIndicator, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { OutlinedButton } from "../../components/common/Buttons";
@@ -20,7 +19,6 @@ import Pill from "../../components/common/Pill";
 import Type from "../../components/common/Type";
 import WeeklyReminder from "../../components/layout/WeeklyReminder";
 import SecurityLawPDF from "../../components/legal/SecurityLawPDF";
-import LanguagesChange from "../../components/profile/LanguagesChange";
 import PreferencesChange from "../../components/profile/PreferencesChange";
 import SettlementSettingsModal from "../../components/profile/SettlementSettingsModal";
 import ShiftColorsSettingsModal from "../../components/profile/ShiftColorsSettingsModal";
@@ -30,7 +28,6 @@ import { useLanguage } from "../../hooks/lang-context";
 import { useProfileStats } from "../../hooks/useProfileStats";
 import { useThemeMode } from "../../hooks/theme-context";
 import {
-  client,
   DATABASE_ID,
   databases,
   functions,
@@ -156,17 +153,16 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { user, signOut } = useAuth();
+  const { user, signOut, profile, setProfile } = useAuth();
   const { lang, changeLanguage, isRTL } = useLanguage();
   const { scheme, toggle } = useThemeMode();
 
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // `profile` comes from the auth context — the one source of truth every
+  // settings modal already writes to; realtime keeps it current there.
 
   // Sub-screen modal toggles — wired one-to-one with the legacy ProfileSummary.
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [timesOpen, setTimesOpen] = useState(false);
   const [settlementOpen, setSettlementOpen] = useState(false);
@@ -176,45 +172,20 @@ export default function ProfileScreen() {
   const [tempDay, setTempDay] = useState(1);
   const [tempTime, setTempTime] = useState(new Date());
 
-  const fetchProfile = useCallback(async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const res = await databases.listDocuments(DATABASE_ID, USERS_PREFS, [
-        Query.equal("user_id", user.$id),
-      ]);
-      const doc = res.documents[0] || null;
-      setProfile(doc);
-      if (doc?.reminder_day) setTempDay(doc.reminder_day);
-    } catch (err) {
-      console.error("ProfileScreen: fetch profile failed", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchProfile();
-    if (!user) return;
-    const channel = `databases.${DATABASE_ID}.collections.${USERS_PREFS}.documents`;
-    let unsub;
-    try {
-      unsub = client.subscribe(channel, (response) => {
-        if (response.payload?.user_id === user.$id) {
-          fetchProfile();
-        }
-      });
-    } catch {}
-    return () => {
-      try {
-        unsub?.();
-      } catch {}
-    };
-  }, [user, fetchProfile]);
-
   const { totalShifts, activeMonths } = useProfileStats(user);
+
+  // Seed the picker from the saved reminder so it opens on the current
+  // day/time rather than defaults.
+  const openReminderPicker = () => {
+    setTempDay(profile?.reminder_day || 1);
+    const parsed = parseReminderTime(profile?.reminder_time);
+    if (parsed) {
+      const d = new Date();
+      d.setHours(parsed.hour, parsed.minute, 0, 0);
+      setTempTime(d);
+    }
+    setReminderOpen(true);
+  };
 
   const onToggleReminder = async (value) => {
     if (!profile) return;
@@ -223,7 +194,7 @@ export default function ProfileScreen() {
     // while nothing was scheduled. Open the picker instead; saving there
     // enables the reminder.
     if (value && (!profile.reminder_day || !parsed)) {
-      setReminderOpen(true);
+      openReminderPicker();
       return;
     }
     try {
@@ -353,7 +324,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      {loading ? (
+      {!profile ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
@@ -492,7 +463,7 @@ export default function ProfileScreen() {
               icon="bell"
               label={t("index.weekly_r")}
               value={reminderValue}
-              onPress={() => setReminderOpen(true)}
+              onPress={openReminderPicker}
               right={
                 <Switch
                   value={!!profile?.reminder_enable}
@@ -602,12 +573,6 @@ export default function ProfileScreen() {
         <PreferencesChange
           visable={prefsOpen}
           hideModal={() => setPrefsOpen(false)}
-        />
-      ) : null}
-      {langOpen ? (
-        <LanguagesChange
-          visable={langOpen}
-          hideModal={() => setLangOpen(false)}
         />
       ) : null}
       <ShiftColorsSettingsModal

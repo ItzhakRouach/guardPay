@@ -38,6 +38,13 @@ export const resources = {
         incorrect_data_type: "בבקשה תשתמש בספרות בלבד",
       },
       service: {
+        update_ready: "עדכון חדש מוכן",
+        update_restart: "הפעל מחדש",
+        update_later: "אחר כך",
+        crash_title: "משהו השתבש",
+        crash_body: "המסך נתקל בשגיאה. הנתונים שלך שמורים. נסו שוב או הפעילו מחדש את האפליקציה.",
+        crash_retry: "נסו שוב",
+        crash_restart: "הפעלה מחדש",
         unavailable_title: "השירות אינו זמין כרגע",
         unavailable_body:
           "הנתונים שלך שמורים ולא נמחקו. נסו שוב בעוד מספר דקות.",
@@ -138,6 +145,7 @@ export const resources = {
         msg_err: "שגיאה! לא יכל לעדכן",
       },
       shifts: {
+        restreak_partial: "חלק מימי המחלה לא עודכנו. הרשימה רועננה מהשרת — בדקו את הימים הסמוכים.",
         month_pay: "משכורת חודשית",
         total_h: "שעות עבודה",
         amount: "סכום",
@@ -418,6 +426,13 @@ export const resources = {
         incorrect_data_type: "Please Enter Valid Numbers",
       },
       service: {
+        update_ready: "A new update is ready",
+        update_restart: "Restart",
+        update_later: "Later",
+        crash_title: "Something went wrong",
+        crash_body: "This screen hit an error. Your data is safe. Try again or restart the app.",
+        crash_retry: "Try again",
+        crash_restart: "Restart app",
         unavailable_title: "Service temporarily unavailable",
         unavailable_body:
           "Your data is safe and has not been deleted. Please try again in a few minutes.",
@@ -533,6 +548,7 @@ export const resources = {
         msg_err: "Unable To Update",
       },
       shifts: {
+        restreak_partial: "Some sick days could not be updated. The list was refreshed from the server — please check the nearby days.",
         month_pay: "MONTHLY PAY",
         total_h: "TOTAL HOURS",
         amount: "Amount",
@@ -804,6 +820,13 @@ export const resources = {
         incorrect_data_type: "يرجى استخدام الأرقام فقط",
       },
       service: {
+        update_ready: "تحديث جديد جاهز",
+        update_restart: "إعادة التشغيل",
+        update_later: "لاحقاً",
+        crash_title: "حدث خطأ ما",
+        crash_body: "واجهت هذه الشاشة خطأ. بياناتك محفوظة. حاول مجدداً أو أعد تشغيل التطبيق.",
+        crash_retry: "حاول مجدداً",
+        crash_restart: "إعادة تشغيل التطبيق",
         unavailable_title: "الخدمة غير متاحة حالياً",
         unavailable_body:
           "بياناتك محفوظة ولم تُحذف. يرجى المحاولة مجدداً بعد بضع دقائق.",
@@ -904,6 +927,7 @@ export const resources = {
         msg_err: "حدث خطأ! تعذّر التحديث",
       },
       shifts: {
+        restreak_partial: "تعذّر تحديث بعض الأيام المرضية. تم تحديث القائمة من الخادم — يرجى مراجعة الأيام المجاورة.",
         month_pay: "الراتب الشهري",
         total_h: "ساعات العمل",
         amount: "المبلغ",

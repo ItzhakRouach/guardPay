@@ -26,9 +26,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import LoadingSpinner from "../components/common/LoadingSpinnner";
+import ErrorBoundary from "../components/layout/ErrorBoundary";
+import UpdateBanner from "../components/layout/UpdateBanner";
 import ServiceUnavailable from "../components/layout/ServiceUnavailable";
 import { AuthProvider, useAuth } from "../hooks/auth-context";
 import { LanguageProvider, useLanguage } from "../hooks/lang-context";
+import { ShiftsProvider } from "../hooks/shifts-store";
 import { ThemeProvider, useThemeMode } from "../hooks/theme-context";
 import { darkTokens, legacyAlias, lightTokens } from "../lib/theme";
 import "../translations/il18n";
@@ -169,25 +172,28 @@ function ThemedApp() {
         <StatusBar style={isDark ? "light" : "dark"} />
         <RouteGuard>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: {
-                  backgroundColor: theme.colors.bg,
-                },
-              }}
-            >
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen
-                name="add-shift"
-                options={{ presentation: "modal" }}
-              />
-              <Stack.Screen
-                name="paycheck"
-                options={{ presentation: "modal" }}
-              />
-            </Stack>
+            <ErrorBoundary>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: {
+                    backgroundColor: theme.colors.bg,
+                  },
+                }}
+              >
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="add-shift"
+                  options={{ presentation: "modal" }}
+                />
+                <Stack.Screen
+                  name="paycheck"
+                  options={{ presentation: "modal" }}
+                />
+              </Stack>
+              <UpdateBanner />
+            </ErrorBoundary>
           </GestureHandlerRootView>
         </RouteGuard>
       </SafeAreaProvider>
@@ -219,7 +225,9 @@ export default function RootLayout() {
     <LanguageProvider>
       <ThemeProvider>
         <AuthProvider>
-          <ThemedApp />
+          <ShiftsProvider>
+            <ThemedApp />
+          </ShiftsProvider>
         </AuthProvider>
       </ThemeProvider>
     </LanguageProvider>

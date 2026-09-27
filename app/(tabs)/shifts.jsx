@@ -18,6 +18,7 @@ import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
+import { listAllDocuments } from "../../lib/appwriteList";
 import { screenContentLayout, useContentInset } from "../../lib/responsive";
 import { restreakSickUpdates } from "../../utils/sickDays";
 
@@ -139,6 +140,7 @@ export default function ShiftsScreen() {
     shifts,
     loading,
     setShifts,
+    refetch,
     error: shiftsError,
   } = useShift(user, currentDate);
   const { totals, monthlyReport, salaryLoading } = useMonthlySalary(
@@ -163,13 +165,15 @@ export default function ShiftsScreen() {
   // profile is momentarily unloaded.
   const restreakAfterSickDelete = async () => {
     const fallbackDailyPay = (Number(profile?.price_per_hour) || 0) * 8;
-    const res = await databases.listDocuments(DATABASE_ID, SHIFTS_HISTORY, [
+    // Paginated: the old Query.limit(500) silently dropped sick docs for a
+    // heavy user, which recomputed the streak on a partial history.
+    const sickDocs = await listAllDocuments(DATABASE_ID, SHIFTS_HISTORY, [
       Query.equal("user_id", user.$id),
       Query.equal("is_sick", true),
-      Query.limit(500),
+      Query.orderAsc("start_time"),
     ]);
-    const updates = restreakSickUpdates(res.documents, fallbackDailyPay);
-    await Promise.all(
+    const updates = restreakSickUpdates(sickDocs, fallbackDailyPay);
+    const results = await Promise.allSettled(
       updates.map((u) =>
         databases.updateDocument(DATABASE_ID, SHIFTS_HISTORY, u.$id, {
           sick_percent: u.sick_percent,
@@ -177,14 +181,31 @@ export default function ShiftsScreen() {
         }),
       ),
     );
+    const applied = new Set(
+      results.flatMap((r, i) =>
+        r.status === "fulfilled" ? [updates[i].$id] : [],
+      ),
+    );
     setShifts((prev) =>
       prev.map((s) => {
-        const u = updates.find((x) => x.$id === s.$id);
+        const u = applied.has(s.$id)
+          ? updates.find((x) => x.$id === s.$id)
+          : null;
         return u
           ? { ...s, sick_percent: u.sick_percent, total_amount: u.total_amount }
           : s;
       }),
     );
+    const failed = results.length - applied.size;
+    if (failed > 0) {
+      // Don't leave a half-recomputed streak silent: say so, and resync the
+      // month from the server so the screen shows what was actually saved.
+      console.log(
+        `[sick] restreak: ${failed}/${results.length} updates failed`,
+      );
+      Alert.alert(t("shifts.restreak_partial"));
+      refetch();
+    }
   };
 
   const performDelete = async (shiftId) => {

@@ -1,81 +1,134 @@
-import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useRef, useState } from "react";
 import { Query } from "react-native-appwrite";
+import { applyStatsEvent, statsFromDocs } from "../lib/activeMonths";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../lib/appwrite";
+import { listAllDocuments } from "../lib/appwriteList";
+import { useShiftsStore } from "./shifts-store";
 
 // Lifetime stats for the Profile header.
 //
-//   - totalShifts: every shifts_history doc for this user.
-//   - activeMonths: distinct (year, month) buckets across those docs.
-//                   "March 2026" and "April 2026" count as 2 months even if
-//                   only a single shift was logged in April.
+//   totalShifts  — one count query (Appwrite returns `total` with limit 1).
+//   activeMonths — distinct local (year, month) buckets. Computing this needs
+//                  the whole history, so it is scanned ONCE, cached on the
+//                  device, and only rescanned when the count no longer
+//                  matches the cache or a delete may have emptied a month.
 //
-// Cursor-paginated up to a hard cap of 20k docs so heavy users still get
-// an accurate count without pulling the entire collection on profile
-// open. Both numbers stay null while loading so the Profile screen can
-// show "—" rather than 0.
-const PAGE = 100;
-const MAX_PAGES = 200;
+// Previously every Profile visit paginated the entire history (up to 20k
+// documents) to show these two integers.
+//
+// Both numbers stay null while loading / on failure so the screen shows
+// "—" rather than a misleading 0.
+
+const CACHE_PREFIX = "profile_stats:v1:";
+const RESCAN_DEBOUNCE_MS = 2000;
+
+const readCache = async (uid) => {
+  try {
+    const raw = await AsyncStorage.getItem(CACHE_PREFIX + uid);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+const writeCache = async (uid, stats) => {
+  try {
+    await AsyncStorage.setItem(CACHE_PREFIX + uid, JSON.stringify(stats));
+  } catch {
+    /* cache is a convenience */
+  }
+};
 
 export function useProfileStats(user) {
+  const uid = user?.$id || null;
+  // Only the stable `subscribe` is used, never the changing cache object —
+  // depending on the whole store would re-run the count query on every
+  // month fetch.
+  const { subscribe } = useShiftsStore();
   const [stats, setStats] = useState({ totalShifts: null, activeMonths: null });
+  const cacheRef = useRef(null);
+  const rescanTimer = useRef(null);
 
   useEffect(() => {
-    if (!user?.$id) return;
+    if (!uid) return undefined;
     let cancelled = false;
 
+    const publish = (c) => {
+      cacheRef.current = c;
+      if (!cancelled) {
+        setStats({ totalShifts: c.total, activeMonths: c.months.length });
+      }
+    };
+
+    const fullScan = async () => {
+      const docs = await listAllDocuments(DATABASE_ID, SHIFTS_HISTORY, [
+        Query.equal("user_id", uid),
+        Query.orderAsc("$id"),
+      ]);
+      const c = statsFromDocs(docs);
+      await writeCache(uid, c);
+      publish(c);
+    };
+
     (async () => {
-      let total = 0;
-      const monthSet = new Set();
-      let cursor = null;
-
       try {
-        for (let i = 0; i < MAX_PAGES; i += 1) {
-          const queries = [
-            Query.equal("user_id", user.$id),
-            Query.orderAsc("$id"),
-            Query.limit(PAGE),
-          ];
-          if (cursor) queries.push(Query.cursorAfter(cursor));
-
-          const res = await databases.listDocuments(
-            DATABASE_ID,
-            SHIFTS_HISTORY,
-            queries,
-          );
-          if (cancelled) return;
-
-          const docs = res.documents || [];
-          if (docs.length === 0) break;
-
-          total += docs.length;
-          docs.forEach((s) => {
-            const d = new Date(s.start_time);
-            if (Number.isNaN(d.getTime())) return;
-            monthSet.add(`${d.getFullYear()}-${d.getMonth()}`);
-          });
-
-          if (docs.length < PAGE) break;
-          cursor = docs[docs.length - 1].$id;
+        const [cached, countRes] = await Promise.all([
+          readCache(uid),
+          databases.listDocuments(DATABASE_ID, SHIFTS_HISTORY, [
+            Query.equal("user_id", uid),
+            Query.limit(1),
+          ]),
+        ]);
+        if (cancelled) return;
+        const total = Number(countRes?.total);
+        if (
+          cached &&
+          !cached.dirty &&
+          Array.isArray(cached.months) &&
+          Number.isFinite(total) &&
+          // Appwrite caps `total` at 5000; compare on the same scale.
+          Math.min(cached.total, 5000) === total
+        ) {
+          publish(cached);
+          return;
         }
-
-        if (!cancelled) {
-          setStats({ totalShifts: total, activeMonths: monthSet.size });
-        }
+        await fullScan();
       } catch (err) {
         if (!cancelled) {
-          // Distinguish a failed fetch (null) from a confirmed-empty
-          // account (0) so the UI keeps showing "—" rather than a
-          // misleading zero.
-          console.error("useProfileStats: fetch failed", err);
+          console.log("useProfileStats: failed", err?.message);
           setStats({ totalShifts: null, activeMonths: null });
         }
       }
     })();
 
+    // Keep the cache current from the store's single realtime feed.
+    // Events that arrive before the first publish() are dropped; a missed
+    // create shows up as a count mismatch on the next mount and rescans.
+    const unsubscribe = subscribe(({ kind, monthKey }) => {
+      if (!cacheRef.current) return;
+      const next = applyStatsEvent(cacheRef.current, kind, monthKey);
+      publish(next);
+      writeCache(uid, next);
+      if (next.dirty) {
+        if (rescanTimer.current) clearTimeout(rescanTimer.current);
+        rescanTimer.current = setTimeout(() => {
+          rescanTimer.current = null;
+          fullScan().catch((e) =>
+            console.log("useProfileStats: rescan failed", e?.message),
+          );
+        }, RESCAN_DEBOUNCE_MS);
+      }
+    });
+
     return () => {
       cancelled = true;
+      unsubscribe();
+      if (rescanTimer.current) {
+        clearTimeout(rescanTimer.current);
+        rescanTimer.current = null;
+      }
     };
-  }, [user?.$id]);
+  }, [uid, subscribe]);
 
   return stats;
 }

@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Query } from "react-native-appwrite";
 import {
   account,
+  client,
   DATABASE_ID,
   databases,
   functions,
@@ -232,6 +233,39 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     getUser();
   }, []);
+
+  // Keep `profile` current from realtime, applying the changed document
+  // directly (no refetch). This is the single users_prefs subscription in
+  // the app; the Profile screen used to run a second one and refetch.
+  const userId = user?.$id;
+  useEffect(() => {
+    if (!userId) return undefined;
+    const channel = `databases.${DATABASE_ID}.collections.${USERS_PREFS}.documents`;
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = client.subscribe(channel, (response) => {
+        const doc = response?.payload;
+        if (!doc || doc.user_id !== userId) return;
+        const isDelete = (response.events || []).some((e) =>
+          String(e).endsWith(".delete"),
+        );
+        if (isDelete) return; // account deletion signs out anyway
+        // If (historically) two prefs docs exist for a user, stick with the
+        // one we already hold — switching would redirect later writes.
+        setProfile((prev) => (prev && prev.$id !== doc.$id ? prev : doc));
+        setProfileError(null);
+      });
+    } catch (e) {
+      console.log("[auth] prefs subscribe failed:", e?.message);
+    }
+    return () => {
+      try {
+        unsubscribe();
+      } catch {
+        /* already closed */
+      }
+    };
+  }, [userId]);
 
   return (
     <AuthContext.Provider

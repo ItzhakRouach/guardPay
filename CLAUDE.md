@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## ⚠️ Production app — handle with care
 
-GuardPay is **live on the App Store** (`com.itzhakrouach.guardpay`, currently 1.2.1) with real users whose financial history lives in Appwrite project `69583540003a5151db86`. Treat the database and cloud functions as production resources.
+GuardPay is **live on the App Store** (`com.itzhakrouach.guardpay`; the shipping version is `version` in [app.json](app.json)) with real users whose financial history lives in Appwrite project `69583540003a5151db86`. Treat the database and cloud functions as production resources.
 
 - **Never delete or rename** existing fields on `shifts_history` or `users_prefs`. Add only optional fields, with safe defaults for historical documents.
 - **Never break the hour-bucket field-name contract** (see "Cross-file field-name contract" below) — historical shift documents depend on those exact names.
@@ -25,24 +25,24 @@ GuardPay is **live on the App Store** (`com.itzhakrouach.guardpay`, currently 1.
 
 Expo Router file-based routing under [app/](app/) with three groups:
 - `(auth)` — onboarding / signin / register / `setupPrefs`
-- `(tabs)` — Profile (`index`), `shifts`, `overview`, rendered with native iOS tabs (`expo-router/unstable-native-tabs`)
+- `(tabs)` — Profile (`index`), `shifts`, `overview`, rendered with expo-router `Tabs` and a hand-rolled JS tab bar in [app/(tabs)/_layout.jsx](app/(tabs)/_layout.jsx) (`react-native-bottom-tabs` is installed but unused)
 - Top-level modal route `add-shift`
 
-[app/_layout.jsx](app/_layout.jsx) wires `LanguageProvider → AuthProvider → PaperProvider → SafeAreaProvider → RouteGuard → Stack`. `RouteGuard` enforces: no user → `/onBoarding`; signed-in user without a profile doc → `/setupPrefs`; otherwise → `(tabs)`. `experiments.reactCompiler` and `typedRoutes` are on in [app.json](app.json).
+[app/_layout.jsx](app/_layout.jsx) wires `LanguageProvider → ThemeProvider → AuthProvider → ShiftsProvider → PaperProvider → SafeAreaProvider → RouteGuard → ErrorBoundary → Stack (+ UpdateBanner)`. `RouteGuard` enforces: no user → `/onBoarding`; signed-in user without a profile doc → `/setupPrefs`; otherwise → `(tabs)`. `experiments.reactCompiler` and `typedRoutes` are on in [app.json](app.json).
 
 ### Backend (Appwrite)
 
-[lib/appwrite.js](lib/appwrite.js) exports a `react-native-appwrite` client with `Account`, `Databases`, `Functions`. Two collections are in active use: `users_prefs` (profile/preferences) and `shifts_history` (one document per shift, with realtime subscription in [hooks/useShift.js](hooks/useShift.js) on `databases.<DB>.collections.shifts_history.documents`).
+[lib/appwrite.js](lib/appwrite.js) exports a `react-native-appwrite` client with `Account`, `Databases`, `Functions`. Two collections are in active use: `users_prefs` (profile/preferences) and `shifts_history` (one document per shift; the single realtime subscription lives in [hooks/shifts-store.js](hooks/shifts-store.js) on `databases.<DB>.collections.shifts_history.documents`, and the single `users_prefs` subscription in [hooks/auth-context.js](hooks/auth-context.js)).
 
 Two Appwrite Functions are invoked by hard-coded ID from the client — keep these in sync with the Appwrite console:
-- `697d0f3c001bba7f03d2` — `CALCULATE_SALARY` / `CALCULATE_SHIFT` (salary math, **now computed client-side** — this function is bypassed except for its `DELETE_ACCOUNT` action, called from [app/(tabs)/index.jsx](app/(tabs)/index.jsx) and [components/profile/ProfileSummary.jsx](components/profile/ProfileSummary.jsx))
+- `697d0f3c001bba7f03d2` — `CALCULATE_SALARY` / `CALCULATE_SHIFT` (salary math, **now computed client-side** — this function is bypassed except for its `DELETE_ACCOUNT` action, called from [app/(tabs)/index.jsx](app/(tabs)/index.jsx))
 - `697d1855002cf9854228` — Apple Sign-In token exchange, called from [hooks/auth-context.js](hooks/auth-context.js)
 
 OAuth: Google uses `account.createOAuth2Token` + `WebBrowser.openAuthSessionAsync` with redirect scheme `appwrite-callback-69583540003a5151db86://` (matches `scheme` in [app.json](app.json)). Apple uses native `AppleAuthentication` → the function above → `account.createSession`.
 
 ### Salary pipeline (the core of the app)
 
-`useShift(user, currentDate)` fetches the month's shifts → `useMonthlySalary(shifts)` aggregates locally and computes `{ bruto, neto, totalDeductions, ... }` **client-side** (rendered by `components/overview/MonthSummary`). The per-shift breakdown is likewise computed client-side in [app/add-shift.jsx](app/add-shift.jsx) before the document is written.
+`useShift(user, currentDate)` reads the month's shifts from the shared store in [hooks/shifts-store.js](hooks/shifts-store.js) (one cached fetch per month, one user-scoped realtime subscription per signed-in user, events coalesced per month) → `useMonthlySalary(shifts)` aggregates locally and computes `{ bruto, neto, totalDeductions, ... }` **client-side** (rendered in [app/(tabs)/overview.jsx](app/(tabs)/overview.jsx)). The per-shift breakdown is likewise computed client-side in [app/add-shift.jsx](app/add-shift.jsx) before the document is written.
 
 **Salary math runs entirely on the client.** [utils/salaryLogic.js](utils/salaryLogic.js) (CommonJS, covered by [__tests__/salary.test.js](__tests__/salary.test.js)) is the **single source of truth** — it exports `calculateSalary`, `calculateShiftPay`, and `computeShiftDoc` (the shift-document builder, including the training/vacation flat `baseRate×8` rule). [lib/salaryLogic.js](lib/salaryLogic.js) is a **thin ESM re-export** of it (same pattern as `lib/shiftType.js`), which app code imports.
 
@@ -69,15 +69,23 @@ Day-type flags on `shifts_history` (mutually exclusive — only one is true per 
 
 [lib/GeneratePaycheck.js](lib/GeneratePaycheck.js) builds an HTML payslip and renders to PDF via `expo-print` + `expo-sharing`. [lib/notfication.js](lib/notfication.js) (filename typo — keep it) schedules the weekly reminder via `expo-notifications`.
 
+### Data layer & resilience conventions
+
+- Pure logic lives in `utils/*.js` as **CommonJS** (Jest requires it without babel config); app code imports the thin ESM re-export in `lib/*.js`. New logic follows the same pair (`utils/shiftBreakdown.js` ↔ `lib/shiftBreakdown.js`, etc.).
+- Never call `databases.listDocuments` with a bare `Query.limit(N)` for a user's data; use `listAllDocuments` in [lib/appwriteList.js](lib/appwriteList.js) (cursor pagination).
+- Every document sum that feeds a money figure goes through `docBruto` in [utils/monthlyTotals.js](utils/monthlyTotals.js) (training-day travel is stored beside `total_amount`).
+- Backend errors are classified by [utils/appwriteErrors.js](utils/appwriteErrors.js); a paused/unreachable Appwrite shows `components/layout/ServiceUnavailable.jsx` rather than onboarding. The Appwrite Free-plan pause and the keep-alive workflow are documented in [docs/ops/appwrite-keepalive.md](docs/ops/appwrite-keepalive.md).
+- OTA: `hooks/useOtaUpdates.js` checks on foreground and `components/layout/UpdateBanner.jsx` offers a restart; `components/layout/ErrorBoundary.jsx` wraps the Stack.
+
 ## i18n & RTL
 
-`react-i18next` with `en` and `he` vocabularies in [translations/vocabulary.js](translations/vocabulary.js). Selected language persists in `AsyncStorage` under `user-language` via [hooks/lang-context.js](hooks/lang-context.js). Arabic (`ar`) is listed as RTL in [hooks/lang-context.js](hooks/lang-context.js) but the vocabulary block isn't translated yet — add `ar` to the resources before exposing it in `LanguagesChange`.
+`react-i18next` with `he`, `en` and `ar` vocabularies in [translations/vocabulary.js](translations/vocabulary.js) — every new key must land in all three blocks. Selected language persists in `AsyncStorage` under `user-language` via [hooks/lang-context.js](hooks/lang-context.js); with no saved choice the default follows the phone (`utils/defaultLanguage.js`). Use the `arabic-localizer` subagent to review Arabic copy.
 
 **Gotcha:** native RTL layout flipping is force-disabled (`I18nManager.forceRTL(false)` in `app/_layout.jsx`, plus `ExpoLocalization_supportsRTL: false` in `app.json`). Switching to Hebrew/Arabic changes copy only — layout direction stays LTR. Components should not assume the layout flips when `isRTL` is true.
 
 ## Theming
 
-Light/dark themes are defined inline in [app/_layout.jsx](app/_layout.jsx) on top of MD3 and selected from `useColorScheme()`. Custom color tokens (`card`, `profileSection`, `borderOutline`, `dateText`, `divider`, `summary`, `editBtn`, `delBtn`) are added on top of the MD3 palette — read via `theme.colors.<token>` from `useTheme()` rather than hardcoding hex values, so dark mode keeps working.
+Light/dark palettes are the token sets in [lib/theme.js](lib/theme.js) (`bg`, `surface`, `surfaceAlt`, `ink`, `inkSoft`, `muted`, `border`, `borderSoft`, `accent`, `accentSoft`, `pos`, `neg`, `divider`, `anchor`, `anchorInk`, `anchorMuted`, `cta`, `ctaInk`, `tabActiveBg`), merged over MD3 in [app/_layout.jsx](app/_layout.jsx) and selected via [hooks/theme-context.js](hooks/theme-context.js) (`auto` / `light` / `dark`, persisted under `user-color-scheme`). `legacyAlias` in `lib/theme.js` maps the old names (`card`, `profileSection`, `borderOutline`, `dateText`, `summary`, `editBtn`, `delBtn`) onto them for screens not yet migrated. Read `theme.colors.<token>` from `useTheme()`; never hardcode hex.
 
 ## Environment variables
 
