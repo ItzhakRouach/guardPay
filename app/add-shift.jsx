@@ -21,7 +21,10 @@ import ShiftTypeSelected from "../components/shifts/ShiftTypeSelected";
 import { useAuth } from "../hooks/auth-context";
 import { useLanguage } from "../hooks/lang-context";
 import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../lib/appwrite";
+import { parseOvertimeRules, toCalcRules } from "../lib/overtimeRules";
 import { computeShiftDoc } from "../lib/salaryLogic";
+import { applyWeekUpdates, fetchWeekDocs } from "../lib/weeklyOt";
+import { recomputeWeek, regularHoursBefore } from "../lib/weeklyOtCore";
 import { findShiftConflicts, sameDayWindow } from "../lib/shiftOverlap";
 import { getShiftTimes } from "../lib/shiftTimes";
 import { classifyTimeOfDay } from "../lib/shiftType";
@@ -325,6 +328,22 @@ export default function AddShift() {
         }
       }
 
+      // Weekly rule (opt-in): fetch this week's shifts, count the regular
+      // hours already used before this one, compute with that context, and
+      // afterwards recompute any later shift in the same week.
+      const otRules = parseOvertimeRules(profile?.overtime_rules);
+      const isWorkedType = value !== "training";
+      let weekDocs = [];
+      let weeklyBefore = null;
+      if (otRules.weekly && isWorkedType) {
+        weekDocs = await fetchWeekDocs(user.$id, finalStart);
+        weeklyBefore = regularHoursBefore(
+          weekDocs,
+          finalStart.toISOString(),
+          isEditMode ? params.shiftId : undefined,
+        );
+      }
+
       // Compute the shift document locally — same result the cloud
       // CALCULATE_SHIFT produced, with no network round-trip.
       const docData = computeShiftDoc({
@@ -334,25 +353,41 @@ export default function AddShift() {
         travelRate: profile.price_per_ride,
         type: value,
         isHoliday: value === "holiday",
+        rules:
+          otRules.weekly && isWorkedType
+            ? toCalcRules(otRules, weeklyBefore)
+            : undefined,
       });
       docData.user_id = user.$id;
       docData.comment = comment.trim();
 
-      // שמירה ל-Database רק אחרי שהשרת החזיר תוצאה
+      let saved;
       if (isEditMode && params.shiftId) {
-        await databases.updateDocument(
+        saved = await databases.updateDocument(
           DATABASE_ID,
           SHIFTS_HISTORY,
           params.shiftId,
           docData,
         );
       } else {
-        await databases.createDocument(
+        saved = await databases.createDocument(
           DATABASE_ID,
           SHIFTS_HISTORY,
           ID.unique(),
           docData,
         );
+      }
+
+      // Later shifts in the week may now cross the cap earlier (or later).
+      if (otRules.weekly && isWorkedType) {
+        const others = weekDocs.filter((d) => d.$id !== saved.$id);
+        const updates = recomputeWeek([...others, saved], otRules).filter(
+          (u) => u.$id !== saved.$id,
+        );
+        if (updates.length) {
+          const { failed } = await applyWeekUpdates(updates);
+          if (failed) Alert.alert(t("shifts.week_partial"));
+        }
       }
 
       router.back();

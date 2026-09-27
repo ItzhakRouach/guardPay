@@ -19,7 +19,10 @@ import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { listAllDocuments } from "../../lib/appwriteList";
+import { parseOvertimeRules } from "../../lib/overtimeRules";
 import { screenContentLayout, useContentInset } from "../../lib/responsive";
+import { applyWeekUpdates, fetchWeekDocs } from "../../lib/weeklyOt";
+import { isWorkedDoc, recomputeWeek } from "../../lib/weeklyOtCore";
 import { restreakSickUpdates } from "../../utils/sickDays";
 
 // Calendar week-of-month, Sunday→Saturday. Days before the month's first
@@ -217,6 +220,16 @@ export default function ShiftsScreen() {
       setShifts((prev) => prev.filter((s) => s.$id !== shiftId));
       if (needsRestreak) {
         await restreakAfterSickDelete();
+      }
+      // Weekly rule: the remaining shifts of that week may move back under
+      // the 42h cap.
+      const otRules = parseOvertimeRules(profile?.overtime_rules);
+      if (otRules.weekly && isWorkedDoc(doc)) {
+        const weekDocs = await fetchWeekDocs(user.$id, doc.start_time);
+        const { failed } = await applyWeekUpdates(
+          recomputeWeek(weekDocs, otRules),
+        );
+        if (failed) Alert.alert(t("shifts.week_partial"));
       }
     } catch (err) {
       console.error("ShiftsScreen: delete failed", err);

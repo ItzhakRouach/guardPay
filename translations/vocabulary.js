@@ -145,6 +145,7 @@ export const resources = {
         msg_err: "שגיאה! לא יכל לעדכן",
       },
       shifts: {
+        week_partial: "חלק מהמשמרות בשבוע זה לא עודכנו לפי כלל 42 השעות. נסו לשמור שוב או לפתוח את הגדרות השעות הנוספות.",
         restreak_partial: "חלק מימי המחלה לא עודכנו. הרשימה רועננה מהשרת — בדקו את הימים הסמוכים.",
         month_pay: "משכורת חודשית",
         total_h: "שעות עבודה",
@@ -548,6 +549,7 @@ export const resources = {
         msg_err: "Unable To Update",
       },
       shifts: {
+        week_partial: "Some shifts in this week could not be updated under the 42-hour rule. Try saving again or open the overtime settings.",
         restreak_partial: "Some sick days could not be updated. The list was refreshed from the server — please check the nearby days.",
         month_pay: "MONTHLY PAY",
         total_h: "TOTAL HOURS",
@@ -927,6 +929,7 @@ export const resources = {
         msg_err: "حدث خطأ! تعذّر التحديث",
       },
       shifts: {
+        week_partial: "تعذّر تحديث بعض ورديات هذا الأسبوع وفق قاعدة 42 ساعة. حاول الحفظ مجدداً أو افتح إعدادات الساعات الإضافية.",
         restreak_partial: "تعذّر تحديث بعض الأيام المرضية. تم تحديث القائمة من الخادم — يرجى مراجعة الأيام المجاورة.",
         month_pay: "الراتب الشهري",
         total_h: "ساعات العمل",
