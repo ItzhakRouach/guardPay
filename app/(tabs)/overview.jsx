@@ -13,7 +13,6 @@ import MonthHeader from "../../components/common/MonthHeader";
 import Type from "../../components/common/Type";
 import ComplianceCard from "../../components/overview/ComplianceCard";
 import { useAuth } from "../../hooks/auth-context";
-import { useLanguage } from "../../hooks/lang-context";
 import { useMonthlySalary } from "../../hooks/useMonthlySalary";
 import { useMonthNav } from "../../hooks/useMonthNav";
 import { usePrevMonthBruto } from "../../hooks/usePrevMonthBruto";
@@ -26,7 +25,7 @@ import { radius } from "../../lib/theme";
 
 const fmtCurrency = (n) => Math.round(Number(n) || 0).toLocaleString("en-US");
 
-function HeroSection({ neto, trendPct, isRTL, loading }) {
+function HeroSection({ neto, trendPct, loading }) {
   const theme = useTheme();
   const { t } = useTranslation();
   // Single Animated.Value drives 0→1 progress. `display` is derived from
@@ -94,7 +93,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
           <ActivityIndicator
             color={theme.colors.accent}
             size="large"
-            style={{ alignSelf: isRTL ? "flex-end" : "flex-start" }}
+            style={{ alignSelf: "flex-start" }}
           />
         ) : (
           <>
@@ -108,7 +107,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
             <Type
               variant="sectionTitle"
               color={theme.colors.muted}
-              style={isRTL ? { marginRight: 6 } : { marginLeft: 6 }}
+              style={{ marginStart: 6 }}
             >
               ₪
             </Type>
@@ -122,7 +121,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
             alignItems: "center",
             gap: 5,
             marginTop: 12,
-            alignSelf: isRTL ? "flex-end" : "flex-start",
+            alignSelf: "flex-start",
             paddingHorizontal: 10,
             paddingVertical: 5,
             borderRadius: 999,
@@ -143,7 +142,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
   );
 }
 
-function StatTile({ label, value, suffix, isRTL }) {
+function StatTile({ label, value, suffix }) {
   const theme = useTheme();
   return (
     <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 18 }}>
@@ -169,7 +168,7 @@ function StatTile({ label, value, suffix, isRTL }) {
   );
 }
 
-function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
+function StatsGrid({ bruto, totalHours, totalShifts, deductions }) {
   const theme = useTheme();
   const { t } = useTranslation();
   return (
@@ -188,14 +187,12 @@ function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
           label={t("overview.stats.bruto")}
           value={fmtCurrency(bruto)}
           suffix="₪"
-          isRTL={isRTL}
         />
         <Hairline vertical />
         <StatTile
           label={t("overview.stats.hours")}
           value={Number(totalHours || 0).toFixed(1)}
           suffix="h"
-          isRTL={isRTL}
         />
       </View>
       <Hairline />
@@ -203,14 +200,12 @@ function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
         <StatTile
           label={t("overview.stats.shifts")}
           value={String(totalShifts || 0)}
-          isRTL={isRTL}
         />
         <Hairline vertical />
         <StatTile
           label={t("overview.stats.deductions")}
           value={fmtCurrency(deductions)}
           suffix="₪"
-          isRTL={isRTL}
         />
       </View>
     </View>
@@ -309,7 +304,7 @@ function WeeklyChart({ buckets }) {
   );
 }
 
-function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
+function InsightsCard({ shiftsCount, avgShift, bestDay, projected }) {
   const theme = useTheme();
   const { t } = useTranslation();
   if (!shiftsCount) return null;
@@ -377,7 +372,6 @@ export default function OverviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { isRTL } = useLanguage();
   const { currentDate, prev, next } = useMonthNav();
   const {
     shifts,
@@ -497,7 +491,6 @@ export default function OverviewScreen() {
           <HeroSection
             neto={monthlyReport?.neto || 0}
             trendPct={trendPct}
-            isRTL={isRTL}
             loading={!monthlyReport && salaryLoading}
           />
           <StatsGrid
@@ -505,7 +498,6 @@ export default function OverviewScreen() {
             totalHours={totals.totalHours || 0}
             totalShifts={totals.totalShifts || 0}
             deductions={monthlyReport?.totalDeductions || 0}
-            isRTL={isRTL}
           />
           <WeeklyChart buckets={weeklyBuckets} />
           <InsightsCard
@@ -513,7 +505,6 @@ export default function OverviewScreen() {
             avgShift={avgShift}
             bestDay={bestDay}
             projected={projected}
-            isRTL={isRTL}
           />
           <ComplianceCard shifts={shifts} />
           <View style={{ height: 24 }} />

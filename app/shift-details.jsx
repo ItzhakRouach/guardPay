@@ -477,6 +477,6 @@ const makeStyle = (theme, isRTL) =>
       textAlign: textStart,
     },
     addNoteBtn: {
-      alignSelf: isRTL ? "flex-end" : "flex-start",
+      alignSelf: "flex-start",
     },
   });

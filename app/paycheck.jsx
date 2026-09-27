@@ -44,7 +44,7 @@ function SectionRule({ label, accent = false }) {
   );
 }
 
-function EarningsRow({ row, lang, isRTL }) {
+function EarningsRow({ row, lang }) {
   const theme = useTheme();
   const qty = row.kind === "hours" ? `${row.hours.toFixed(2)}` : `${row.qty}`;
   const label = row.label;
@@ -97,7 +97,7 @@ function EarningsRow({ row, lang, isRTL }) {
   );
 }
 
-function EarningsTable({ model, lang, isRTL }) {
+function EarningsTable({ model, lang }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const numAlign = textEnd;
@@ -142,7 +142,7 @@ function EarningsTable({ model, lang, isRTL }) {
         </Type>
       </View>
       {model.earnings.map((r) => (
-        <EarningsRow key={r.key} row={r} lang={lang} isRTL={isRTL} />
+        <EarningsRow key={r.key} row={r} lang={lang} />
       ))}
       <View
         style={{
@@ -167,7 +167,7 @@ function EarningsTable({ model, lang, isRTL }) {
         <Type
           variant="body"
           color={theme.colors.muted}
-          style={isRTL ? { marginRight: 4 } : { marginLeft: 4 }}
+          style={{ marginStart: 4 }}
         >
           ₪
         </Type>
@@ -179,7 +179,7 @@ function EarningsTable({ model, lang, isRTL }) {
 // Credits (tax credit points, settlement benefit) reduce the tax. The PDF
 // always printed them; the screen computed them and then never rendered
 // them, so the two disagreed.
-function CreditsTable({ model, lang, isRTL }) {
+function CreditsTable({ model, lang }) {
   const theme = useTheme();
   const labelAlign = textStart;
   if (!model.credits || model.credits.length === 0) return null;
@@ -214,7 +214,7 @@ function CreditsTable({ model, lang, isRTL }) {
   );
 }
 
-function DeductionsTable({ model, lang, isRTL }) {
+function DeductionsTable({ model, lang }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const labelAlign = textStart;
@@ -270,7 +270,7 @@ function DeductionsTable({ model, lang, isRTL }) {
   );
 }
 
-function NetPayCard({ neto, bruto, isRTL }) {
+function NetPayCard({ neto, bruto }) {
   const theme = useTheme();
   const { t } = useTranslation();
   return (
@@ -287,7 +287,7 @@ function NetPayCard({ neto, bruto, isRTL }) {
           alignItems: "baseline",
           marginTop: 8,
           gap: 6,
-          justifyContent: isRTL ? "flex-end" : "flex-start",
+          justifyContent: "flex-start",
         }}
       >
         <Type variant="netPay" color={theme.colors.anchorInk}>
@@ -465,19 +465,19 @@ export default function PaycheckScreen() {
           <Hairline />
 
           <SectionRule label={t("paycheck.earnings")} />
-          <EarningsTable model={model} lang={lang} isRTL={isRTL} />
+          <EarningsTable model={model} lang={lang} />
 
           <SectionRule label={t("paycheck.deductions")} accent />
-          <DeductionsTable model={model} lang={lang} isRTL={isRTL} />
+          <DeductionsTable model={model} lang={lang} />
 
           {model.credits && model.credits.length > 0 ? (
             <>
               <SectionRule label={t("paycheck.credits")} />
-              <CreditsTable model={model} lang={lang} isRTL={isRTL} />
+              <CreditsTable model={model} lang={lang} />
             </>
           ) : null}
 
-          <NetPayCard neto={model.neto} bruto={model.bruto} isRTL={isRTL} />
+          <NetPayCard neto={model.neto} bruto={model.bruto} />
 
           <View style={{ flexDirection: "row", gap: 12, marginTop: 24 }}>
             <OutlinedButton

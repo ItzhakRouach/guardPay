@@ -41,39 +41,22 @@ export default function WeeklyReminder({
           <SegmentedButtons
             value={tempDay}
             onValueChange={setTempDay}
-            buttons={
-              isRTL
-                ? [
-                    { value: 1, label: t("days.sun") },
-                    { value: 2, label: t("days.mon") },
-                    { value: 3, label: t("days.tue") },
-                    { value: 4, label: t("days.wed") },
-                  ].reverse()
-                : [
-                    { value: 1, label: t("days.sun") },
-                    { value: 2, label: t("days.mon") },
-                    { value: 3, label: t("days.tue") },
-                    { value: 4, label: t("days.wed") },
-                  ]
-            }
+            buttons={[
+              { value: 1, label: t("days.sun") },
+              { value: 2, label: t("days.mon") },
+              { value: 3, label: t("days.tue") },
+              { value: 4, label: t("days.wed") },
+            ]}
             style={styles.segmented}
           />
           <SegmentedButtons
             value={tempDay}
             onValueChange={setTempDay}
-            buttons={
-              isRTL
-                ? [
-                    { value: 5, label: t("days.thu") },
-                    { value: 6, label: t("days.fri") },
-                    { value: 7, label: t("days.sat") },
-                  ].reverse()
-                : [
-                    { value: 5, label: t("days.thu") },
-                    { value: 6, label: t("days.fri") },
-                    { value: 7, label: t("days.sat") },
-                  ]
-            }
+            buttons={[
+              { value: 5, label: t("days.thu") },
+              { value: 6, label: t("days.fri") },
+              { value: 7, label: t("days.sat") },
+            ]}
             style={styles.segmented}
           />
           <Text style={styles.label}>{t("weekly_reminder.select_time")}:</Text>

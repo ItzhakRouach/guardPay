@@ -8,10 +8,11 @@ import Eyebrow from "./Eyebrow";
 import { IconBtn } from "./Buttons";
 import Type from "./Type";
 
-// Header row: eyebrow + serif month / italic year on the leading edge,
-// chevrons on the trailing edge. Container flex-direction flips for RTL
-// so Hebrew users see the title on the right and the chevrons on the
-// left, with arrows pointing in the natural Hebrew reading direction.
+// Header row: eyebrow, month and year on the leading edge, chevrons on the
+// trailing edge. Nothing here flips by hand — the root layout direction
+// mirrors the row, so Hebrew and Arabic get the title on the right and the
+// chevrons on the left. Only the chevron GLYPHS are chosen from `isRTL`,
+// because an arrow's shape is not something Yoga can mirror.
 export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
@@ -33,7 +34,10 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
         justifyContent: "space-between",
       }}
     >
-      <View style={{ alignItems: isRTL ? "flex-end" : "flex-start" }}>
+      {/* flex-start is the LEADING edge: Yoga resolves the cross axis
+          against the root direction, so this is already the right edge
+          in Hebrew and Arabic. An isRTL ternary here flips it twice. */}
+      <View style={{ alignItems: "flex-start" }}>
         {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
         <View
           style={{

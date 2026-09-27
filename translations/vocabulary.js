@@ -235,7 +235,7 @@ export const resources = {
         sick_end: "סיום מחלה",
         vacation_start: "תחילת חופשה",
         vacation_end: "סיום חופשה",
-        rate_per_hour: "תעריך שעתי",
+        rate_per_hour: "תעריף שעתי",
         total_d: "סך שעות עבודה",
         save: "שמור משמרת",
         update: "עדכן משמרת",
