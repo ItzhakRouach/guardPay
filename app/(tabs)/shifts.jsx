@@ -1,5 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { Query } from "react-native-appwrite";
@@ -11,6 +12,7 @@ import HeroCard from "../../components/common/HeroCard";
 import Icon from "../../components/common/Icon";
 import MonthHeader from "../../components/common/MonthHeader";
 import Type from "../../components/common/Type";
+import MonthGrid from "../../components/shifts/MonthGrid";
 import ShiftRow from "../../components/shifts/ShiftRow";
 import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
@@ -19,32 +21,83 @@ import { useMonthNav } from "../../hooks/useMonthNav";
 import { useShift } from "../../hooks/useShift";
 import { DATABASE_ID, databases, SHIFTS_HISTORY } from "../../lib/appwrite";
 import { listAllDocuments } from "../../lib/appwriteList";
+import { bucketByDay, dayTotals, weekOfMonth } from "../../lib/monthGrid";
 import { parseOvertimeRules } from "../../lib/overtimeRules";
 import { screenContentLayout, useContentInset } from "../../lib/responsive";
 import { applyWeekUpdates, fetchWeekDocs } from "../../lib/weeklyOt";
 import { isWorkedDoc, recomputeWeek } from "../../lib/weeklyOtCore";
+import { radius, spacing } from "../../lib/theme";
+import { localeFromLang } from "../../lib/utils";
 import { restreakSickUpdates } from "../../utils/sickDays";
 
-// Calendar week-of-month, Sunday→Saturday. Days before the month's first
-// Sunday fall in week 1; each Sunday starts a new week. A month can span up
-// to 6 such weeks (e.g. a 31-day month starting on a Saturday).
-function weekOfMonth(d) {
-  const firstWeekday = new Date(d.getFullYear(), d.getMonth(), 1).getDay(); // 0 = Sun
-  return Math.ceil((d.getDate() + firstWeekday) / 7);
-}
+// Week-of-month and the day buckets come from utils/monthGrid.js, the one
+// place that knows a month's shape. The calendar grid, this list and the
+// Overview chart all read it, so they cannot drift apart.
+const VIEW_KEY = "shifts-view";
 
 function groupByWeek(shifts) {
   const groups = {};
-  shifts.forEach((s) => {
+  for (const s of shifts) {
     const d = new Date(s.start_time);
-    if (Number.isNaN(d.getTime())) return;
+    if (Number.isNaN(d.getTime())) continue;
     const wk = weekOfMonth(d);
-    if (!groups[wk]) groups[wk] = [];
-    groups[wk].push(s);
-  });
+    (groups[wk] = groups[wk] || []).push(s);
+  }
   return Object.entries(groups)
     .sort(([a], [b]) => Number(a) - Number(b))
     .map(([wk, rows]) => ({ wk: Number(wk), rows }));
+}
+
+function ViewToggle({ value, onChange, isRTL }) {
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const item = (key, icon, label) => {
+    const on = value === key;
+    return (
+      <Pressable
+        onPress={() => onChange(key)}
+        accessibilityRole="button"
+        accessibilityState={{ selected: on }}
+        accessibilityLabel={label}
+        style={{
+          flex: 1,
+          paddingVertical: 9,
+          borderRadius: radius.control - 2,
+          backgroundColor: on ? theme.colors.surface : "transparent",
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+        }}
+      >
+        <Icon
+          name={icon}
+          size={16}
+          color={on ? theme.colors.ink : theme.colors.muted}
+        />
+        <Type
+          variant="smallLabel"
+          color={on ? theme.colors.ink : theme.colors.muted}
+        >
+          {label}
+        </Type>
+      </Pressable>
+    );
+  };
+  return (
+    <View
+      style={{
+        flexDirection: isRTL ? "row-reverse" : "row",
+        backgroundColor: theme.colors.surfaceAlt,
+        borderRadius: radius.control,
+        padding: 3,
+        gap: 3,
+      }}
+    >
+      {item("calendar", "calendar", t("shifts.view_calendar"))}
+      {item("list", "list", t("shifts.view_list"))}
+    </View>
+  );
 }
 
 function EmptyState() {
@@ -153,7 +206,7 @@ export default function ShiftsScreen() {
     loading,
     shiftsError,
   );
-  const { isRTL } = useLanguage();
+  const { isRTL, lang } = useLanguage();
   const { t } = useTranslation();
 
   // Spans multi-step mutations (delete + re-stream of surrounding sick docs)
@@ -161,6 +214,63 @@ export default function ShiftsScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const groups = useMemo(() => groupByWeek(shifts || []), [shifts]);
+
+  // Calendar or list, remembered across launches beside the language and
+  // colour-scheme preferences.
+  const [view, setView] = useState(null); // null until the stored choice loads
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(VIEW_KEY)
+      .then((v) => {
+        if (!cancelled) setView(v === "calendar" ? "calendar" : "list");
+      })
+      .catch(() => {
+        if (!cancelled) setView("list");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const chooseView = (next) => {
+    setView(next);
+    AsyncStorage.setItem(VIEW_KEY, next).catch(() => {
+      // A remembered preference is a convenience, not load-bearing.
+    });
+  };
+
+  const [selectedDay, setSelectedDay] = useState(null);
+  // The selection belongs to the month on screen: drop it when the month
+  // changes so a stale day never highlights the wrong cell.
+  const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+  const [lastMonthKey, setLastMonthKey] = useState(monthKey);
+  if (lastMonthKey !== monthKey) {
+    setLastMonthKey(monthKey);
+    setSelectedDay(null);
+  }
+
+  const byDay = useMemo(() => bucketByDay(shifts || []), [shifts]);
+  const daysShifts = useMemo(
+    () => (selectedDay ? byDay[selectedDay] || [] : []),
+    [byDay, selectedDay],
+  );
+  const dayTotal = useMemo(() => dayTotals(daysShifts), [daysShifts]);
+
+  // Add Shift opens on the day you are looking at, not on today. A selected
+  // day wins; otherwise today when this is the current month; otherwise the
+  // first of the month on screen.
+  const addShiftDate = useMemo(() => {
+    const now = new Date();
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth();
+    if (selectedDay) return new Date(y, m, selectedDay);
+    if (now.getFullYear() === y && now.getMonth() === m) return now;
+    return new Date(y, m, 1);
+  }, [currentDate, selectedDay]);
+  const openAddShift = () =>
+    router.push({
+      pathname: "/add-shift",
+      params: { dateIso: addShiftDate.toISOString() },
+    });
 
   // After a sick doc is deleted, surrounding sick docs in the same streak
   // need their positions (and therefore sick_percent/total_amount)
@@ -293,6 +403,49 @@ export default function ShiftsScreen() {
     );
   };
 
+  // One definition of a swipeable shift row, used by both views.
+  //
+  // In RTL the user's natural "swipe inward" direction is visually
+  // right-to-left, so the destructive gesture must live on the trailing
+  // edge — which is `renderLeftActions` when the locale is RTL.
+  const renderSwipeableRow = (shift, i, count) => {
+    const editAction = (
+      <SwipeAction
+        label={t("common.edit")}
+        color={theme.colors.accent}
+        icon="edit"
+      />
+    );
+    const deleteAction = (
+      <SwipeAction
+        label={t("common.delete")}
+        color={theme.colors.neg}
+        icon="trash"
+      />
+    );
+    return (
+      <Swipeable
+        key={shift.$id || `s-${i}`}
+        ref={(r) => {
+          if (r) swipeableRefs.current[shift.$id] = r;
+          else delete swipeableRefs.current[shift.$id];
+        }}
+        renderLeftActions={() => (isRTL ? deleteAction : editAction)}
+        renderRightActions={() => (isRTL ? editAction : deleteAction)}
+        onSwipeableLeftOpen={() =>
+          isRTL ? handleDelete(shift.$id) : handleEdit(shift)
+        }
+        onSwipeableRightOpen={() =>
+          isRTL ? handleEdit(shift) : handleDelete(shift.$id)
+        }
+      >
+        <Pressable onPress={() => openDetails(shift)}>
+          <ShiftRow shift={shift} profile={profile} isLast={i === count - 1} />
+        </Pressable>
+      </Swipeable>
+    );
+  };
+
   const openDetails = (shift) => {
     router.push({
       pathname: "/shift-details",
@@ -319,7 +472,9 @@ export default function ShiftsScreen() {
           onPrev={prev}
           onNext={next}
         />
-        <View style={{ height: 18 }} />
+        <View style={{ height: spacing.section }} />
+        <ViewToggle value={view} onChange={chooseView} isRTL={isRTL} />
+        <View style={{ height: spacing.section }} />
 
         <HeroCard>
           <View
@@ -398,10 +553,98 @@ export default function ShiftsScreen() {
           </Type>
         ) : null}
 
-        {loading || isProcessing ? (
+        {loading || isProcessing || view === null ? (
           <View style={{ paddingVertical: 60, alignItems: "center" }}>
             <ActivityIndicator color={theme.colors.accent} size="large" />
           </View>
+        ) : view === "calendar" ? (
+          <>
+            <MonthGrid
+              currentDate={currentDate}
+              shifts={shifts}
+              profile={profile}
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+            />
+            {selectedDay ? (
+              <View style={{ marginTop: spacing.section }}>
+                <View
+                  style={{
+                    flexDirection: isRTL ? "row-reverse" : "row",
+                    alignItems: "baseline",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 2,
+                    paddingBottom: 8,
+                  }}
+                >
+                  <Type variant="sectionTitle" color={theme.colors.ink}>
+                    {new Date(
+                      currentDate.getFullYear(),
+                      currentDate.getMonth(),
+                      selectedDay,
+                    ).toLocaleDateString(localeFromLang(lang), {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                    })}
+                  </Type>
+                  {dayTotal.count ? (
+                    <Type variant="small" color={theme.colors.muted}>
+                      {`${dayTotal.hours} ${t("shifts.hoursUnit")}`}
+                    </Type>
+                  ) : null}
+                </View>
+
+                {dayTotal.count === 0 ? (
+                  <View
+                    style={{
+                      backgroundColor: theme.colors.surface,
+                      borderWidth: 1,
+                      borderColor: theme.colors.border,
+                      borderRadius: radius.card,
+                      paddingVertical: 22,
+                      paddingHorizontal: spacing.cardH,
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <Type variant="body" color={theme.colors.muted}>
+                      {t("shifts.day_none")}
+                    </Type>
+                    <Pressable
+                      onPress={openAddShift}
+                      accessibilityRole="button"
+                      style={{
+                        paddingVertical: 10,
+                        paddingHorizontal: 18,
+                        borderRadius: radius.control,
+                        borderWidth: 1,
+                        borderColor: theme.colors.border,
+                      }}
+                    >
+                      <Type variant="smallLabel" color={theme.colors.ink}>
+                        {t("shifts.add_on_day")}
+                      </Type>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      borderRadius: radius.card,
+                      backgroundColor: theme.colors.surface,
+                      borderWidth: 1,
+                      borderColor: theme.colors.border,
+                      overflow: "hidden",
+                    }}
+                  >
+                    {daysShifts.map((item, i) =>
+                      renderSwipeableRow(item, i, daysShifts.length),
+                    )}
+                  </View>
+                )}
+              </View>
+            ) : null}
+          </>
         ) : shifts.length === 0 ? (
           <EmptyState />
         ) : (
@@ -420,61 +663,15 @@ export default function ShiftsScreen() {
                   overflow: "hidden",
                 }}
               >
-                {rows.map((shift, i) => {
-                  // In RTL the user's natural "swipe inward" direction is
-                  // visually right-to-left, so the destructive (delete)
-                  // gesture must live on the trailing edge — which is
-                  // `renderLeftActions` when the locale is RTL.
-                  const editAction = (
-                    <SwipeAction
-                      label={t("common.edit")}
-                      color={theme.colors.accent}
-                      icon="edit"
-                    />
-                  );
-                  const deleteAction = (
-                    <SwipeAction
-                      label={t("common.delete")}
-                      color={theme.colors.neg}
-                      icon="trash"
-                    />
-                  );
-                  return (
-                    <Swipeable
-                      key={shift.$id || `s-${i}`}
-                      ref={(r) => {
-                        if (r) swipeableRefs.current[shift.$id] = r;
-                        else delete swipeableRefs.current[shift.$id];
-                      }}
-                      renderLeftActions={() =>
-                        isRTL ? deleteAction : editAction
-                      }
-                      renderRightActions={() =>
-                        isRTL ? editAction : deleteAction
-                      }
-                      onSwipeableLeftOpen={() =>
-                        isRTL ? handleDelete(shift.$id) : handleEdit(shift)
-                      }
-                      onSwipeableRightOpen={() =>
-                        isRTL ? handleEdit(shift) : handleDelete(shift.$id)
-                      }
-                    >
-                      <Pressable onPress={() => openDetails(shift)}>
-                        <ShiftRow
-                          shift={shift}
-                          profile={profile}
-                          isLast={i === rows.length - 1}
-                        />
-                      </Pressable>
-                    </Swipeable>
-                  );
-                })}
+                {rows.map((shift, i) =>
+                  renderSwipeableRow(shift, i, rows.length),
+                )}
               </View>
             </View>
           ))
         )}
       </ScrollView>
-      <FAB onPress={() => router.push("/add-shift")} isRTL={isRTL} />
+      <FAB onPress={openAddShift} isRTL={isRTL} />
     </View>
   );
 }

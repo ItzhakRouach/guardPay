@@ -17,13 +17,13 @@
 // via DARK_MODE_LOOKUP. If a stored hex isn't in the palette (e.g. a
 // future palette change), the light hex is returned unchanged.
 const SWATCHES = [
-  { name: "sky",   light: "#F0F9FF", dark: "#243345" },
-  { name: "mint",  light: "#F0FDF4", dark: "#243A2F" },
+  { name: "sky", light: "#F0F9FF", dark: "#243345" },
+  { name: "mint", light: "#F0FDF4", dark: "#243A2F" },
   { name: "peach", light: "#FFF7ED", dark: "#3A2D22" },
   { name: "lilac", light: "#F5F3FF", dark: "#2D2A40" },
-  { name: "sand",  light: "#FEFCE8", dark: "#3A3322" },
+  { name: "sand", light: "#FEFCE8", dark: "#3A3322" },
   { name: "blush", light: "#FDF2F8", dark: "#3D2632" },
-  { name: "sage",  light: "#F7FEE7", dark: "#2D3A22" },
+  { name: "sage", light: "#F7FEE7", dark: "#2D3A22" },
   { name: "stone", light: "#F3F4F6", dark: "#2A2D34" },
 ];
 
@@ -33,11 +33,11 @@ const DARK_MODE_LOOKUP = SWATCHES.reduce((acc, s) => {
 }, {});
 
 const DEFAULT_COLORS = {
-  friday: "#F0F9FF",   // sky
+  friday: "#F0F9FF", // sky
   saturday: "#F5F3FF", // lilac
   training: "#F0FDF4", // mint
-  holiday: "#FFF7ED",  // peach
-  sick: "#FDF2F8",     // blush
+  holiday: "#FFF7ED", // peach
+  sick: "#FDF2F8", // blush
 };
 
 // Resolve a stored (light) hex to the colour we should actually paint.
@@ -115,10 +115,37 @@ const serialiseUserColors = (colors) => {
   return JSON.stringify(diff);
 };
 
+// Dot colours for the month grid. Separate from the card tints above: those
+// are near-white washes meant to sit behind a whole row, and they disappear
+// at 5px. These are saturated marks, one per type `deriveShiftType` can
+// return — including morning / evening / night, which have no card tint at
+// all. Hues also differ in lightness so they are not told apart by hue alone.
+const DOT_COLORS = {
+  morning: { light: "#D98E2B", dark: "#E8AC5C" },
+  evening: { light: "#C25E52", dark: "#DE8377" },
+  night: { light: "#4F63A8", dark: "#8592D4" },
+  friday: { light: "#3E86C4", dark: "#6FAEE4" },
+  shabbat: { light: "#7A66BE", dark: "#A492DC" },
+  holiday: { light: "#B8791F", dark: "#DCA544" },
+  sick: { light: "#B0566B", dark: "#D2818F" },
+  vacation: { light: "#2F8C6E", dark: "#5FB89A" },
+  training: { light: "#2E7C8C", dark: "#5FA7B6" },
+};
+
+const DOT_FALLBACK = { light: "#6E7889", dark: "#8D95A1" };
+
+// `type` is a deriveShiftType result; `scheme` is "light" or "dark".
+const resolveDot = (type, scheme) => {
+  const pair = DOT_COLORS[type] || DOT_FALLBACK;
+  return scheme === "dark" ? pair.dark : pair.light;
+};
+
 module.exports = {
   SWATCHES,
   DARK_MODE_LOOKUP,
   DEFAULT_COLORS,
+  DOT_COLORS,
+  resolveDot,
   parseUserColors,
   resolveTint,
   resolveSwatchHex,

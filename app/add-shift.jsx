@@ -125,6 +125,26 @@ export default function AddShift() {
     fetchUserRates();
   }, [params.existingData, fetchUserRates]);
 
+  // Opening from the Shifts tab carries the day you were looking at, so the
+  // form does not default to today when you are browsing another month.
+  // Editing supplies its own date and always wins.
+  useEffect(() => {
+    if (params.existingData || !params.dateIso) return;
+    const picked = new Date(params.dateIso);
+    if (Number.isNaN(picked.getTime())) return;
+    setDate(picked);
+    const onPickedDay = (t) => {
+      const d = new Date(picked);
+      d.setHours(t.getHours(), t.getMinutes(), 0, 0);
+      return d;
+    };
+    setStartTime((t) => onPickedDay(t));
+    setEndTime((t) => onPickedDay(t));
+    setSickEndDate(picked);
+    setVacEndDate(picked);
+    // Once, on open: the user is free to change the date afterwards.
+  }, [params.dateIso, params.existingData]);
+
   // The type follows the hours, not the other way round: whenever the
   // times change, pick morning / evening / night by where most of the
   // shift falls in the user's windows. Tapping a type still applies its
