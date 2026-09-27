@@ -50,8 +50,7 @@ const calculateSalary = (
   if (bruto <= 7010) grossTax = bruto * 0.1;
   else if (bruto <= 10060) grossTax = 701 + (bruto - 7010) * 0.14;
   else if (bruto <= 16150) grossTax = 701 + 427 + (bruto - 10060) * 0.2;
-  else if (bruto <= 22440)
-    grossTax = 701 + 427 + 1218 + (bruto - 16150) * 0.31;
+  else if (bruto <= 22440) grossTax = 701 + 427 + 1218 + (bruto - 16150) * 0.31;
   else grossTax = 701 + 427 + 1218 + 1950 + (bruto - 22440) * 0.35;
 
   // 4. זיכויים — נקודות זיכוי + הטבת יישוב
@@ -82,19 +81,50 @@ const calculateSalary = (
 };
 
 // --- Single-shift pay (mirrors CALCULATE_SHIFT's calculateShiftPay) ---
+//
+// `rules` is optional. With it omitted (or equal to DEFAULT_CALC_RULES) the
+// output is byte-identical to the historical function — test-locked in
+// __tests__/weeklyOt.test.js. With rules:
+//   dailyRegularHours   8 | 8.6   regular cap for a day shift
+//   nightRegularHours   7         regular cap when ≥2h fall in 22:00–06:00
+//   midnightSplit       bool      treat 00:00 as the start of a new work day
+//   weeklyCap           42
+//   weeklyRegularBefore number|null  regular-rate hours already used this
+//                                    week before this shift; null = weekly
+//                                    rule OFF
+// Per 15-minute block the regular portion is min(block, daily room, weekly
+// room); the rest is overtime tiered per day (first 2h 125/175, then
+// 150/200). Portions are fractional so 8.6 and odd weekly remainders are
+// exact. With defaults every portion is 0 or 0.25 and the tier boundary sits
+// at cap+2h — exactly the old arithmetic.
+const DEFAULT_CALC_RULES = Object.freeze({
+  dailyRegularHours: 8,
+  nightRegularHours: 7,
+  midnightSplit: false,
+  weeklyCap: 42,
+  weeklyRegularBefore: null,
+});
+
 const calculateShiftPay = (
   startTime,
   endTime,
   baseRate,
   travelRate,
   isHoliday,
+  rules,
 ) => {
+  const R = { ...DEFAULT_CALC_RULES, ...(rules || {}) };
+  const weeklyOn =
+    R.weeklyRegularBefore !== null &&
+    R.weeklyRegularBefore !== undefined &&
+    Number.isFinite(Number(R.weeklyRegularBefore));
+
   const start = new Date(startTime);
   let end = new Date(endTime);
   if (end < start) end.setDate(end.getDate() + 1);
   const base = Number(baseRate);
 
-  // Night shift = ≥2h in the 22:00–06:00 window → regular cap drops 8→7.
+  // Night shift = ≥2h in the 22:00–06:00 window → regular cap drops to 7.
   const checkNightShift = () => {
     let nightHours = 0;
     let current = new Date(start);
@@ -105,7 +135,23 @@ const calculateShiftPay = (
     }
     return nightHours >= 2;
   };
-  const regLimit = checkNightShift() ? 7 : 8;
+  const regLimit = checkNightShift()
+    ? Number(R.nightRegularHours)
+    : Number(R.dailyRegularHours);
+
+  // Hours from shift start to the first local midnight inside the shift
+  // (Infinity when not splitting or when the shift doesn't cross midnight).
+  const firstMidnight = new Date(start);
+  firstMidnight.setHours(24, 0, 0, 0);
+  const midnightOffset =
+    R.midnightSplit && firstMidnight < end
+      ? (firstMidnight - start) / 3600000
+      : Infinity;
+
+  // Running state shared by both Sunday-04:00 segments (same shift/day).
+  let regularSoFar = weeklyOn ? Number(R.weeklyRegularBefore) : 0;
+  let otSoFarDay = 0;
+  let dayRolled = false;
 
   const calculateHours = (segStart, segEnd, forceWeekday = false) => {
     let rPay = 0,
@@ -133,33 +179,56 @@ const calculateShiftPay = (
           blockTime.getDay() === 6 ||
           (blockTime.getDay() === 0 && blockTime.getHours() < 4));
 
-      if (currentH < regLimit) {
-        if (isWeekendOrHoliday) {
-          h150s += 0.25;
-          rPay += 0.25 * base * 1.5;
-        } else {
-          h100 += 0.25;
-          rPay += 0.25 * base;
+      // Midnight split: hours-into-day and the OT tier restart at 00:00.
+      let hoursIntoDay = currentH;
+      if (currentH >= midnightOffset) {
+        hoursIntoDay = currentH - midnightOffset;
+        if (!dayRolled) {
+          dayRolled = true;
+          otSoFarDay = 0;
         }
-        rHours += 0.25;
-      } else if (currentH < regLimit + 2) {
+      }
+
+      const regularRoom = Math.max(0, regLimit - hoursIntoDay);
+      const weeklyRoom = weeklyOn
+        ? Math.max(0, Number(R.weeklyCap) - regularSoFar)
+        : Infinity;
+      const r = Math.min(0.25, regularRoom, weeklyRoom);
+      const ot = 0.25 - r;
+      const tier1 = Math.min(ot, Math.max(0, 2 - otSoFarDay));
+      const tier2 = ot - tier1;
+      regularSoFar += r;
+      otSoFarDay += ot;
+
+      if (r > 0) {
         if (isWeekendOrHoliday) {
-          h175s += 0.25;
-          ePay += 0.25 * base * 1.75;
+          h150s += r;
+          rPay += r * base * 1.5;
         } else {
-          h125e += 0.25;
-          ePay += 0.25 * base * 1.25;
+          h100 += r;
+          rPay += r * base;
         }
-        eHours += 0.25;
-      } else {
+        rHours += r;
+      }
+      if (tier1 > 0) {
         if (isWeekendOrHoliday) {
-          h200s += 0.25;
-          ePay += 0.25 * base * 2;
+          h175s += tier1;
+          ePay += tier1 * base * 1.75;
         } else {
-          h150e += 0.25;
-          ePay += 0.25 * base * 1.5;
+          h125e += tier1;
+          ePay += tier1 * base * 1.25;
         }
-        eHours += 0.25;
+        eHours += tier1;
+      }
+      if (tier2 > 0) {
+        if (isWeekendOrHoliday) {
+          h200s += tier2;
+          ePay += tier2 * base * 2;
+        } else {
+          h150e += tier2;
+          ePay += tier2 * base * 1.5;
+        }
+        eHours += tier2;
       }
     }
     return {
@@ -288,4 +357,9 @@ const computeShiftDoc = ({
   return result;
 };
 
-module.exports = { calculateSalary, calculateShiftPay, computeShiftDoc };
+module.exports = {
+  calculateSalary,
+  calculateShiftPay,
+  computeShiftDoc,
+  DEFAULT_CALC_RULES,
+};
