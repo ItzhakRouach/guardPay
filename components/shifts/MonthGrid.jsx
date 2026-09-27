@@ -125,7 +125,7 @@ export default function MonthGrid({
                   numeric
                   color={
                     isToday
-                      ? theme.colors.ctaInk
+                      ? theme.colors.onAccentFill
                       : docs.length
                         ? theme.colors.ink
                         : theme.colors.muted
@@ -149,7 +149,7 @@ export default function MonthGrid({
                         height: 5,
                         borderRadius: 3,
                         backgroundColor: isToday
-                          ? theme.colors.ctaInk
+                          ? theme.colors.onAccentFill
                           : resolveDot(deriveShiftType(s, profile), scheme),
                       }}
                     />
