@@ -24,7 +24,11 @@ import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../lib/appwrite";
 import { parseOvertimeRules, toCalcRules } from "../lib/overtimeRules";
 import { computeShiftDoc } from "../lib/salaryLogic";
 import { applyWeekUpdates, fetchWeekDocs } from "../lib/weeklyOt";
-import { recomputeWeek, regularHoursBefore } from "../lib/weeklyOtCore";
+import {
+  recomputeWeek,
+  regularHoursBefore,
+  weekKeyOf,
+} from "../lib/weeklyOtCore";
 import { findShiftConflicts, sameDayWindow } from "../lib/shiftOverlap";
 import { getShiftTimes } from "../lib/shiftTimes";
 import { classifyTimeOfDay } from "../lib/shiftType";
@@ -387,6 +391,32 @@ export default function AddShift() {
         if (updates.length) {
           const { failed } = await applyWeekUpdates(updates);
           if (failed) Alert.alert(t("shifts.week_partial"));
+        }
+        // An edit that moved the shift to a different week leaves a gap in
+        // the week it came from: recompute that week too.
+        if (isEditMode && params.existingData) {
+          try {
+            const previous = JSON.parse(params.existingData);
+            if (
+              previous?.start_time &&
+              weekKeyOf(previous.start_time) !== weekKeyOf(finalStart)
+            ) {
+              const oldWeek = await fetchWeekDocs(
+                user.$id,
+                previous.start_time,
+              );
+              const oldUpdates = recomputeWeek(oldWeek, otRules);
+              if (oldUpdates.length) {
+                const { failed } = await applyWeekUpdates(oldUpdates);
+                if (failed) Alert.alert(t("shifts.week_partial"));
+              }
+            }
+          } catch (e) {
+            console.log(
+              "[add-shift] origin-week recompute skipped:",
+              e?.message,
+            );
+          }
         }
       }
 

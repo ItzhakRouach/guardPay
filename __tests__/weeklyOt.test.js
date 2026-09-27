@@ -344,3 +344,47 @@ describe("recomputeWeek", () => {
     expect(u.weekly_regular_before).toBeNull();
   });
 });
+
+// --- Byte-identity fuzz against the pre-rules golden reference -----------
+const {
+  legacyCalculateShiftPay,
+} = require("./fixtures/legacyCalculateShiftPay");
+
+describe("calculateShiftPay — defaults equal the golden reference on random shifts", () => {
+  // Deterministic LCG so a failure is reproducible.
+  let seed = 20260927;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+  const cases = [];
+  for (let i = 0; i < 3000; i += 1) {
+    const day = 1 + Math.floor(rnd() * 28);
+    const hour = Math.floor(rnd() * 24);
+    const minute = Math.floor(rnd() * 60); // deliberately NOT 15-min aligned
+    const durationMin = 60 + Math.floor(rnd() * (14 * 60)); // 1h .. 15h
+    const start = new Date(2026, 3, day, hour, minute);
+    const end = new Date(start.getTime() + durationMin * 60000);
+    const holiday = rnd() < 0.15;
+    const rate = [35.4, 39.11, 40, 52.5][Math.floor(rnd() * 4)];
+    const travel = rnd() < 0.5 ? 22.6 : 0;
+    cases.push([start.toISOString(), end.toISOString(), rate, travel, holiday]);
+  }
+  test("3000 random shifts (unaligned starts, Sunday-cutoff crossings, holidays)", () => {
+    const diffs = [];
+    for (const [s, e, rate, travel, h] of cases) {
+      const a = legacyCalculateShiftPay(s, e, rate, travel, h);
+      const b = calculateShiftPay(s, e, rate, travel, h);
+      if (JSON.stringify(a) !== JSON.stringify(b)) diffs.push({ s, e, a, b });
+    }
+    expect(diffs.slice(0, 3)).toEqual([]);
+    expect(diffs).toHaveLength(0);
+  });
+  test("explicit: unaligned Saturday-night start crossing Sunday 04:00", () => {
+    const s = "2026-04-25T22:37:00";
+    const e = "2026-04-26T09:25:00";
+    expect(calculateShiftPay(s, e, 40, 0, false)).toEqual(
+      legacyCalculateShiftPay(s, e, 40, 0, false),
+    );
+  });
+});

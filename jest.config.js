@@ -4,7 +4,11 @@ module.exports = {
   // Jest collected every copy of the suite from every worktree (39 suites
   // instead of 8), which made the salary gate meaningless. `<rootDir>` keeps
   // the pattern relative, so a suite run *inside* a worktree still runs.
-  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/\\.worktrees/"],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "<rootDir>/\\.worktrees/",
+    "<rootDir>/__tests__/fixtures/",
+  ],
   transform: {
     // Hermetic on purpose: `babelrc: false, configFile: false` means this does
     // NOT read a project babel config — and there must not be a root

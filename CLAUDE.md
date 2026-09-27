@@ -8,7 +8,7 @@ GuardPay is **live on the App Store** (`com.itzhakrouach.guardpay`; the shipping
 
 - **Never delete or rename** existing fields on `shifts_history` or `users_prefs`. Add only optional fields, with safe defaults for historical documents.
 - **Never break the hour-bucket field-name contract** (see "Cross-file field-name contract" below) — historical shift documents depend on those exact names.
-- **Salary math now runs client-side in [utils/salaryLogic.js](utils/salaryLogic.js); changes there hit every user's monthly neto immediately via OTA.** Run `npm test`, use the `salary-logic-guardian` subagent, and ask the user before shipping. (The `CALCULATE_SALARY` cloud function `697d0f3c001bba7f03d2` is no longer on the hot path — kept only as a rollback + for `DELETE_ACCOUNT`.)
+- **Salary math now runs client-side in [utils/salaryLogic.js](utils/salaryLogic.js); changes there hit every user's monthly neto immediately via OTA.** Run `npm test`, use the `salary-logic-guardian` subagent, and ask the user before shipping. (The `CALCULATE_SALARY` cloud function `697d0f3c001bba7f03d2` is no longer on the hot path and, since the weekly-overtime rules, no longer a faithful mirror — it remains deployed only for `DELETE_ACCOUNT`.)
 - **OTA updates ship without App Store review** because `runtimeVersion.policy: "appVersion"` is set in `app.json`. A bad JS bundle hits installed devices on the next launch.
 - **Don't run migrations or backfills** against the live Appwrite project without an approved dry-run plan. Ask the user to spin up a staging project for risky work.
 

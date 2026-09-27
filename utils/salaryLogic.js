@@ -1,11 +1,13 @@
 // Single source of truth for GuardPay salary math.
 //
-// This file is a byte-faithful copy of the deployed Appwrite cloud
-// function (`697d0f3c001bba7f03d2`, actions CALCULATE_SALARY /
-// CALCULATE_SHIFT) so the app can compute everything locally and the
-// flaky cloud round-trip can be dropped from the hot path. The numbers
-// here MUST equal what the cloud produced — any change shifts every
-// user's neto. Covered by __tests__/salary.test.js.
+// Started as a byte-faithful copy of the Appwrite cloud function
+// (`697d0f3c001bba7f03d2`, CALCULATE_SALARY / CALCULATE_SHIFT) so the app
+// computes everything locally. Since the weekly-overtime work (Sept 2026)
+// `calculateShiftPay` takes an optional `rules` argument; with it omitted
+// the output is still byte-identical to that function (test-locked by a
+// golden-reference fuzz in __tests__/weeklyOt.test.js), and the cloud
+// function is no longer a mirror — it serves DELETE_ACCOUNT only. Any
+// change here shifts every user's neto. Covered by __tests__/salary.test.js.
 //
 // Kept as CommonJS so the Jest suite can require() it without a babel
 // config (matches utils/decimal.js / utils/shiftType.js). App code
@@ -150,7 +152,10 @@ const calculateShiftPay = (
 
   // Running state shared by both Sunday-04:00 segments (same shift/day).
   let regularSoFar = weeklyOn ? Number(R.weeklyRegularBefore) : 0;
-  let otSoFarDay = 0;
+  // Overtime that the WEEKLY cap triggered before the daily cap was reached
+  // (counted); overtime after the daily cap is measured by position, which
+  // is how the historical function tiered it.
+  let weeklyOtBeforeCap = 0;
   let dayRolled = false;
 
   const calculateHours = (segStart, segEnd, forceWeekday = false) => {
@@ -185,20 +190,33 @@ const calculateShiftPay = (
         hoursIntoDay = currentH - midnightOffset;
         if (!dayRolled) {
           dayRolled = true;
-          otSoFarDay = 0;
+          weeklyOtBeforeCap = 0;
         }
       }
 
-      const regularRoom = Math.max(0, regLimit - hoursIntoDay);
+      // Daily room is measured on the 15-minute grid, as the historical
+      // whole-block classification did. When a shift starts off-grid and is
+      // split at the Sunday 04:00 cutoff (or at midnight), hoursIntoDay is
+      // fractional; without snapping, the block at the cap would be split
+      // and the result would differ from every document ever stored.
+      const gridPos = Math.floor(hoursIntoDay / 0.25 + 1e-9) * 0.25;
+      const regularRoom = Math.max(0, regLimit - gridPos);
       const weeklyRoom = weeklyOn
         ? Math.max(0, Number(R.weeklyCap) - regularSoFar)
         : Infinity;
-      const r = Math.min(0.25, regularRoom, weeklyRoom);
+      const dailyAllowed = Math.min(0.25, regularRoom);
+      const r = Math.min(dailyAllowed, weeklyRoom);
       const ot = 0.25 - r;
-      const tier1 = Math.min(ot, Math.max(0, 2 - otSoFarDay));
+      // "First 2 OT hours of the day" = OT the weekly cap denied while the
+      // daily cap still had room (counted) + OT past the daily cap measured
+      // by position — identical to the old `currentH < regLimit + 2` test
+      // when the weekly rule is off.
+      const dailyOtPos = Math.max(0, gridPos - regLimit);
+      const otRef = weeklyOtBeforeCap + dailyOtPos;
+      const tier1 = Math.min(ot, Math.max(0, 2 - otRef));
       const tier2 = ot - tier1;
       regularSoFar += r;
-      otSoFarDay += ot;
+      weeklyOtBeforeCap += dailyAllowed - r;
 
       if (r > 0) {
         if (isWeekendOrHoliday) {
