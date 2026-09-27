@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 // Appwrite keep-alive touch. Runs from .github/workflows/appwrite-keepalive.yml.
 //
+// The Free plan caps the number of databases per project (the first run hit
+// `additional_resource_not_allowed`), so the throwaway lives one level down:
+// a dedicated collection `keepalive_heartbeats` inside the app's existing
+// database. The production collections (users_prefs, shifts_history) are
+// never read or written.
+//
 // What it does, in order:
-//   1. Ensure a throwaway database `keepalive` exists.
-//   2. Ensure a collection `heartbeats` with one string attribute `note`.
-//   3. Schema-level touch: rename the database to "keepalive <timestamp>".
+//   1. Resolve the database: APPWRITE_DATABASE_ID if set, otherwise the
+//      project's only database (fails if there are several).
+//   2. Ensure the collection `keepalive_heartbeats` with a string attribute.
+//   3. Schema-level touch: rename the collection to "keepalive <timestamp>".
 //   4. Traffic touch: write one heartbeat document, prune ones > 30 days old.
 //
-// It talks only to database `keepalive`. It refuses to run if the target
-// database id ever equals the production database id.
-//
-// Exit codes: 0 ok · 1 project paused (or other API failure) · 2 misconfig.
+// Exit codes: 0 ok · 1 project paused or API failure · 2 misconfiguration.
 // Uses Node's built-in fetch — no dependencies, nothing to install in CI.
 
 // Accept the endpoint with or without a trailing "/v1" (the app's .env
@@ -20,13 +24,10 @@ const ENDPOINT = (process.env.APPWRITE_ENDPOINT || "")
   .replace(/\/v1$/, "");
 const PROJECT = process.env.APPWRITE_PROJECT_ID || "";
 const KEY = process.env.APPWRITE_KEEPALIVE_API_KEY || "";
+const DATABASE_ID_OVERRIDE = process.env.APPWRITE_DATABASE_ID || "";
 
-const DB_ID = "keepalive";
-const COLLECTION_ID = "heartbeats";
+const COLLECTION_ID = "keepalive_heartbeats";
 const PRUNE_AFTER_DAYS = 30;
-
-// Everything below is scoped to DB_ID, a hardcoded constant that is not the
-// production database. No code path takes a database id from the environment.
 
 function fail(msg, code = 1) {
   console.error(`keepalive: ${msg}`);
@@ -77,43 +78,42 @@ async function api(method, path, body) {
   return { status: res.status, json };
 }
 
-async function ensureDatabase() {
-  const got = await api("GET", `/v1/databases/${DB_ID}`);
-  if (got.status === 200) return;
-  if (got.status !== 404)
-    fail(`unexpected response reading database: ${describe(got)}`);
-  const made = await api("POST", "/v1/databases", {
-    databaseId: DB_ID,
-    name: "keepalive",
-  });
-  if (made.status !== 201) fail(`could not create database: ${describe(made)}`);
-  console.log("keepalive: created database");
+async function resolveDatabaseId() {
+  if (DATABASE_ID_OVERRIDE) return DATABASE_ID_OVERRIDE;
+  const res = await api("GET", "/v1/databases");
+  if (res.status !== 200) fail(`could not list databases: ${describe(res)}`);
+  const dbs = res.json?.databases || [];
+  if (dbs.length === 1) return dbs[0].$id;
+  fail(
+    `project has ${dbs.length} databases; set the APPWRITE_DATABASE_ID secret to the app database id`,
+    2,
+  );
 }
 
-async function ensureCollection() {
-  const got = await api(
-    "GET",
-    `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}`,
-  );
+async function ensureCollection(dbId) {
+  const base = `/v1/databases/${dbId}/collections`;
+  const got = await api("GET", `${base}/${COLLECTION_ID}`);
   if (got.status === 200) return;
-  if (got.status !== 404)
+  if (got.status !== 404) {
     fail(`unexpected response reading collection: ${describe(got)}`);
-  const made = await api("POST", `/v1/databases/${DB_ID}/collections`, {
+  }
+  const made = await api("POST", base, {
     collectionId: COLLECTION_ID,
-    name: "heartbeats",
+    name: "keepalive",
     documentSecurity: false,
     enabled: true,
   });
-  if (made.status !== 201)
+  if (made.status !== 201) {
     fail(`could not create collection: ${describe(made)}`);
+  }
   console.log("keepalive: created collection");
 }
 
 // Attribute creation is asynchronous on Appwrite. Run this every time (not
 // only on the run that created the collection) so a failed or still
 // "processing" attribute self-heals instead of failing every later run.
-async function ensureAttribute() {
-  const path = `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}/attributes`;
+async function ensureAttribute(dbId) {
+  const path = `/v1/databases/${dbId}/collections/${COLLECTION_ID}/attributes`;
   const got = await api("GET", `${path}/note`);
   if (got.status === 404) {
     const made = await api("POST", `${path}/string`, {
@@ -139,21 +139,25 @@ async function ensureAttribute() {
   fail("attribute did not become available in time");
 }
 
-async function schemaTouch(stamp) {
-  const res = await api("PUT", `/v1/databases/${DB_ID}`, {
-    name: `keepalive ${stamp}`,
-    enabled: true,
-  });
+// Renaming the collection is a schema/metadata write on the project — the
+// kind of "development activity" this experiment bets on. Only this
+// collection is ever touched.
+async function schemaTouch(dbId, stamp) {
+  const res = await api(
+    "PUT",
+    `/v1/databases/${dbId}/collections/${COLLECTION_ID}`,
+    { name: `keepalive ${stamp}`, enabled: true },
+  );
   if (res.status !== 200) fail(`schema touch failed: ${describe(res)}`);
   console.log("keepalive: schema touch ok");
 }
 
-async function trafficTouch(stamp) {
-  const res = await api(
-    "POST",
-    `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}/documents`,
-    { documentId: "unique()", data: { note: stamp } },
-  );
+async function trafficTouch(dbId, stamp) {
+  const docs = `/v1/databases/${dbId}/collections/${COLLECTION_ID}/documents`;
+  const res = await api("POST", docs, {
+    documentId: "unique()",
+    data: { note: stamp },
+  });
   if (res.status !== 201) fail(`heartbeat write failed: ${describe(res)}`);
   console.log("keepalive: heartbeat written");
 
@@ -169,25 +173,19 @@ async function trafficTouch(stamp) {
     JSON.stringify({ method: "limit", values: [25] }),
   ];
   const qs = queries.map((q) => `queries[]=${encodeURIComponent(q)}`).join("&");
-  const old = await api(
-    "GET",
-    `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}/documents?${qs}`,
-  );
-  const docs = old.json?.documents || [];
-  for (const d of docs) {
-    await api(
-      "DELETE",
-      `/v1/databases/${DB_ID}/collections/${COLLECTION_ID}/documents/${d.$id}`,
-    );
+  const old = await api("GET", `${docs}?${qs}`);
+  const stale = old.json?.documents || [];
+  for (const d of stale) {
+    await api("DELETE", `${docs}/${d.$id}`);
   }
-  if (docs.length)
-    console.log(`keepalive: pruned ${docs.length} old heartbeats`);
+  if (stale.length)
+    console.log(`keepalive: pruned ${stale.length} old heartbeats`);
 }
 
 const stamp = new Date().toISOString();
-await ensureDatabase();
-await ensureCollection();
-await ensureAttribute();
-await schemaTouch(stamp);
-await trafficTouch(stamp);
+const dbId = await resolveDatabaseId();
+await ensureCollection(dbId);
+await ensureAttribute(dbId);
+await schemaTouch(dbId, stamp);
+await trafficTouch(dbId, stamp);
 console.log(`keepalive: done ${stamp}`);

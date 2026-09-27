@@ -25,14 +25,18 @@ Sources: `appwrite.io/changelog/entry/2026-02-20-1`,
 `.github/workflows/appwrite-keepalive.yml` runs `scripts/appwrite-keepalive.mjs`
 every 3 days (and on demand). The script:
 
-1. creates a throwaway database `keepalive` with a collection `heartbeats`
-   the first time it runs;
-2. **renames the database** with a timestamp (a schema/metadata write);
+1. creates a throwaway collection `keepalive_heartbeats` **inside the app's
+   existing database** the first time it runs (the Free plan caps the number
+   of databases, so a separate database is not possible);
+2. **renames that collection** with a timestamp (a schema/metadata write);
 3. writes one small heartbeat document and prunes ones older than 30 days;
 4. exits with an error if the project is already paused, so GitHub emails
    you. That is a free outage alert even if the keep-alive itself fails.
 
-It never touches `users_prefs` or `shifts_history`.
+It never reads or writes `users_prefs` or `shifts_history`. If the project
+has more than one database, add a fourth secret `APPWRITE_DATABASE_ID` with
+the app database id (the same value as `EXPO_PUBLIC_APPWRITE_DB` in `.env`);
+with a single database the script finds it on its own.
 
 ## This is an experiment
 
@@ -57,15 +61,15 @@ Console → your project → **Overview** → **Integrations** → **API keys** 
 - Name: `github-keepalive`
 - Expiration: 1 year (set a calendar reminder to rotate)
 - Scopes (tick only these):
-  - `databases.read`, `databases.write`
+  - `databases.read`
   - `collections.read`, `collections.write`
   - `attributes.read`, `attributes.write`
   - `documents.read`, `documents.write`
 
 Copy the key once. It is shown only at creation.
 
-> Blast radius: any key with `databases.write` or `collections.write` can
-> delete production collections if it leaks. It lives only in GitHub's
+> Blast radius: any key with `collections.write` can delete production
+> collections if it leaks. It lives only in GitHub's
 > encrypted secrets and is never printed by the script. If you ever see it
 > in a log or paste it anywhere, delete it in the Console and create a new
 > one.
@@ -84,8 +88,9 @@ repository secret**:
 ### 3. Run it once by hand
 
 Repo → **Actions** → **Appwrite keep-alive** → **Run workflow**. The log should
-end with `keepalive: done <timestamp>`. In the Console you should now see a
-database named `keepalive <timestamp>` with one `heartbeats` document.
+end with `keepalive: done <timestamp>`. In the Console, inside the app
+database, you should now see a collection named `keepalive <timestamp>`
+(id `keepalive_heartbeats`) with one document.
 
 ### 4. Know that GitHub can switch the schedule off
 
@@ -105,7 +110,7 @@ project is paused: open the Console and resume it.
 - Disable the workflow (Actions → Appwrite keep-alive → ⋯ → Disable) or
   delete the YAML.
 - Delete the `github-keepalive` API key in the Console.
-- Optionally delete the `keepalive` database.
+- Optionally delete the `keepalive_heartbeats` collection.
 - Upgrade the project to Pro; nothing in the app changes.
 
 ## Related app behaviour
