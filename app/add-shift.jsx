@@ -5,6 +5,7 @@ import {
   Alert,
   Keyboard,
   Platform,
+  ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
@@ -503,95 +504,123 @@ export default function AddShift() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <Text variant="headlineMedium" style={styles.title}>
-          {!isEditMode ? t("add_shift.add") : t("add_shift.update")}
-        </Text>
-        {/* Sick days and vacation use a dedicated two-date range picker
+    // The form is taller than the screen once the keyboard is up, and the
+    // note field sits near the bottom, so it needs to scroll.
+    //
+    // `automaticallyAdjustKeyboardInsets` is the iOS lever: UIKit insets the
+    // scroll view by the keyboard's height and brings the focused field into
+    // the remaining space, which is exactly the behaviour wanted here and
+    // avoids the double-compensation you get from also wrapping this in a
+    // KeyboardAvoidingView. Android needs nothing extra, because Expo's
+    // default `softwareKeyboardLayoutMode` is "resize" and the scroll view
+    // simply gets shorter.
+    <View style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+        automaticallyAdjustKeyboardInsets
+        showsVerticalScrollIndicator={false}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.container}>
+            <Text variant="headlineMedium" style={styles.title}>
+              {!isEditMode ? t("add_shift.add") : t("add_shift.update")}
+            </Text>
+            {/* Sick days and vacation use a dedicated two-date range picker
             (start + end), one entry per day; all other shift types use the
             standard date + time card. Training hides the time fields since
             it always uses fixed default hours. */}
-        {value === "sick" ? (
-          <PeriodPicker
-            startDate={date}
-            endDate={sickEndDate}
-            openPicker={openPicker}
-            startLabel="add_shift.sick_start"
-            endLabel="add_shift.sick_end"
-            endField="sickEnd"
-          />
-        ) : value === "vacation" ? (
-          <PeriodPicker
-            startDate={date}
-            endDate={vacEndDate}
-            openPicker={openPicker}
-            startLabel="add_shift.vacation_start"
-            endLabel="add_shift.vacation_end"
-            endField="vacEnd"
-          />
-        ) : (
-          <ShiftDatePicker
-            date={date}
-            startTime={startTime}
-            endTime={endTime}
-            openPicker={openPicker}
-            loading={loading}
-            setHourRate={setHourRate}
-            hourRate={hourRate}
-            defaultRate={profile?.price_per_hour}
-            hideTime={value === "training"}
-          />
-        )}
-        {/**Shift type selected */}
-        <View style={styles.shiftTypesWrapper}>
-          <ShiftTypeSelected
-            value={value}
-            handleShiftTypeChange={handleShiftTypeChange}
-          />
-        </View>
+            {value === "sick" ? (
+              <PeriodPicker
+                startDate={date}
+                endDate={sickEndDate}
+                openPicker={openPicker}
+                startLabel="add_shift.sick_start"
+                endLabel="add_shift.sick_end"
+                endField="sickEnd"
+              />
+            ) : value === "vacation" ? (
+              <PeriodPicker
+                startDate={date}
+                endDate={vacEndDate}
+                openPicker={openPicker}
+                startLabel="add_shift.vacation_start"
+                endLabel="add_shift.vacation_end"
+                endField="vacEnd"
+              />
+            ) : (
+              <ShiftDatePicker
+                date={date}
+                startTime={startTime}
+                endTime={endTime}
+                openPicker={openPicker}
+                loading={loading}
+                setHourRate={setHourRate}
+                hourRate={hourRate}
+                defaultRate={profile?.price_per_hour}
+                hideTime={value === "training"}
+              />
+            )}
+            {/**Shift type selected */}
+            <View style={styles.shiftTypesWrapper}>
+              <ShiftTypeSelected
+                value={value}
+                handleShiftTypeChange={handleShiftTypeChange}
+              />
+            </View>
 
-        {/** Optional per-shift note */}
-        <ShiftCommentField value={comment} onChangeText={setComment} />
+            {/** Optional per-shift note */}
+            <ShiftCommentField value={comment} onChangeText={setComment} />
 
-        {/** Summmary Box */}
-        <ShiftSummary shiftSummary={shiftSummary} />
-        <Button
-          mode="contained"
-          style={styles.saveBtn}
-          contentStyle={{ paddingVertical: 8 }}
-          onPress={() => handleSave()}
-          disabled={loading}
-        >
-          {t(`add_shift.${buttonLabel}`)}
-        </Button>
+            {/** Summmary Box */}
+            <ShiftSummary shiftSummary={shiftSummary} />
+            <Button
+              mode="contained"
+              style={styles.saveBtn}
+              contentStyle={{ paddingVertical: 8 }}
+              onPress={() => handleSave()}
+              disabled={loading}
+            >
+              {t(`add_shift.${buttonLabel}`)}
+            </Button>
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
 
-        {/**Modal Picker */}
-        {show && (
-          <DateTimeModal
-            show={show}
-            activeField={activeField}
-            setShow={setShow}
-            pickerMode={pickerMode}
-            handleValueChanges={handleValueChanges}
-            date={date}
-            startTime={startTime}
-            endTime={endTime}
-            sickEndDate={sickEndDate}
-            vacEndDate={vacEndDate}
-          />
-        )}
-        {loading && <LoadingSpinner overlay />}
-      </View>
-    </TouchableWithoutFeedback>
+      {/**Modal Picker */}
+      {show && (
+        <DateTimeModal
+          show={show}
+          activeField={activeField}
+          setShow={setShow}
+          pickerMode={pickerMode}
+          handleValueChanges={handleValueChanges}
+          date={date}
+          startTime={startTime}
+          endTime={endTime}
+          sickEndDate={sickEndDate}
+          vacEndDate={vacEndDate}
+        />
+      )}
+      {loading && <LoadingSpinner overlay />}
+    </View>
   );
 }
 
 const makeStyle = (theme, isRTL) =>
   StyleSheet.create({
-    container: {
+    screen: {
       flex: 1,
       backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      // Clears the save button from the home indicator, and leaves somewhere
+      // to scroll to when the keyboard is up.
+      paddingBottom: 40,
+    },
+    container: {
       padding: 20,
       width: "100%",
       maxWidth: 600,
