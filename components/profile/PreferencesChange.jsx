@@ -23,6 +23,7 @@ import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
 import LoadingSpinner from "../common/LoadingSpinnner";
+import GuardRateChips from "../common/GuardRateChips";
 
 // normalizeDecimal returns a cleaned STRING ("52,5" → "52.5"); turn it into
 // a number, with empty → NaN so validation catches it.
@@ -136,6 +137,12 @@ export default function PreferencesChange({ visable, hideModal }) {
                 }
                 style={styles.input}
                 outlineStyle={styles.inputOutline}
+              />
+              <GuardRateChips
+                value={formData.price_per_hour}
+                onPick={(v) =>
+                  setFormData((prev) => ({ ...prev, price_per_hour: v }))
+                }
               />
 
               <Text

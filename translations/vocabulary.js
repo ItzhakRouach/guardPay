@@ -130,6 +130,12 @@ export const resources = {
         select_time: "בחר זמן",
         update: "עדכן את התזכורת",
       },
+      guard_rates: {
+        regular: "מאבטח",
+        supervisor: "אחראי",
+        note: "תעריף המינימום לפי צו ההרחבה בענף השמירה, בתוקף עד",
+        expired: "התעריפים כאן עשויים להיות לא מעודכנים — בדקו את צו ההרחבה הנוכחי.",
+      },
       edit_pref: {
         label_credit: "נקודות זיכוי",
         credit_hint:
@@ -534,6 +540,12 @@ export const resources = {
         select_time: "Select Time",
         update: "Update Reminder",
       },
+      guard_rates: {
+        regular: "Guard",
+        supervisor: "Supervisor",
+        note: "Minimum rate under the security-sector extension order, valid until",
+        expired: "These rates may be out of date — check the current extension order.",
+      },
       edit_pref: {
         label_credit: "Tax credit points",
         credit_hint:
@@ -913,6 +925,12 @@ export const resources = {
         select_day: "اختر اليوم",
         select_time: "اختر الوقت",
         update: "تحديث التذكير",
+      },
+      guard_rates: {
+        regular: "حارس",
+        supervisor: "مسؤول",
+        note: "الحد الأدنى للأجر وفق أمر التوسيع لقطاع الحراسة، ساري حتى",
+        expired: "قد تكون هذه الأجور غير محدّثة — راجع أمر التوسيع الحالي.",
       },
       edit_pref: {
         label_credit: "نقاط الإعفاء الضريبي",

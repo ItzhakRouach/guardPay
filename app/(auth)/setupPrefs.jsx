@@ -23,6 +23,7 @@ import {
   registerTranslation,
 } from "react-native-paper-dates";
 import { useAuth } from "../../hooks/auth-context";
+import GuardRateChips from "../../components/common/GuardRateChips";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, databases, USERS_PREFS } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
@@ -217,6 +218,12 @@ export default function SetupProfileScreen() {
                   }))
                 }
                 keyboardType="decimal-pad"
+              />
+              <GuardRateChips
+                value={formData.price_per_hour}
+                onPick={(v) =>
+                  setFormData((p) => ({ ...p, price_per_hour: v }))
+                }
               />
               <TextInput
                 label={t("setupP.ride")}
