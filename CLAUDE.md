@@ -90,7 +90,9 @@ Day-type flags on `shifts_history` (mutually exclusive — only one is true per 
 
 `<TextInput>` is the one exception: it never populates `layoutDirection`, so the text inside an input is **not** mirrored and still needs the physical edge — use `inputTextStart(isRTL)` for a Paper `contentStyle`.
 
-Yoga resolves cross-axis `alignItems`/`alignSelf` against direction too, so `flex-end` is already the trailing edge. `isRTL` from `useLanguage()` is now needed only for things Yoga cannot mirror: glyph choice (a back or next chevron) and that input `contentStyle`.
+**Cross-axis alignment is the same trap.** Yoga resolves `alignItems` / `alignSelf` / `justifyContent` against the direction too, so `flex-start` is already the leading (right) edge in Hebrew. Writing `alignItems: isRTL ? "flex-end" : "flex-start"` flips it twice and lands back on the left — this is what put the Overview header on the wrong side. Same for reversing an array to reorder a row: the row already mirrors, so `.reverse()` undoes it.
+
+`isRTL` from `useLanguage()` is now needed for exactly three things, and nothing else: glyph choice (a back, previous or next chevron), a Paper `TextInput` `contentStyle`, and the swipe-action sides on the Shifts list (gesture-handler positions those absolutely and does not mirror). Physical `left`/`right`/`marginLeft`/`marginRight` become `start`/`end`/`marginStart`/`marginEnd`.
 
 ## Theming
 
