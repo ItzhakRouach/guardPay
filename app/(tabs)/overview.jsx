@@ -21,6 +21,7 @@ import { useShift } from "../../hooks/useShift";
 import { docBruto } from "../../lib/monthlyTotals";
 import { screenContentLayout } from "../../lib/responsive";
 import { localeFromLang } from "../../lib/utils";
+import { radius } from "../../lib/theme";
 
 const fmtCurrency = (n) => Math.round(Number(n) || 0).toLocaleString("en-US");
 
@@ -205,7 +206,7 @@ function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
     <View
       style={{
         marginTop: 16,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -277,7 +278,7 @@ function WeeklyChart({ buckets }) {
       style={{
         marginTop: 16,
         padding: 20,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -361,7 +362,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
     <View
       style={{
         marginTop: 16,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,

@@ -41,6 +41,7 @@ import {
 import { parseOvertimeRules } from "../../lib/overtimeRules";
 import { formatHHMM, parseReminderTime } from "../../lib/reminderTime";
 import { screenContentLayout } from "../../lib/responsive";
+import { radius } from "../../lib/theme";
 
 function SettingsRow({
   icon,
@@ -366,7 +367,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 22,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,
@@ -393,7 +394,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 10,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,
@@ -465,7 +466,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 10,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,
@@ -541,7 +542,7 @@ export default function ProfileScreen() {
           <View
             style={{
               marginTop: 10,
-              borderRadius: 18,
+              borderRadius: radius.card,
               backgroundColor: theme.colors.surface,
               borderWidth: 1,
               borderColor: theme.colors.border,

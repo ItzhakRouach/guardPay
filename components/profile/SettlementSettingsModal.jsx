@@ -15,6 +15,7 @@ import { useAuth } from "../../hooks/auth-context";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import settlementsData from "../../utils/settlements.json";
+import { radius } from "../../lib/theme";
 
 // Picker launched from the Profile → Preferences "settlement" row. Lets
 // the user search the 391 tax-credited settlements and pick one; the
@@ -46,7 +47,12 @@ export default function SettlementSettingsModal({ visible, onDismiss }) {
   const persist = async (fields) => {
     if (!profile?.$id) return false;
     try {
-      await databases.updateDocument(DATABASE_ID, USERS_PREFS, profile.$id, fields);
+      await databases.updateDocument(
+        DATABASE_ID,
+        USERS_PREFS,
+        profile.$id,
+        fields,
+      );
       await fetchUserProfile(user);
       return true;
     } catch (err) {
@@ -116,7 +122,10 @@ export default function SettlementSettingsModal({ visible, onDismiss }) {
             />
           </View>
 
-          <ScrollView style={styles.results} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={styles.results}
+            keyboardShouldPersistTaps="handled"
+          >
             {filtered.map((item) => (
               <List.Item
                 key={item.name}
@@ -166,10 +175,10 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
     },
     clipWrap: {
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
       paddingTop: 8,
       paddingBottom: 8,

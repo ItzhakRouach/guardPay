@@ -17,6 +17,7 @@ import {
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { parseHHMM } from "../../lib/shiftTimes";
+import { radius } from "../../lib/theme";
 
 // Sub-modal for editing the start + end time of one shift-time preset
 // (morning / evening / night). Uses two HH:MM text inputs so the same
@@ -146,7 +147,7 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       padding: 24,
     },
     title: {

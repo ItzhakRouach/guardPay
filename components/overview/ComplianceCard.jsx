@@ -9,6 +9,7 @@ import Eyebrow from "../common/Eyebrow";
 import Hairline from "../common/Hairline";
 import Icon from "../common/Icon";
 import Type from "../common/Type";
+import { radius } from "../../lib/theme";
 
 // "כדאי לדעת": legal limits crossed this month, in plain language. Rendered
 // only when there is something to say. Never affects pay. Laid out like the
@@ -56,7 +57,7 @@ export default function ComplianceCard({ shifts }) {
     <View
       style={{
         marginTop: 16,
-        borderRadius: 18,
+        borderRadius: radius.card,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,

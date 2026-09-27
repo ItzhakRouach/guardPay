@@ -5,7 +5,11 @@ import { useLanguage } from "../../hooks/lang-context";
 
 // Multiline TextInput for the optional per-shift note. Used inside the
 // Add/Edit Shift screen.
-export default function ShiftCommentField({ value, onChangeText, maxLength = 500 }) {
+export default function ShiftCommentField({
+  value,
+  onChangeText,
+  maxLength = 500,
+}) {
   const theme = useTheme();
   const { isRTL } = useLanguage();
   const { t } = useTranslation();

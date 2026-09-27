@@ -23,6 +23,7 @@ import {
 import { recomputeRange } from "../../lib/weeklyOt";
 import { useShiftsStore } from "../../hooks/shifts-store";
 import LoadingSpinner from "../common/LoadingSpinnner";
+import { radius } from "../../lib/theme";
 
 // Three controls, all explained in one line each. Saving recomputes the
 // CURRENT month's weeks under the new rules (owner decision); earlier
@@ -178,7 +179,7 @@ const makeStyle = (theme, isRTL) =>
     modal: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
     },
     inner: { padding: 24 },

@@ -24,6 +24,7 @@ import { DATABASE_ID, USERS_PREFS, databases } from "../../lib/appwrite";
 import { normalizeDecimal } from "../../lib/utils";
 import LoadingSpinner from "../common/LoadingSpinnner";
 import GuardRateChips from "../common/GuardRateChips";
+import { radius } from "../../lib/theme";
 
 // normalizeDecimal returns a cleaned STRING ("52,5" → "52.5"); turn it into
 // a number, with empty → NaN so validation catches it.
@@ -233,7 +234,7 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
     },
     innerContainer: {

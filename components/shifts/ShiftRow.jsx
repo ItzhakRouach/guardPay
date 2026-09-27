@@ -3,11 +3,11 @@ import { View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useThemeMode } from "../../hooks/theme-context";
 import { docBruto } from "../../lib/monthlyTotals";
-import { resolveTint } from "../../lib/shiftColors";
-import { deriveShiftType, TYPE_ICON } from "../../lib/shiftType";
+import { resolveDot, resolveTint } from "../../lib/shiftColors";
+import { deriveShiftType } from "../../lib/shiftType";
 import { localeFromLang } from "../../lib/utils";
+import { spacing } from "../../lib/theme";
 import Hairline from "../common/Hairline";
-import Icon from "../common/Icon";
 import Type from "../common/Type";
 
 const weekday = (date, locale) =>
@@ -21,10 +21,14 @@ const fmtTime = (iso) => {
   return `${hh}:${mm}`;
 };
 
-// Shift row. In LTR the order is [date | type+meta | amount].
-// In RTL we reverse so date sits on the right (leading edge) and the
-// amount on the left (trailing edge) — matching the user's mental model
-// of reading the row in Hebrew.
+// One shift. Source order is [date | type + time | amount]; the app-wide
+// layout direction puts the date on the leading edge and the amount on the
+// trailing one in both directions.
+//
+// The old meta line read "07:00–15:00 · 8.0h · ₪54" — three unrelated facts
+// welded together with middle dots, which is template chrome and reads
+// badly in Hebrew. Time stays under the type; the rate sits with the amount
+// it produced; the hours are on the row's own summary line above the list.
 export default function ShiftRow({ shift, profile, isLast }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -32,7 +36,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
   const locale = localeFromLang(i18n.language);
   const start = new Date(shift.start_time);
   const type = deriveShiftType(shift, profile);
-  const dayLabel = weekday(start, locale).toUpperCase();
+  const dayLabel = weekday(start, locale);
   const dayNum = String(start.getDate());
   const totalHours =
     Number(shift.reg_hours || 0) + Number(shift.extra_hours || 0);
@@ -45,8 +49,8 @@ export default function ShiftRow({ shift, profile, isLast }) {
       <View
         style={{
           flexDirection: "row",
-          paddingVertical: 16,
-          paddingHorizontal: 18,
+          paddingVertical: spacing.rowV,
+          paddingHorizontal: spacing.cardH,
           alignItems: "center",
         }}
       >
@@ -78,10 +82,13 @@ export default function ShiftRow({ shift, profile, isLast }) {
               gap: 8,
             }}
           >
-            <Icon
-              name={TYPE_ICON[type] || "clock"}
-              size={16}
-              color={theme.colors.accent}
+            <View
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: 4,
+                backgroundColor: resolveDot(type, scheme),
+              }}
             />
             <Type variant="body" color={theme.colors.ink}>
               {t(`shifts.types.${type}`)}
@@ -89,24 +96,31 @@ export default function ShiftRow({ shift, profile, isLast }) {
           </View>
           <Type
             variant="small"
+            numeric
             color={theme.colors.muted}
-            style={{ marginTop: 4 }}
+            style={{ marginTop: 3 }}
           >
-            {`${fmtTime(shift.start_time)}–${fmtTime(shift.end_time)} · ${totalHours.toFixed(1)}h · ₪${rate}`}
+            {`${fmtTime(shift.start_time)} – ${fmtTime(shift.end_time)}`}
           </Type>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "baseline",
-            gap: 4,
-          }}
-        >
-          <Type variant="rowAmount" color={theme.colors.ink}>
-            {Math.round(docBruto(shift)).toLocaleString("en-US")}
-          </Type>
-          <Type variant="small" color={theme.colors.muted}>
-            ₪
+        <View style={{ alignItems: "flex-end" }}>
+          <View
+            style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}
+          >
+            <Type variant="rowAmount" color={theme.colors.ink}>
+              {Math.round(docBruto(shift)).toLocaleString("en-US")}
+            </Type>
+            <Type variant="small" color={theme.colors.muted}>
+              ₪
+            </Type>
+          </View>
+          <Type
+            variant="small"
+            numeric
+            color={theme.colors.muted}
+            style={{ marginTop: 3 }}
+          >
+            {`${totalHours.toFixed(1)}h · ₪${rate}`}
           </Type>
         </View>
       </View>

@@ -38,51 +38,51 @@ export default function ShiftDatePicker({
 
         {/** Time Section */}
         {!hideTime && (
-        <View style={styles.timeRow}>
-          <Pressable
-            style={styles.flex1}
-            onPress={() => openPicker("time", "start")}
-          >
-            <View pointerEvents="none">
-              <TextInput
-                value={startTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
-                mode="outlined"
-                contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-                left={isRTL ? <TextInput.Icon icon="clock-start" /> : null}
-                right={!isRTL ? <TextInput.Icon icon="clock-start" /> : null}
-                style={styles.timeInput}
-                outlineStyle={styles.outline}
-              />
-              <Text style={styles.label}>{t("add_shift.start_t")}</Text>
-            </View>
-          </Pressable>
+          <View style={styles.timeRow}>
+            <Pressable
+              style={styles.flex1}
+              onPress={() => openPicker("time", "start")}
+            >
+              <View pointerEvents="none">
+                <TextInput
+                  value={startTime.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                  mode="outlined"
+                  contentStyle={{ textAlign: isRTL ? "right" : "left" }}
+                  left={isRTL ? <TextInput.Icon icon="clock-start" /> : null}
+                  right={!isRTL ? <TextInput.Icon icon="clock-start" /> : null}
+                  style={styles.timeInput}
+                  outlineStyle={styles.outline}
+                />
+                <Text style={styles.label}>{t("add_shift.start_t")}</Text>
+              </View>
+            </Pressable>
 
-          <Pressable
-            style={styles.flex1}
-            onPress={() => openPicker("time", "end")}
-          >
-            <View pointerEvents="none">
-              <TextInput
-                value={endTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
-                mode="outlined"
-                contentStyle={{ textAlign: isRTL ? "right" : "left" }}
-                left={isRTL ? <TextInput.Icon icon="clock-end" /> : null}
-                right={!isRTL ? <TextInput.Icon icon="clock-end" /> : null}
-                style={styles.timeInput}
-                outlineStyle={styles.outline}
-              />
-              <Text style={styles.label}>{t("add_shift.end_t")}</Text>
-            </View>
-          </Pressable>
-        </View>
+            <Pressable
+              style={styles.flex1}
+              onPress={() => openPicker("time", "end")}
+            >
+              <View pointerEvents="none">
+                <TextInput
+                  value={endTime.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                  mode="outlined"
+                  contentStyle={{ textAlign: isRTL ? "right" : "left" }}
+                  left={isRTL ? <TextInput.Icon icon="clock-end" /> : null}
+                  right={!isRTL ? <TextInput.Icon icon="clock-end" /> : null}
+                  style={styles.timeInput}
+                  outlineStyle={styles.outline}
+                />
+                <Text style={styles.label}>{t("add_shift.end_t")}</Text>
+              </View>
+            </Pressable>
+          </View>
         )}
 
         {/** Hour Rate Section - התיקון כאן */}

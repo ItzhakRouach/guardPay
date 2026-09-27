@@ -39,12 +39,12 @@ export default function DateTimeModal({
               activeField === "date"
                 ? date
                 : activeField === "start"
-                ? startTime
-                : activeField === "sickEnd"
-                ? sickEndDate || new Date()
-                : activeField === "vacEnd"
-                ? vacEndDate || new Date()
-                : endTime
+                  ? startTime
+                  : activeField === "sickEnd"
+                    ? sickEndDate || new Date()
+                    : activeField === "vacEnd"
+                      ? vacEndDate || new Date()
+                      : endTime
             }
             mode={pickerMode}
             is24Hour={true}

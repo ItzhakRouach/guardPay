@@ -21,6 +21,7 @@ import {
   serialiseUserShiftTimes,
 } from "../../lib/shiftTimes";
 import ShiftTimeEditModal from "./ShiftTimeEditModal";
+import { radius } from "../../lib/theme";
 
 const ICONS = {
   morning: "weather-sunset-up",
@@ -160,10 +161,10 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
     },
     clipWrap: {
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       overflow: "hidden",
       paddingTop: 8,
       paddingBottom: 8,

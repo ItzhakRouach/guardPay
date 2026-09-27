@@ -52,8 +52,16 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
         </View>
       </View>
       <View style={{ flexDirection: "row", gap: 4 }}>
-        <IconBtn name={prevIcon} onPress={onPrev} color={theme.colors.inkSoft} />
-        <IconBtn name={nextIcon} onPress={onNext} color={theme.colors.inkSoft} />
+        <IconBtn
+          name={prevIcon}
+          onPress={onPrev}
+          color={theme.colors.inkSoft}
+        />
+        <IconBtn
+          name={nextIcon}
+          onPress={onNext}
+          color={theme.colors.inkSoft}
+        />
       </View>
     </View>
   );

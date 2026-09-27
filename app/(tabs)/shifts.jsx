@@ -459,7 +459,7 @@ export default function ShiftsScreen() {
       <ScrollView
         contentContainerStyle={{
           ...screenContentLayout,
-          paddingHorizontal: 24,
+          paddingHorizontal: spacing.screen,
           paddingTop: insets.top + 8,
           paddingBottom: 140,
         }}
@@ -657,7 +657,7 @@ export default function ShiftsScreen() {
               <View
                 style={{
                   marginTop: 10,
-                  borderRadius: 18,
+                  borderRadius: radius.card,
                   backgroundColor: theme.colors.surface,
                   borderWidth: 1,
                   borderColor: theme.colors.border,

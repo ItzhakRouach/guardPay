@@ -17,6 +17,7 @@ import {
 } from "react-native-paper";
 import { useLanguage } from "../../hooks/lang-context";
 import { DATABASE_ID, SHIFTS_HISTORY, databases } from "../../lib/appwrite";
+import { radius } from "../../lib/theme";
 
 // Edit-comment modal launched from Shift Details. Writes shift.comment
 // straight to the shifts_history document; caller passes the shift and an
@@ -111,7 +112,7 @@ const makeStyle = (theme, isRTL) =>
     modalContainer: {
       backgroundColor: theme.colors.surface,
       margin: 20,
-      borderRadius: 28,
+      borderRadius: radius.sheet,
       padding: 24,
     },
     title: {
