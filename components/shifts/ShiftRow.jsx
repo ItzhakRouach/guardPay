@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
-import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
 import { docBruto } from "../../lib/monthlyTotals";
 import { resolveTint } from "../../lib/shiftColors";
@@ -29,7 +28,6 @@ const fmtTime = (iso) => {
 export default function ShiftRow({ shift, profile, isLast }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const { isRTL } = useLanguage();
   const { scheme } = useThemeMode();
   const locale = localeFromLang(i18n.language);
   const start = new Date(shift.start_time);
@@ -46,7 +44,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
     <View style={{ backgroundColor: tint || "transparent" }}>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingVertical: 16,
           paddingHorizontal: 18,
           alignItems: "center",
@@ -75,7 +73,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
         <View style={{ flex: 1 }}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               alignItems: "center",
               gap: 8,
             }}
@@ -99,7 +97,7 @@ export default function ShiftRow({ shift, profile, isLast }) {
         </View>
         <View
           style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
+            flexDirection: "row",
             alignItems: "baseline",
             gap: 4,
           }}

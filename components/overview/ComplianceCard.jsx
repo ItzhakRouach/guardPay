@@ -67,7 +67,7 @@ export default function ComplianceCard({ shifts }) {
     >
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "center",
           gap: 10,
         }}
@@ -83,7 +83,7 @@ export default function ComplianceCard({ shifts }) {
           <View key={`${i}-${r.text}`}>
             <View
               style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
+                flexDirection: "row",
                 alignItems: "flex-start",
                 gap: 12,
                 paddingVertical: 14,

@@ -19,7 +19,7 @@ export default function GuardRateChips({ value, onPick }) {
   );
   return (
     <View style={{ marginTop: 8 }}>
-      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
         <Chip
           compact
           selected={isSel(rates.regular)}

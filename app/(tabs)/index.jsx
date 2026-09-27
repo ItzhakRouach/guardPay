@@ -59,7 +59,7 @@ function SettingsRow({
   const body = (
     <View
       style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
+        flexDirection: "row",
         alignItems: "center",
         paddingVertical: tall ? 18 : 14,
         paddingHorizontal: 18,
@@ -371,7 +371,7 @@ export default function ProfileScreen() {
               borderWidth: 1,
               borderColor: theme.colors.border,
               overflow: "hidden",
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
             }}
           >
             <StatsTile

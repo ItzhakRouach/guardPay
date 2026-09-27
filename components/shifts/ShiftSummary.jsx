@@ -40,7 +40,7 @@ const makeStyle = (theme, isRTL) =>
       marginBottom: 30,
     },
     summaryRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
       textAlign: isRTL ? "right" : "left",

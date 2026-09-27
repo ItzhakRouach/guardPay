@@ -136,7 +136,7 @@ const makeStyle = (theme, isRTL) =>
       textAlign: "center",
     },
     timeRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between", // תיקון שגיאת כתיב
       marginTop: 15,

@@ -156,7 +156,7 @@ const makeStyle = (theme, isRTL) =>
       textAlign: isRTL ? "right" : "left",
     },
     row: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       gap: 12,
       marginBottom: 12,
     },

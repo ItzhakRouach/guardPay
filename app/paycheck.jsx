@@ -47,15 +47,14 @@ function EarningsRow({ row, lang, isRTL }) {
   const theme = useTheme();
   const qty = row.kind === "hours" ? `${row.hours.toFixed(2)}` : `${row.qty}`;
   const label = row.label;
-  // In Hebrew the row visually reads as [amount | qty | rate | label]
-  // left-to-right. row-reverse on the flex container achieves this
-  // while the JSX source order stays the same.
+  // The row reads [label | rate | qty | amount] in source order; the
+  // app-wide layout direction mirrors it for Hebrew and Arabic.
   const numAlign = isRTL ? "left" : "right";
   const labelAlign = isRTL ? "right" : "left";
   return (
     <View
       style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
+        flexDirection: "row",
         alignItems: "center",
         paddingVertical: 10,
         borderBottomWidth: 1,
@@ -106,7 +105,7 @@ function EarningsTable({ model, lang, isRTL }) {
     <View style={{ marginTop: 4 }}>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingBottom: 8,
           borderBottomWidth: 1,
           borderBottomColor: theme.colors.border,
@@ -146,7 +145,7 @@ function EarningsTable({ model, lang, isRTL }) {
       ))}
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingTop: 14,
           marginTop: 6,
           borderTopWidth: 1.5,
@@ -189,7 +188,7 @@ function CreditsTable({ model, lang, isRTL }) {
         <View key={row.label}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 12,
@@ -224,7 +223,7 @@ function DeductionsTable({ model, lang, isRTL }) {
         <View key={row.key}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 12,
@@ -247,7 +246,7 @@ function DeductionsTable({ model, lang, isRTL }) {
       ))}
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           paddingTop: 14,
           marginTop: 6,
           borderTopWidth: 1.5,
@@ -283,7 +282,7 @@ function NetPayCard({ neto, bruto, isRTL }) {
       </Eyebrow>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "baseline",
           marginTop: 8,
           gap: 6,
@@ -382,7 +381,7 @@ export default function PaycheckScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           paddingTop: insets.top + 8,

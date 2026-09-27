@@ -322,14 +322,14 @@ const makeStyle = (theme, isRTL) =>
       backgroundColor: theme.colors.background,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 10,
       paddingVertical: 10,
     },
     headerLeft: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
     },
     backText: {
@@ -378,7 +378,7 @@ const makeStyle = (theme, isRTL) =>
       letterSpacing: 1.2,
     },
     detailRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       marginVertical: 10,
     },
@@ -408,7 +408,7 @@ const makeStyle = (theme, isRTL) =>
       marginTop: 4,
     },
     bRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       paddingVertical: 10,
       paddingHorizontal: 12,
@@ -446,7 +446,7 @@ const makeStyle = (theme, isRTL) =>
       paddingTop: 20,
       borderTopWidth: 2,
       borderTopColor: theme.colors.outlineVariant,
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
@@ -465,7 +465,7 @@ const makeStyle = (theme, isRTL) =>
     },
     trainingText: { color: theme.colors.error, fontWeight: "bold" },
     noteRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "flex-start",
       justifyContent: "space-between",
       backgroundColor: theme.colors.outlineVariant + "55",

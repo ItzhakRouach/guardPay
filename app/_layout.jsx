@@ -15,7 +15,7 @@ import * as Notifications from "expo-notifications";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { I18nManager } from "react-native";
+import { I18nManager, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   configureFonts,
@@ -163,7 +163,7 @@ try {
 
 function ThemedApp() {
   const { scheme, loaded: themeLoaded } = useThemeMode();
-  const { loading: langLoading } = useLanguage();
+  const { isRTL, loading: langLoading } = useLanguage();
   const isDark = scheme === "dark";
   const theme = isDark ? darkTheme : lightTheme;
   // Hold the first paint until the saved language and colour scheme are
@@ -178,37 +178,47 @@ function ThemedApp() {
     );
   }
   return (
-    <PaperProvider theme={theme}>
-      <SafeAreaProvider>
-        <StatusBar style={isDark ? "light" : "dark"} />
-        <RouteGuard>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <ErrorBoundary>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: {
-                    backgroundColor: theme.colors.bg,
-                  },
-                }}
-              >
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="add-shift"
-                  options={{ presentation: "modal" }}
-                />
-                <Stack.Screen
-                  name="paycheck"
-                  options={{ presentation: "modal" }}
-                />
-              </Stack>
-              <UpdateBanner />
-            </ErrorBoundary>
-          </GestureHandlerRootView>
-        </RouteGuard>
-      </SafeAreaProvider>
-    </PaperProvider>
+    // One place sets the layout direction for the entire app. Yoga
+    // propagates it down every subtree, including react-native-paper's
+    // portals, so rows, grids and logical insets mirror themselves in
+    // Hebrew and Arabic. This replaced 52 hand-written row-reverse flips.
+    //
+    // Deliberately NOT I18nManager.forceRTL: that is a native, app-restart
+    // switch that can leave a launch half-flipped. This is per-subtree and
+    // takes effect on the next render.
+    <View style={{ flex: 1, direction: isRTL ? "rtl" : "ltr" }}>
+      <PaperProvider theme={theme}>
+        <SafeAreaProvider>
+          <StatusBar style={isDark ? "light" : "dark"} />
+          <RouteGuard>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <ErrorBoundary>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: {
+                      backgroundColor: theme.colors.bg,
+                    },
+                  }}
+                >
+                  <Stack.Screen name="(auth)" />
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="add-shift"
+                    options={{ presentation: "modal" }}
+                  />
+                  <Stack.Screen
+                    name="paycheck"
+                    options={{ presentation: "modal" }}
+                  />
+                </Stack>
+                <UpdateBanner />
+              </ErrorBoundary>
+            </GestureHandlerRootView>
+          </RouteGuard>
+        </SafeAreaProvider>
+      </PaperProvider>
+    </View>
   );
 }
 

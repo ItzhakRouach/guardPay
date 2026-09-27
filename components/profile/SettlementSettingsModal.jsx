@@ -175,7 +175,7 @@ const makeStyle = (theme, isRTL) =>
       paddingBottom: 8,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 18,
@@ -228,7 +228,7 @@ const makeStyle = (theme, isRTL) =>
       width: "100%",
     },
     row: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       paddingHorizontal: 10,
       paddingVertical: 8,

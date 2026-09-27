@@ -183,14 +183,14 @@ const makeStyle = (theme, isRTL) =>
     },
     inner: { padding: 24 },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
     title: { fontSize: 22, fontWeight: "bold", color: theme.colors.onSurface },
     divider: { marginVertical: 12, opacity: 0.5 },
     rowBetween: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       alignItems: "center",
       gap: 12,
     },

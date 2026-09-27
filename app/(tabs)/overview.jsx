@@ -113,7 +113,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
       <Eyebrow color={theme.colors.muted}>{t("overview.heroLabel")}</Eyebrow>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "baseline",
           marginTop: 14,
           minHeight: 60,
@@ -147,7 +147,7 @@ function HeroSection({ neto, trendPct, isRTL, loading }) {
       {trendPct != null ? (
         <View
           style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
+            flexDirection: "row",
             alignItems: "center",
             gap: 5,
             marginTop: 12,
@@ -179,7 +179,7 @@ function StatTile({ label, value, suffix, isRTL }) {
       <Eyebrow color={theme.colors.muted}>{label}</Eyebrow>
       <View
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "baseline",
           gap: 4,
           marginTop: 6,
@@ -201,7 +201,6 @@ function StatTile({ label, value, suffix, isRTL }) {
 function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const dir = isRTL ? "row-reverse" : "row";
   return (
     <View
       style={{
@@ -213,7 +212,7 @@ function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
         overflow: "hidden",
       }}
     >
-      <View style={{ flexDirection: dir }}>
+      <View style={{ flexDirection: "row" }}>
         <StatTile
           label={t("overview.stats.bruto")}
           value={fmtCurrency(bruto)}
@@ -229,7 +228,7 @@ function StatsGrid({ bruto, totalHours, totalShifts, deductions, isRTL }) {
         />
       </View>
       <Hairline />
-      <View style={{ flexDirection: dir }}>
+      <View style={{ flexDirection: "row" }}>
         <StatTile
           label={t("overview.stats.shifts")}
           value={String(totalShifts || 0)}
@@ -374,7 +373,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
         <View key={r.label}>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
               paddingVertical: 16,
@@ -382,7 +381,7 @@ function InsightsCard({ shiftsCount, avgShift, bestDay, projected, isRTL }) {
           >
             <View
               style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
+                flexDirection: "row",
                 alignItems: "center",
                 gap: 10,
               }}

@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { useTheme } from "react-native-paper";
-import { useLanguage } from "../../hooks/lang-context";
 import { useThemeMode } from "../../hooks/theme-context";
 import { bucketByDay, monthShape } from "../../lib/monthGrid";
 import { resolveDot } from "../../lib/shiftColors";
@@ -44,7 +43,6 @@ export default function MonthGrid({
 }) {
   const theme = useTheme();
   const { scheme } = useThemeMode();
-  const { isRTL } = useLanguage();
   const { i18n, t } = useTranslation();
   const locale = localeFromLang(i18n.language);
   const initials = useWeekdayInitials(locale);
@@ -63,7 +61,6 @@ export default function MonthGrid({
   return (
     <View
       style={{
-        direction: isRTL ? "rtl" : "ltr",
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,

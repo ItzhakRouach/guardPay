@@ -240,7 +240,7 @@ const makeStyle = (theme, isRTL) =>
       padding: 24,
     },
     header: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: 8,
@@ -276,7 +276,7 @@ const makeStyle = (theme, isRTL) =>
       borderWidth: 1.5,
     },
     chipRow: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       gap: 8,
       marginTop: 8,
     },

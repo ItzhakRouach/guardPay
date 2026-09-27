@@ -28,7 +28,7 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
   return (
     <View
       style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
+        flexDirection: "row",
         alignItems: "flex-end",
         justifyContent: "space-between",
       }}
@@ -37,7 +37,7 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
         {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
         <View
           style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
+            flexDirection: "row",
             alignItems: "baseline",
             gap: 8,
             marginTop: 4,
@@ -51,7 +51,7 @@ export default function MonthHeader({ eyebrow, currentDate, onPrev, onNext }) {
           </Type>
         </View>
       </View>
-      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 4 }}>
+      <View style={{ flexDirection: "row", gap: 4 }}>
         <IconBtn name={prevIcon} onPress={onPrev} color={theme.colors.inkSoft} />
         <IconBtn name={nextIcon} onPress={onNext} color={theme.colors.inkSoft} />
       </View>

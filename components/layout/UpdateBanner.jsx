@@ -32,7 +32,7 @@ export default function UpdateBanner() {
       <View
         accessibilityRole="alert"
         style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "center",
           gap: 12,
           paddingVertical: 12,

@@ -64,7 +64,7 @@ function ViewToggle({ value, onChange, isRTL }) {
           paddingVertical: 9,
           borderRadius: radius.control - 2,
           backgroundColor: on ? theme.colors.surface : "transparent",
-          flexDirection: isRTL ? "row-reverse" : "row",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
           gap: 6,
@@ -87,7 +87,7 @@ function ViewToggle({ value, onChange, isRTL }) {
   return (
     <View
       style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
+        flexDirection: "row",
         backgroundColor: theme.colors.surfaceAlt,
         borderRadius: radius.control,
         padding: 3,
@@ -144,7 +144,8 @@ function FAB({ onPress, isRTL }) {
       style={({ pressed }) => ({
         position: "absolute",
         bottom: 24,
-        [isRTL ? "left" : "right"]: inset + 20,
+        // Logical edge: trailing in both directions, no branch needed.
+        end: inset + 20,
         width: 60,
         height: 60,
         borderRadius: 30,
@@ -479,7 +480,7 @@ export default function ShiftsScreen() {
         <HeroCard>
           <View
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
+              flexDirection: "row",
               padding: 22,
             }}
           >
@@ -570,7 +571,7 @@ export default function ShiftsScreen() {
               <View style={{ marginTop: spacing.section }}>
                 <View
                   style={{
-                    flexDirection: isRTL ? "row-reverse" : "row",
+                    flexDirection: "row",
                     alignItems: "baseline",
                     justifyContent: "space-between",
                     paddingHorizontal: 2,

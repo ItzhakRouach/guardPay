@@ -165,7 +165,7 @@ const makeStyle = (theme, isRTL) =>
       marginRight: 25,
     },
     headerContent: {
-      flexDirection: isRTL ? "row-reverse" : "row",
+      flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
       gap: 10,
