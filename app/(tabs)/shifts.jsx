@@ -504,6 +504,20 @@ export default function ShiftsScreen() {
           if (r) swipeableRefs.current[shift.$id] = r;
           else delete swipeableRefs.current[shift.$id];
         }}
+        // RNGH never measures the action panel: it renders a zero-width
+        // marker View after the actions inside its own absolute-fill
+        // containers and reads that marker's layout.x, picking those
+        // containers' flexDirection from `I18nManager.isRTL`. We keep
+        // forceRTL false and mirror with the Yoga `direction` style
+        // instead, so under he/ar the containers mirror while the library
+        // still believes they are LTR — the markers land on the far side
+        // and both widths come out as rowWidth - 84. That strands the
+        // panel off-screen behind the row and pushes the open threshold
+        // to half the row width. Pin this subtree to ltr so the library's
+        // assumption holds, and put the real direction back on the
+        // children container, which is the only part that must mirror.
+        containerStyle={{ direction: "ltr" }}
+        childrenContainerStyle={{ direction: isRTL ? "rtl" : "ltr" }}
         renderLeftActions={() => (isRTL ? deleteAction : editAction)}
         renderRightActions={() => (isRTL ? editAction : deleteAction)}
         onSwipeableLeftOpen={() =>
