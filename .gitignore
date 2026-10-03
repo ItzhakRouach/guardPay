@@ -1,7 +1,13 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
-node_modules/
+# No trailing slash on purpose: `node_modules/` matches only a *directory*,
+# so a symlink named node_modules (handy for running jest inside a
+# .worktrees/<branch> checkout) slips past it and `git add -A` commits it as
+# a mode-120000 blob. Merging that branch then makes git try to replace the
+# main checkout's real node_modules with the symlink, which half-deletes the
+# install and aborts on `cannot rmdir`. Match files and symlinks too.
+node_modules
 
 # This project uses npm (package-lock.json). Keep stray pnpm artifacts out
 # so EAS Build doesn't get an ambiguous package manager from the upload.
